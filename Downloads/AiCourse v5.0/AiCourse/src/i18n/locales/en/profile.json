@@ -1,0 +1,80 @@
+{
+  "title": "My Profile",
+  "editProfile": "Edit Profile",
+  "saving": "Saving...",
+  "save": "Save",
+  "accountStatus": "Account Status",
+  "activePaidPlan": "Active Paid Plan",
+  "activeFreePlan": "Active Free Plan",
+  "tabs": {
+    "account": "Account",
+    "settings": "Settings",
+    "billing": "Billing"
+  },
+  "account": {
+    "fullName": "Full Name",
+    "email": "Email",
+    "newPassword": "New Password"
+  },
+  "settings": {
+    "title": "Settings",
+    "desktopApp": "Desktop App",
+    "desktopAppDescription": "Download the desktop application for Windows and Mac",
+    "download": "Download",
+    "deleteProfile": "Delete Profile",
+    "deleteProfileDescription": "Permanently remove profile and all associated data",
+    "delete": "Delete",
+    "deleting": "Deleting..."
+  },
+  "billing": {
+    "subscriptionPlan": "Subscription Plan",
+    "month": "month",
+    "year": "year",
+    "cancelPlan": "Cancel Plan",
+    "canceling": "Canceling...",
+    "paymentMethods": "Payment Methods",
+    "freePlan": "Free Plan",
+    "freePlanDescription": "This plan is completely free, for lifetime.",
+    "changePlan": "Change Plan"
+  },
+  "dialogs": {
+    "deleteProfile": {
+      "title": "Are you sure you want to delete your profile?",
+      "description": "This action cannot be undone. This will permanently delete your account and remove your data.",
+      "no": "No",
+      "delete": "Delete"
+    },
+    "cancelSubscription": {
+      "title": "Are you sure you want to cancel your plan?",
+      "description": "This action is irreversible. Your premium plan will be canceled immediately, and no refunds will be issued for any remaining days.",
+      "no": "No",
+      "cancelPlan": "Cancel Plan"
+    }
+  },
+  "toast": {
+    "accessDenied": {
+      "title": "Access Denied",
+      "description": "Admin profile cannot be deleted."
+    },
+    "profileDeleted": {
+      "title": "Profile Deleted",
+      "description": "Your profile has been deleted successfully"
+    },
+    "error": {
+      "title": "Error",
+      "description": "Internal Server Error"
+    },
+    "couldntUpdate": {
+      "title": "Couldn't update profile",
+      "description": "Please fill in all required fields."
+    },
+    "profileUpdated": {
+      "title": "Profile updated",
+      "description": "Your profile information has been updated successfully."
+    },
+    "subscriptionCancelled": {
+      "title": "Subscription Cancelled",
+      "description": "Your subscription has been cancelled."
+    }
+  }
+}

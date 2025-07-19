@@ -1,0 +1,152 @@
+{
+  "seo": {
+    "title": "Mis Cursos",
+    "description": "Ve y gestiona tus cursos generados con IA de Cursalo",
+    "keywords": "dashboard, cursos, aprendizaje, educación, cursos generados con IA"
+  },
+  "title": "Mis Cursos",
+  "subtitle": "Continúa aprendiendo donde lo dejaste",
+  "generateNewCourse": "Generar Nuevo Curso",
+  "modules": "módulos",
+  "status": {
+    "completed": "Completado",
+    "pending": "Pendiente"
+  },
+  "actions": {
+    "share": "Compartir",
+    "delete": "Eliminar",
+    "continueLearning": "Continuar Aprendiendo"
+  },
+  "progress": {
+    "complete": "completado"
+  },
+  "emptyCourses": {
+    "title": "Aún No Has Creado Cursos",
+    "description": "Aún no has creado ningún curso. Genera tu primer curso con IA para comenzar a aprender.",
+    "createFirst": "Crear Tu Primer Curso"
+  },
+  "welcome": "¡Bienvenido de vuelta, {{name}}!",
+  "overview": "Resumen",
+  "myCourses": "Mis Cursos",
+  "generateCourse": "Generar Curso",
+  "profile": "Perfil",
+  "settings": "Configuración",
+  "subscription": "Suscripción",
+  "billing": "Facturación",
+  "support": "Soporte",
+  "stats": {
+    "totalCourses": "Cursos Totales",
+    "completedCourses": "Cursos Completados",
+    "hoursLearned": "Horas Aprendidas",
+    "certificatesEarned": "Certificados Obtenidos",
+    "currentStreak": "Racha Actual",
+    "totalPoints": "Puntos Totales",
+    "averageScore": "Puntuación Promedio",
+    "skillsUnlocked": "Habilidades Desbloqueadas"
+  },
+  "recentActivity": {
+    "title": "Actividad Reciente",
+    "noActivity": "No hay actividad reciente",
+    "courseStarted": "Curso iniciado",
+    "courseCompleted": "Curso completado",
+    "certificateEarned": "Certificado obtenido",
+    "quizPassed": "Examen aprobado",
+    "skillUnlocked": "Habilidad desbloqueada",
+    "badgeEarned": "Insignia obtenida"
+  },
+  "quickActions": {
+    "title": "Acciones Rápidas",
+    "createCourse": "Crear Nuevo Curso",
+    "browseCatalog": "Explorar Catálogo",
+    "takeQuiz": "Tomar Examen",
+    "viewCertificates": "Ver Certificados",
+    "updateProfile": "Actualizar Perfil",
+    "inviteFriends": "Invitar Amigos"
+  },
+  "recommendedCourses": {
+    "title": "Cursos Recomendados",
+    "subtitle": "Basado en tu historial de aprendizaje",
+    "viewAll": "Ver Todos",
+    "startCourse": "Iniciar Curso",
+    "addToWishlist": "Agregar a Lista de Deseos",
+    "difficulty": "Dificultad",
+    "duration": "Duración",
+    "rating": "Calificación",
+    "students": "Estudiantes"
+  },
+  "achievements": {
+    "title": "Logros",
+    "subtitle": "Tus logros y insignias",
+    "viewAll": "Ver Todos",
+    "earnedOn": "Obtenido el",
+    "progress": "Progreso",
+    "nextMilestone": "Siguiente Hito",
+    "unlockCondition": "Condición de Desbloqueo"
+  },
+  "learningPath": {
+    "title": "Ruta de Aprendizaje",
+    "subtitle": "Tu progreso personalizado",
+    "currentStep": "Paso Actual",
+    "nextStep": "Siguiente Paso",
+    "stepsCompleted": "Pasos Completados",
+    "estimatedTime": "Tiempo Estimado",
+    "difficulty": "Dificultad",
+    "prerequisites": "Prerrequisitos"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "markAllRead": "Marcar Todas como Leídas",
+    "noNotifications": "No hay notificaciones",
+    "courseReminder": "Recordatorio de Curso",
+    "newFeature": "Nueva Funcionalidad",
+    "systemUpdate": "Actualización del Sistema",
+    "subscriptionExpiry": "Vencimiento de Suscripción",
+    "certificateReady": "Certificado Listo",
+    "newCourseAvailable": "Nuevo Curso Disponible"
+  },
+  "progress": {
+    "title": "Progreso",
+    "overall": "Progreso General",
+    "thisWeek": "Esta Semana",
+    "thisMonth": "Este Mes",
+    "thisYear": "Este Año",
+    "coursesInProgress": "Cursos en Progreso",
+    "timeSpent": "Tiempo Invertido",
+    "averageDaily": "Promedio Diario",
+    "streakDays": "Días de Racha",
+    "completionRate": "Tasa de Finalización"
+  },
+  "calendar": {
+    "title": "Calendario de Aprendizaje",
+    "today": "Hoy",
+    "thisWeek": "Esta Semana",
+    "nextWeek": "Próxima Semana",
+    "scheduledLessons": "Lecciones Programadas",
+    "upcomingDeadlines": "Fechas Límite Próximas",
+    "addEvent": "Agregar Evento",
+    "editEvent": "Editar Evento",
+    "deleteEvent": "Eliminar Evento"
+  },
+  "bookmarks": {
+    "title": "Marcadores",
+    "subtitle": "Tus lecciones guardadas",
+    "noBookmarks": "No tienes marcadores guardados",
+    "addBookmark": "Agregar Marcador",
+    "removeBookmark": "Eliminar Marcador",
+    "viewLesson": "Ver Lección",
+    "addedOn": "Agregado el"
+  },
+  "downloads": {
+    "title": "Descargas",
+    "subtitle": "Contenido descargado para uso sin conexión",
+    "noDownloads": "No hay descargas disponibles",
+    "downloadCourse": "Descargar Curso",
+    "downloadLesson": "Descargar Lección",
+    "downloadSize": "Tamaño de Descarga",
+    "downloadStatus": "Estado de Descarga",
+    "downloaded": "Descargado",
+    "downloading": "Descargando",
+    "failed": "Falló",
+    "pending": "Pendiente"
+  }
+}

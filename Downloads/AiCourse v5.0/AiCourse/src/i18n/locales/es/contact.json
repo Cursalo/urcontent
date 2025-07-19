@@ -1,0 +1,58 @@
+{
+  "seo": {
+    "title": "Contáctanos",
+    "description": "¿Tienes preguntas, comentarios o necesitas soporte? Contacta al equipo para obtener asistencia.",
+    "keywords": "contacto, soporte, ayuda, comentarios, servicio al cliente, preguntas"
+  },
+  "title": "Contáctanos",
+  "subtitle": "¿Tienes preguntas, comentarios o necesitas soporte? Estamos aquí para ayudar. Contacta al equipo de {{appName}} usando cualquiera de los métodos a continuación.",
+  "backToHome": "Volver al Inicio",
+  "form": {
+    "title": "Envíanos un Mensaje",
+    "yourName": "Tu Nombre",
+    "namePlaceholder": "Juan Pérez",
+    "emailAddress": "Dirección de Correo Electrónico",
+    "emailPlaceholder": "juan@ejemplo.com",
+    "subject": "Asunto",
+    "subjectPlaceholder": "Selecciona un asunto",
+    "yourMessage": "Tu Mensaje",
+    "messagePlaceholder": "¿Cómo podemos ayudarte?",
+    "sending": "Enviando...",
+    "sendMessage": "Enviar Mensaje",
+    "subjects": {
+      "general": "Consulta General",
+      "support": "Soporte Técnico",
+      "billing": "Preguntas de Facturación",
+      "feedback": "Comentarios",
+      "partnership": "Oportunidades de Asociación"
+    }
+  },
+  "success": {
+    "title": "¡Mensaje Enviado!",
+    "description": "Gracias por contactarnos. Hemos recibido tu mensaje y responderemos lo antes posible.",
+    "sendAnother": "Enviar Otro Mensaje"
+  },
+  "toast": {
+    "messageSent": "Mensaje enviado",
+    "failed": "Falló"
+  },
+  "faq": {
+    "title": "Preguntas Frecuentes",
+    "resetPassword": {
+      "question": "¿Cómo restablezco mi contraseña?",
+      "answer": "Puedes restablecer tu contraseña haciendo clic en el enlace \"Olvidé mi Contraseña\" en la página de inicio de sesión y siguiendo las instrucciones enviadas a tu correo electrónico."
+    },
+    "paymentMethods": {
+      "question": "¿Qué métodos de pago aceptan?",
+      "answer": "Aceptamos todas las tarjetas de crédito principales, PayPal y transferencias bancarias para cuentas empresariales."
+    },
+    "generateCourse": {
+      "question": "¿Cómo genero un nuevo curso?",
+      "answer": "Después de iniciar sesión, navega a la sección \"Generar Curso\" en tu panel de control. Ingresa el tema de tu curso y preferencias, luego haz clic en \"Generar\" para crear tu curso personalizado."
+    },
+    "downloadCertificates": {
+      "question": "¿Puedo descargar mis certificados?",
+      "answer": "Sí, una vez que hayas completado un curso, puedes descargar tu certificado desde la página de finalización del curso o desde la sección \"Certificados\" de tu cuenta."
+    }
+  }
+}

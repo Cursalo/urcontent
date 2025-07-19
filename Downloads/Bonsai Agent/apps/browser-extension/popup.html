@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonsai SAT Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 360px;
+            min-height: 500px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1f2937;
+            overflow-x: hidden;
+        }
+
+        .popup-container {
+            background: white;
+            border-radius: 12px 12px 0 0;
+            min-height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.inactive {
+            background: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        /* Content */
+        .content {
+            padding: 24px;
+        }
+
+        .session-info {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .session-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .session-title {
+            font-weight: 600;
+            color: #0c4a6e;
+            font-size: 16px;
+        }
+
+        .session-status {
+            padding: 4px 8px;
+            background: #22c55e;
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .session-status.inactive {
+            background: #94a3b8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3b82f6;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Controls */
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 16px;
+        }
+
+        .control-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #3b82f6;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+        }
+
+        .select-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Status Messages */
+        .status-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .status-message.success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-message.warning {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fed7aa;
+        }
+
+        .status-message.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .status-message.info {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .quick-actions-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .quick-action-btn {
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .quick-action-btn:hover {
+            background: #f1f5f9;
+            border-color: #3b82f6;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .footer-link {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .footer-link:hover {
+            color: #3b82f6;
+        }
+
+        .footer-version {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        /* Hidden states */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Loading states */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: currentColor;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+            body {
+                width: 320px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="popup-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="status-indicator" id="statusIndicator"></div>
+            <div class="logo">
+                <div class="logo-icon">🌿</div>
+                <div class="logo-text">Bonsai</div>
+            </div>
+            <div class="subtitle">AI SAT Assistant</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Status Message -->
+            <div id="statusMessage" class="status-message hidden"></div>
+
+            <!-- Session Info -->
+            <div class="session-info">
+                <div class="session-header">
+                    <div class="session-title">Current Session</div>
+                    <div class="session-status" id="sessionStatus">Inactive</div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="questionsAnalyzed">0</div>
+                        <div class="stat-label">Questions</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="hintsProvided">0</div>
+                        <div class="stat-label">Hints</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="quick-actions-title">Quick Actions</div>
+                <div class="quick-actions-grid">
+                    <button class="quick-action-btn" id="generatePracticeBtn">📝 Practice</button>
+                    <button class="quick-action-btn" id="requestHelpBtn">💡 Help</button>
+                    <button class="quick-action-btn" id="openWhiteboardBtn">✏️ Whiteboard</button>
+                    <button class="quick-action-btn" id="viewStatsBtn">📊 Stats</button>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <div class="control-group">
+                    <label class="control-label">
+                        Assistant Status
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="enabledToggle">
+                            <span class="slider"></span>
+                        </label>
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="tutorModeSelect">Tutor Mode</label>
+                    <div class="select-wrapper">
+                        <select class="select-field" id="tutorModeSelect">
+                            <option value="subtle">Subtle Hints</option>
+                            <option value="moderate">Moderate Help</option>
+                            <option value="direct">Direct Guidance</option>
+                            <option value="emergency">Emergency Support</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions">
+                <button class="btn btn-primary" id="toggleAssistantBtn">
+                    <span id="toggleButtonText">Activate Assistant</span>
+                    <span id="toggleButtonLoading" class="loading hidden"></span>
+                </button>
+                <button class="btn btn-secondary" id="settingsBtn">
+                    ⚙️ Settings
+                </button>
+                <button class="btn btn-secondary" id="supportBtn">
+                    💬 Support
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-links">
+                <a href="#" class="footer-link" id="docsLink">Docs</a>
+                <a href="#" class="footer-link" id="feedbackLink">Feedback</a>
+                <a href="#" class="footer-link" id="aboutLink">About</a>
+            </div>
+            <div class="footer-version">v1.0.0</div>
+        </div>
+    </div>
+
+    <script>
+        // Popup JavaScript
+        class BonsaiPopup {
+            constructor() {
+                this.isLoading = false
+                this.currentTab = null
+                this.settings = {}
+                this.sessionData = null
+                
+                this.initializePopup()
+            }
+
+            async initializePopup() {
+                try {
+                    // Get current tab
+                    const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
+                    this.currentTab = tabs[0]
+
+                    // Load settings and session data
+                    await this.loadData()
+                    
+                    // Setup event listeners
+                    this.setupEventListeners()
+                    
+                    // Update UI
+                    this.updateUI()
+                    
+                    console.log('🌿 Popup initialized')
+                } catch (error) {
+                    console.error('🌿 Error initializing popup:', error)
+                    this.showMessage('Error loading extension data', 'error')
+                }
+            }
+
+            async loadData() {
+                try {
+                    // Get settings from background
+                    const settingsResponse = await chrome.runtime.sendMessage({ action: 'getSettings' })
+                    this.settings = settingsResponse.settings || {}
+
+                    // Get session data
+                    const sessionResponse = await chrome.runtime.sendMessage({ action: 'getActiveSession' })
+                    this.sessionData = sessionResponse.session
+
+                    console.log('🌿 Loaded data:', { settings: this.settings, session: this.sessionData })
+                } catch (error) {
+                    console.error('🌿 Error loading data:', error)
+                }
+            }
+
+            setupEventListeners() {
+                // Toggle assistant
+                document.getElementById('enabledToggle').addEventListener('change', (e) => {
+                    this.toggleAssistant(e.target.checked)
+                })
+
+                // Tutor mode change
+                document.getElementById('tutorModeSelect').addEventListener('change', (e) => {
+                    this.changeTutorMode(e.target.value)
+                })
+
+                // Main toggle button
+                document.getElementById('toggleAssistantBtn').addEventListener('click', () => {
+                    const newState = !this.settings.enabled
+                    this.toggleAssistant(newState)
+                })
+
+                // Quick action buttons
+                document.getElementById('generatePracticeBtn').addEventListener('click', () => {
+                    this.sendMessageToTab('generatePracticeQuestions')
+                })
+
+                document.getElementById('requestHelpBtn').addEventListener('click', () => {
+                    this.sendMessageToTab('requestMoreHelp')
+                })
+
+                document.getElementById('openWhiteboardBtn').addEventListener('click', () => {
+                    this.openWhiteboard()
+                })
+
+                document.getElementById('viewStatsBtn').addEventListener('click', () => {
+                    this.viewDetailedStats()
+                })
+
+                // Other buttons
+                document.getElementById('settingsBtn').addEventListener('click', () => {
+                    chrome.runtime.openOptionsPage()
+                })
+
+                document.getElementById('supportBtn').addEventListener('click', () => {
+                    this.openSupport()
+                })
+
+                // Footer links
+                document.getElementById('docsLink').addEventListener('click', (e) => {
+                    e.preventDefault()
+                    chrome.tabs.create({ url: 'https://docs.bonsai-ai.com' })
+                })
+
+                document.getElementById('feedbackLink').addEventListener('click', (e) => {
+                    e.preventDefault()
+                    chrome.tabs.create({ url: 'https://feedback.bonsai-ai.com' })
+                })
+
+                document.getElementById('aboutLink').addEventListener('click', (e) => {
+                    e.preventDefault()
+                    this.showAbout()
+                })
+
+                // Listen for messages from background
+                chrome.runtime.onMessage.addListener((message) => {
+                    if (message.type === 'statsUpdate') {
+                        this.updateStats(message.stats)
+                    }
+                })
+            }
+
+            updateUI() {
+                // Update toggle states
+                document.getElementById('enabledToggle').checked = this.settings.enabled || false
+                document.getElementById('tutorModeSelect').value = this.settings.tutorMode || 'subtle'
+
+                // Update status indicator
+                const statusIndicator = document.getElementById('statusIndicator')
+                const sessionStatus = document.getElementById('sessionStatus')
+                
+                if (this.settings.enabled && this.sessionData?.isActive) {
+                    statusIndicator.classList.remove('inactive')
+                    sessionStatus.textContent = 'Active'
+                    sessionStatus.classList.remove('inactive')
+                } else {
+                    statusIndicator.classList.add('inactive')
+                    sessionStatus.textContent = 'Inactive'
+                    sessionStatus.classList.add('inactive')
+                }
+
+                // Update toggle button
+                const toggleBtn = document.getElementById('toggleAssistantBtn')
+                const toggleText = document.getElementById('toggleButtonText')
+                
+                if (this.settings.enabled) {
+                    toggleText.textContent = 'Deactivate Assistant'
+                    toggleBtn.classList.remove('btn-primary')
+                    toggleBtn.classList.add('btn-secondary')
+                } else {
+                    toggleText.textContent = 'Activate Assistant'
+                    toggleBtn.classList.remove('btn-secondary')
+                    toggleBtn.classList.add('btn-primary')
+                }
+
+                // Update stats
+                if (this.sessionData) {
+                    document.getElementById('questionsAnalyzed').textContent = this.sessionData.questionsAnalyzed || 0
+                    document.getElementById('hintsProvided').textContent = this.sessionData.hintsProvided || 0
+                }
+
+                // Check if on Bluebook page
+                if (!this.isBluebookPage()) {
+                    this.showMessage('Navigate to Bluebook to use the AI assistant', 'info')
+                    this.disableControls()
+                } else {
+                    this.enableControls()
+                }
+            }
+
+            isBluebookPage() {
+                if (!this.currentTab?.url) return false
+                
+                const bluebookDomains = [
+                    'bluebook.collegeboard.org',
+                    'satsuite.collegeboard.org',
+                    'sat-suite.collegeboard.org'
+                ]
+
+                return bluebookDomains.some(domain => this.currentTab.url.includes(domain))
+            }
+
+            disableControls() {
+                const controls = document.querySelectorAll('.btn, .toggle-switch input, .select-field, .quick-action-btn')
+                controls.forEach(control => {
+                    control.disabled = true
+                    if (control.classList.contains('quick-action-btn')) {
+                        control.style.opacity = '0.5'
+                        control.style.pointerEvents = 'none'
+                    }
+                })
+            }
+
+            enableControls() {
+                const controls = document.querySelectorAll('.btn, .toggle-switch input, .select-field, .quick-action-btn')
+                controls.forEach(control => {
+                    control.disabled = false
+                    if (control.classList.contains('quick-action-btn')) {
+                        control.style.opacity = '1'
+                        control.style.pointerEvents = 'auto'
+                    }
+                })
+            }
+
+            async toggleAssistant(enabled) {
+                if (this.isLoading) return
+
+                this.setLoading(true)
+                
+                try {
+                    await chrome.runtime.sendMessage({
+                        action: 'toggleAssistant',
+                        enabled
+                    })
+
+                    this.settings.enabled = enabled
+                    this.updateUI()
+                    
+                    this.showMessage(
+                        `Assistant ${enabled ? 'activated' : 'deactivated'} successfully`,
+                        'success'
+                    )
+                } catch (error) {
+                    console.error('🌿 Error toggling assistant:', error)
+                    this.showMessage('Error toggling assistant', 'error')
+                    
+                    // Revert toggle state
+                    document.getElementById('enabledToggle').checked = !enabled
+                } finally {
+                    this.setLoading(false)
+                }
+            }
+
+            async changeTutorMode(mode) {
+                try {
+                    await chrome.runtime.sendMessage({
+                        action: 'changeTutorMode',
+                        mode
+                    })
+
+                    this.settings.tutorMode = mode
+                    this.showMessage(`Tutor mode changed to ${mode}`, 'success')
+                } catch (error) {
+                    console.error('🌿 Error changing tutor mode:', error)
+                    this.showMessage('Error changing tutor mode', 'error')
+                }
+            }
+
+            async sendMessageToTab(action, data = {}) {
+                if (!this.currentTab?.id) return
+
+                try {
+                    await chrome.tabs.sendMessage(this.currentTab.id, {
+                        action,
+                        ...data
+                    })
+                } catch (error) {
+                    console.error('🌿 Error sending message to tab:', error)
+                    this.showMessage('Error communicating with page', 'error')
+                }
+            }
+
+            updateStats(stats) {
+                document.getElementById('questionsAnalyzed').textContent = stats.questionsAnalyzed || 0
+                document.getElementById('hintsProvided').textContent = stats.hintsProvided || 0
+            }
+
+            openWhiteboard() {
+                // Open whiteboard in new tab (part of main Bonsai app)
+                chrome.tabs.create({
+                    url: 'https://localhost:3000/dashboard/tools/whiteboard'
+                })
+            }
+
+            viewDetailedStats() {
+                // Open detailed stats page
+                chrome.tabs.create({
+                    url: 'https://localhost:3000/dashboard/analytics'
+                })
+            }
+
+            openSupport() {
+                chrome.tabs.create({
+                    url: 'https://support.bonsai-ai.com'
+                })
+            }
+
+            showAbout() {
+                this.showMessage(
+                    'Bonsai SAT Assistant v1.0.0 - AI-powered tutoring for SAT preparation. Built with ❤️ for students.',
+                    'info'
+                )
+            }
+
+            showMessage(text, type = 'info') {
+                const messageEl = document.getElementById('statusMessage')
+                messageEl.textContent = text
+                messageEl.className = `status-message ${type}`
+                messageEl.classList.remove('hidden')
+
+                // Auto-hide after 3 seconds
+                setTimeout(() => {
+                    messageEl.classList.add('hidden')
+                }, 3000)
+            }
+
+            setLoading(loading) {
+                this.isLoading = loading
+                const loadingEl = document.getElementById('toggleButtonLoading')
+                const textEl = document.getElementById('toggleButtonText')
+                
+                if (loading) {
+                    loadingEl.classList.remove('hidden')
+                    textEl.style.opacity = '0.7'
+                } else {
+                    loadingEl.classList.add('hidden')
+                    textEl.style.opacity = '1'
+                }
+            }
+        }
+
+        // Initialize popup when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new BonsaiPopup()
+        })
+    </script>
+</body>
+</html>

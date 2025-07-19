@@ -1,0 +1,85 @@
+{
+  "manifest_version": 3,
+  "name": "Bonsai SAT Assistant",
+  "version": "1.0.0",
+  "description": "AI-powered SAT tutoring assistant that works alongside Bluebook",
+  
+  "permissions": [
+    "activeTab",
+    "storage",
+    "background",
+    "tabs",
+    "scripting",
+    "webNavigation"
+  ],
+  
+  "host_permissions": [
+    "https://bluebook.collegeboard.org/*",
+    "https://satsuite.collegeboard.org/*",
+    "https://sat-suite.collegeboard.org/*",
+    "PLACEHOLDER_SUPABASE_URL/*",
+    "https://bonsaisat.com/*"
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": [
+        "https://bluebook.collegeboard.org/*",
+        "https://satsuite.collegeboard.org/*",
+        "https://sat-suite.collegeboard.org/*"
+      ],
+      "js": [
+        "content.js",
+        "bonsai-agent.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Bonsai SAT Assistant",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "inject.js",
+        "bonsai-agent.js",
+        "styles.css",
+        "icons/*"
+      ],
+      "matches": [
+        "https://bluebook.collegeboard.org/*",
+        "https://satsuite.collegeboard.org/*",
+        "https://sat-suite.collegeboard.org/*"
+      ]
+    }
+  ],
+  
+  "externally_connectable": {
+    "matches": [
+      "https://bonsaisat.com/*"
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "seo": {
+    "title": "My Courses",
+    "description": "View and manage your Cursalo AI-generated courses",
+    "keywords": "dashboard, courses, learning, education, AI-generated courses"
+  },
+  "title": "My Courses",
+  "subtitle": "Continue learning where you left off",
+  "generateNewCourse": "Generate New Course",
+  "modules": "modules",
+  "status": {
+    "completed": "Completed",
+    "pending": "Pending"
+  },
+  "actions": {
+    "share": "Share",
+    "delete": "Delete",
+    "continueLearning": "Continue Learning"
+  },
+  "progress": {
+    "complete": "complete"
+  },
+  "emptyCourses": {
+    "title": "No Courses Created Yet",
+    "description": "You haven't created any courses yet. Generate your first AI-powered course to start learning.",
+    "createFirst": "Create Your First Course"
+  },
+  "welcome": "Welcome back, {{name}}!",
+  "overview": "Overview",
+  "myCourses": "My Courses",
+  "generateCourse": "Generate Course",
+  "profile": "Profile",
+  "settings": "Settings",
+  "subscription": "Subscription",
+  "stats": {
+    "totalCourses": "Total Courses",
+    "completedCourses": "Completed Courses",
+    "hoursLearned": "Hours Learned",
+    "certificatesEarned": "Certificates Earned"
+  },
+  "recentActivity": {
+    "title": "Recent Activity",
+    "noActivity": "No recent activity"
+  },
+  "quickActions": {
+    "title": "Quick Actions",
+    "createCourse": "Create New Course",
+    "browseCatalog": "Browse Catalog"
+  }
+}

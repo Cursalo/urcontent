@@ -1,0 +1,157 @@
+{
+  "seo": {
+    "title": "Generate Course",
+    "description": "Create a customized AI-generated course",
+    "keywords": "course generation, AI learning, custom education",
+    "titlePreview": "Generate Course - Preview",
+    "descriptionPreview": "Preview your AI-generated course before creation",
+    "keywordsPreview": "course generation, preview, AI learning"
+  },
+  "title": "Generate Course",
+  "description": "Type the topic on which you want to generate course. Also, you can enter a list of subtopics, which are the specifics you want to learn.",
+  "form": {
+    "topic": {
+      "label": "Topic",
+      "placeholder": "Enter main topic"
+    },
+    "subtopic": {
+      "label": "Sub Topic (Optional)",
+      "placeholder": "Enter subtopic",
+      "addButton": "Add Sub-Topic"
+    },
+    "topicsLimit": {
+      "label": "Select Number Of Sub Topic"
+    },
+    "courseType": {
+      "label": "Select Course Type",
+      "textImage": "Theory & Image Course",
+      "videoText": "Video & Theory Course"
+    },
+    "language": {
+      "label": "Course Language",
+      "placeholder": "Select language"
+    },
+    "submitButton": "Submit"
+  },
+  "validation": {
+    "topicMinLength": "Topic must be at least 3 characters",
+    "languageRequired": "Please select a language"
+  },
+  "toast": {
+    "goPremium": {
+      "title": "Go Premium",
+      "description": "Access all features with a Premium upgrade."
+    },
+    "upgradeToPremium": {
+      "title": "Upgrade to Premium",
+      "description": "You are limited to adding only 5 subtopics."
+    },
+    "error": {
+      "title": "Error",
+      "description": "Internal Server Error"
+    }
+  },
+  "coursePage": {
+    "content": "Course Content",
+    "quiz": "Quiz",
+    "certificate": "Certificate",
+    "home": "Home",
+    "export": "Export",
+    "exporting": "Exporting...",
+    "share": "Share",
+    "assistant": "Course Assistant",
+    "notes": "Course Notes",
+    "completion": "Completion Certificate",
+    "completeCourse": "Complete course to get certificate",
+    "typeMessage": "Type your message...",
+    "send": "Send",
+    "saving": "Saving...",
+    "saveNote": "Save Note",
+    "notesPlaceholder": "No notes yet. Start taking notes for this course.",
+    "shareText": "shared you course on",
+    "teacher": {
+      "defaultMessage": "Hey there! I'm your AI teacher. If you have any questions about your {{topic}} course, whether it's about videos, images, or theory, just ask me. I'm here to clear your doubts.",
+      "promptPrefix": "I have a doubt about this topic: {{topic}}. Please clarify my doubt in very short:"
+    },
+    "toast": {
+      "noteSaved": {
+        "title": "Note saved",
+        "description": "Your note has been saved successfully."
+      },
+      "error": {
+        "title": "Error",
+        "description": "Internal Server Error"
+      }
+    },
+    "email": {
+      "subject": "Completion Certificate",
+      "greeting": "Hello {{name}},",
+      "message": "We are pleased to inform you that you have successfully completed the {{topic}} and are now eligible for your course completion certificate. Congratulations on your hard work and dedication throughout the course!",
+      "getCertificate": "Get Certificate",
+      "closing": "Best,",
+      "team": "The {{company}} Team"
+    },
+    "pdf": {
+      "index": "Index",
+      "visitTopic": "Please visit {{topic}} topic to export as PDF. Only topics that are completed will be added to the PDF.",
+      "watchVideo": "Watch the YouTube video on {{topic}}"
+    }
+  },
+  "quiz": {
+    "title": "{{topic}} Quiz",
+    "subtitle": "Test your knowledge of {{topic}} concepts",
+    "backToCourse": "Back to Course",
+    "timeRemaining": "remaining",
+    "questionsToTest": "{{count}} questions to test your understanding",
+    "minutesToComplete": "{{count}} minutes to complete the quiz",
+    "instantFeedback": "Instant feedback on your answers",
+    "startQuiz": "Start Quiz",
+    "questionOf": "Question {{current}} of {{total}}",
+    "remaining": "remaining",
+    "previous": "Previous",
+    "next": "Next",
+    "finish": "Finish",
+    "passed": "Passed",
+    "failed": "Failed",
+    "scored": "You scored {{score}} out of {{total}}",
+    "returnToCourse": "Return to Course",
+    "retakeQuiz": "Retake Quiz",
+    "toast": {
+      "started": {
+        "title": "Quiz started",
+        "description": "Good luck! You have {{minutes}} minutes to complete the quiz."
+      },
+      "completed": {
+        "title": "Quiz completed",
+        "description": "Your answers have been submitted. Check your results below."
+      }
+    }
+  },
+  "generate": {
+    "title": "Generate Course",
+    "subtitle": "Create a personalized course with AI",
+    "topic": "Course Topic",
+    "topicPlaceholder": "e.g., Python Programming for Beginners",
+    "generateButton": "Generate Course",
+    "generating": "Generating course...",
+    "success": "Course generated successfully!",
+    "error": "Error generating course"
+  },
+  "view": {
+    "title": "Course",
+    "chapters": "Chapters",
+    "lessons": "Lessons",
+    "quiz": "Quiz",
+    "certificate": "Certificate",
+    "progress": "Progress",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "notStarted": "Not Started"
+  },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "expert": "Expert"
+  }
+}

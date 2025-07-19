@@ -1,0 +1,19 @@
+{
+  "name": "@bonsai/database",
+  "version": "1.0.0",
+  "description": "Database types and utilities for Bonsai platform",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.7",
+    "@bonsai/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.2",
+    "@types/node": "^20.11.24"
+  }
+}

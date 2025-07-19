@@ -1,0 +1,52 @@
+{
+  "terms": {
+    "seo": {
+      "title": "Terms of Service - Cursalo",
+      "description": "Read our terms of service to understand your rights and responsibilities when using Cursalo.",
+      "keywords": "terms of service, terms and conditions, legal policies, user agreement"
+    },
+    "title": "Terms of Service",
+    "backToHome": "Back to Home",
+    "contactLegal": "Contact Our Legal Team"
+  },
+  "privacy": {
+    "seo": {
+      "title": "Privacy Policy - Cursalo",
+      "description": "Learn how we collect, use, and protect your personal information on Cursalo.",
+      "keywords": "privacy policy, data protection, personal information, GDPR"
+    },
+    "title": "Privacy Policy",
+    "backToHome": "Back to Home",
+    "contactLegal": "Contact Our Legal Team"
+  },
+  "refund": {
+    "seo": {
+      "title": "Refund Policy - Cursalo",
+      "description": "Information about our refund policy and cancellation terms for Cursalo subscriptions.",
+      "keywords": "refund policy, cancellations, returns, money back"
+    },
+    "title": "Refund Policy",
+    "backToHome": "Back to Home",
+    "contactLegal": "Contact Our Legal Team"
+  },
+  "cancellation": {
+    "seo": {
+      "title": "Cancellation Policy - Cursalo",
+      "description": "Learn how to cancel your subscription and what to expect during the cancellation process.",
+      "keywords": "cancellation policy, cancel subscription, account termination"
+    },
+    "title": "Cancellation Policy",
+    "backToHome": "Back to Home",
+    "contactLegal": "Contact Our Legal Team"
+  },
+  "billing": {
+    "seo": {
+      "title": "Subscription Billing Policy - Cursalo",
+      "description": "Details about our billing policy, payment cycles, and subscription management.",
+      "keywords": "billing policy, subscriptions, payments, billing cycles"
+    },
+    "title": "Subscription Billing Policy",
+    "backToHome": "Back to Home",
+    "contactLegal": "Contact Our Legal Team"
+  }
+}

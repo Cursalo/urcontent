@@ -1,0 +1,58 @@
+{
+  "seo": {
+    "title": "Contact Us",
+    "description": "Have questions, feedback, or need support? Contact the team for assistance.",
+    "keywords": "contact, support, help, feedback, customer service, questions"
+  },
+  "title": "Contact Us",
+  "subtitle": "Have questions, feedback, or need support? We're here to help. Reach out to the {{appName}} team using any of the methods below.",
+  "backToHome": "Back to Home",
+  "form": {
+    "title": "Send Us a Message",
+    "yourName": "Your Name",
+    "namePlaceholder": "John Doe",
+    "emailAddress": "Email Address",
+    "emailPlaceholder": "john@example.com",
+    "subject": "Subject",
+    "subjectPlaceholder": "Select a subject",
+    "yourMessage": "Your Message",
+    "messagePlaceholder": "How can we help you?",
+    "sending": "Sending...",
+    "sendMessage": "Send Message",
+    "subjects": {
+      "general": "General Inquiry",
+      "support": "Technical Support",
+      "billing": "Billing Questions",
+      "feedback": "Feedback",
+      "partnership": "Partnership Opportunities"
+    }
+  },
+  "success": {
+    "title": "Message Sent!",
+    "description": "Thank you for reaching out. We've received your message and will respond as soon as possible.",
+    "sendAnother": "Send Another Message"
+  },
+  "toast": {
+    "messageSent": "Message sent",
+    "failed": "Failed"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "resetPassword": {
+      "question": "How do I reset my password?",
+      "answer": "You can reset your password by clicking the \"Forgot Password\" link on the login page and following the instructions sent to your email."
+    },
+    "paymentMethods": {
+      "question": "What payment methods do you accept?",
+      "answer": "We accept all major credit cards, PayPal, and bank transfers for business accounts."
+    },
+    "generateCourse": {
+      "question": "How do I generate a new course?",
+      "answer": "After logging in, navigate to the \"Generate Course\" section in your dashboard. Enter your course topic and preferences, then click \"Generate\" to create your customized course."
+    },
+    "downloadCertificates": {
+      "question": "Can I download my certificates?",
+      "answer": "Yes, once you've completed a course, you can download your certificate from the course completion page or from your account's \"Certificates\" section."
+    }
+  }
+}

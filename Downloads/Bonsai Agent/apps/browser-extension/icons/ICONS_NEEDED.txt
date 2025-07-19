@@ -1,0 +1,32 @@
+🌿 Bonsai Extension Icons Required
+
+Please create the following PNG icon files in this directory:
+
+📁 Required Icon Files:
+- icon16.png  (16x16 pixels)  - Toolbar icon
+- icon32.png  (32x32 pixels)  - Windows taskbar icon  
+- icon48.png  (48x48 pixels)  - Extension management page
+- icon128.png (128x128 pixels) - Chrome Web Store listing
+
+🎨 Design Requirements:
+- Use Bonsai branding colors: Green (#10b981) and Blue (#3b82f6)
+- Feature a stylized bonsai tree or 🌿 leaf symbol
+- Clean, professional design that works at all sizes
+- Ensure good contrast and visibility
+- Match the overall Bonsai AI aesthetic
+
+💡 Design Tips:
+- Keep the design simple for smaller sizes (16px, 32px)
+- Use gradients sparingly - they may not render well at small sizes
+- Ensure the icon is recognizable even when very small
+- Consider using a simplified geometric bonsai tree shape
+- Test visibility on both light and dark browser themes
+
+🛠️ Tools for Creation:
+- Adobe Illustrator / Photoshop
+- Figma (free)
+- Canva (free)
+- GIMP (free)
+- Any vector graphics editor that can export PNG
+
+Once created, replace this file with the actual PNG icons.

@@ -1,0 +1,18 @@
+{
+  "seo": {
+    "title": "{{courseTitle}} Course Certificate",
+    "description": "Congratulations on completing the {{courseTitle}} course. Download your certificate of completion.",
+    "keywords": "certificate, {{courseTitle}}, course completion, online learning, achievement"
+  },
+  "congratulations": "Congratulations!",
+  "completed": "You've successfully completed the {{courseTitle}} course.",
+  "backToCourse": "Back to Course",
+  "downloading": "Downloading...",
+  "downloadCertificate": "Download Certificate",
+  "toast": {
+    "downloaded": {
+      "title": "Certificate Downloaded",
+      "description": "Your certificate has been downloaded successfully."
+    }
+  }
+}

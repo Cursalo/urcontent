@@ -1,0 +1,382 @@
+# DataDog configuration for comprehensive monitoring
+# Monitors application performance, infrastructure metrics, and custom business metrics
+
+api_key: ${DATADOG_API_KEY}
+app_key: ${DATADOG_APP_KEY}
+site: datadoghq.com
+
+# Logs configuration
+logs_enabled: true
+logs_config:
+  container_collect_all: true
+  processing_rules:
+    - type: exclude_at_match
+      name: exclude_healthchecks
+      pattern: /api/health
+    - type: exclude_at_match
+      name: exclude_static_assets
+      pattern: /_next/static/
+    - type: mask_sequences
+      name: mask_sensitive_data
+      pattern: \b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b
+      replace_placeholder: "[MASKED_CARD]"
+
+# APM configuration
+apm_config:
+  enabled: true
+  env: ${DD_ENV}
+  service: bonsai-sat-platform
+  version: ${DD_VERSION}
+  
+  # Trace sampling
+  trace_sample_rate: 1.0
+  
+  # Profiling
+  profiling_enabled: true
+  
+  # Custom tags
+  tags:
+    - team:platform
+    - project:bonsai-sat
+    - environment:${DD_ENV}
+
+# Process monitoring
+process_config:
+  enabled: true
+
+# Infrastructure monitoring
+checks:
+  # System checks
+  system_core:
+    init_config:
+    instances:
+      - {}
+  
+  system_swap:
+    init_config:
+    instances:
+      - {}
+  
+  disk:
+    init_config:
+    instances:
+      - use_mount: false
+  
+  network:
+    init_config:
+    instances:
+      - collect_connection_state: false
+        excluded_interfaces:
+          - lo
+          - lo0
+  
+  # Application checks
+  http_check:
+    init_config:
+    instances:
+      - name: Web Application Health
+        url: https://bonsaisat.com/api/health
+        method: GET
+        timeout: 10
+        tags:
+          - service:web
+          - environment:${DD_ENV}
+        headers:
+          User-Agent: DataDog-Health-Check
+      
+      - name: WebSocket Health
+        url: https://ws.bonsaisat.com/health
+        method: GET
+        timeout: 10
+        tags:
+          - service:websocket
+          - environment:${DD_ENV}
+  
+  # Database monitoring
+  postgres:
+    init_config:
+    instances:
+      - host: ${DB_HOST}
+        port: 5432
+        username: ${DB_USER}
+        password: ${DB_PASSWORD}
+        dbname: ${DB_NAME}
+        tags:
+          - service:database
+          - environment:${DD_ENV}
+        collect_function_metrics: true
+        collect_count_metrics: true
+        collect_activity_metrics: true
+        collect_database_size_metrics: true
+        collect_default_database: true
+  
+  # Redis monitoring
+  redisdb:
+    init_config:
+    instances:
+      - host: ${REDIS_HOST}
+        port: 6379
+        password: ${REDIS_PASSWORD}
+        tags:
+          - service:redis
+          - environment:${DD_ENV}
+
+# Custom metrics
+dogstatsd_config:
+  enabled: true
+  port: 8125
+  non_local_traffic: true
+
+# Service discovery
+listeners:
+  - name: docker
+  - name: kubernetes
+
+config_providers:
+  - name: docker
+    polling: true
+  - name: kubernetes
+    polling: true
+
+# Log processing
+logs:
+  - type: docker
+    source: bonsai-web
+    service: web
+    log_processing_rules:
+      - type: multi_line
+        name: log_start_with_date
+        pattern: \d{4}-\d{2}-\d{2}
+      - type: exclude_at_match
+        name: exclude_debug_logs
+        pattern: DEBUG
+  
+  - type: docker
+    source: bonsai-websocket
+    service: websocket
+    log_processing_rules:
+      - type: multi_line
+        name: log_start_with_date
+        pattern: \d{4}-\d{2}-\d{2}
+
+# Synthetic monitoring
+synthetics:
+  global_variables:
+    - name: BASE_URL
+      value: https://bonsaisat.com
+    - name: TEST_USER_EMAIL
+      value: ${TEST_USER_EMAIL}
+      secure: true
+    - name: TEST_USER_PASSWORD
+      value: ${TEST_USER_PASSWORD}
+      secure: true
+
+# Custom business metrics
+custom_metrics:
+  # SAT-specific metrics
+  - name: bonsai.sat.questions_generated
+    type: count
+    tags:
+      - subject
+      - difficulty
+      - user_id
+  
+  - name: bonsai.sat.test_completed
+    type: count
+    tags:
+      - test_type
+      - score
+      - duration
+      - user_id
+  
+  - name: bonsai.sat.voice_commands
+    type: count
+    tags:
+      - command_type
+      - success
+      - user_id
+  
+  - name: bonsai.sat.live_coaching_sessions
+    type: count
+    tags:
+      - session_duration
+      - user_id
+      - improvement_score
+  
+  # Performance metrics
+  - name: bonsai.performance.page_load_time
+    type: histogram
+    tags:
+      - page
+      - user_type
+  
+  - name: bonsai.performance.api_response_time
+    type: histogram
+    tags:
+      - endpoint
+      - status_code
+  
+  - name: bonsai.performance.websocket_latency
+    type: histogram
+    tags:
+      - event_type
+      - user_id
+  
+  # Business metrics
+  - name: bonsai.business.user_registrations
+    type: count
+    tags:
+      - source
+      - plan_type
+  
+  - name: bonsai.business.subscription_conversions
+    type: count
+    tags:
+      - from_plan
+      - to_plan
+      - user_id
+  
+  - name: bonsai.business.feature_usage
+    type: count
+    tags:
+      - feature_name
+      - user_id
+      - user_plan
+
+# Alerting rules
+monitors:
+  - name: High Error Rate
+    type: metric alert
+    query: avg(last_5m):avg:bonsai.errors{*} by {service} > 10
+    message: |
+      Error rate is high for {{service.name}}
+      
+      Current rate: {{value}}
+      Threshold: 10 errors/minute
+      
+      Please investigate immediately.
+    tags:
+      - team:platform
+      - priority:high
+    notify:
+      - "@slack-alerts"
+      - "@pagerduty-critical"
+  
+  - name: High Response Time
+    type: metric alert
+    query: avg(last_10m):avg:bonsai.performance.api_response_time{*} by {endpoint} > 2000
+    message: |
+      API response time is high for {{endpoint.name}}
+      
+      Current time: {{value}}ms
+      Threshold: 2000ms
+      
+      Performance may be degraded.
+    tags:
+      - team:platform
+      - priority:medium
+    notify:
+      - "@slack-performance"
+  
+  - name: WebSocket Connection Issues
+    type: metric alert
+    query: avg(last_5m):avg:bonsai.websocket.connection_errors{*} > 5
+    message: |
+      WebSocket connections are failing
+      
+      Error rate: {{value}}
+      Threshold: 5 errors/minute
+      
+      Real-time features may be affected.
+    tags:
+      - team:platform
+      - priority:high
+    notify:
+      - "@slack-alerts"
+  
+  - name: Low Test Completion Rate
+    type: metric alert
+    query: avg(last_1h):rate(bonsai.sat.test_completed{*}) < 0.1
+    message: |
+      Test completion rate is low
+      
+      Current rate: {{value}} completions/hour
+      Threshold: 0.1 completions/hour
+      
+      Users may be experiencing issues with test functionality.
+    tags:
+      - team:product
+      - priority:medium
+    notify:
+      - "@slack-product"
+
+# Dashboard configuration
+dashboards:
+  - name: Bonsai SAT Platform Overview
+    widgets:
+      - name: Request Rate
+        type: timeseries
+        requests:
+          - q: sum:bonsai.requests{*} by {service}.as_rate()
+      
+      - name: Error Rate
+        type: timeseries
+        requests:
+          - q: sum:bonsai.errors{*} by {service}.as_rate()
+      
+      - name: Response Time
+        type: timeseries
+        requests:
+          - q: avg:bonsai.performance.api_response_time{*} by {endpoint}
+      
+      - name: Active Users
+        type: query_value
+        requests:
+          - q: sum:bonsai.active_users{*}
+      
+      - name: Test Completions
+        type: timeseries
+        requests:
+          - q: sum:bonsai.sat.test_completed{*}.as_rate()
+      
+      - name: Voice Commands Usage
+        type: timeseries
+        requests:
+          - q: sum:bonsai.sat.voice_commands{*} by {command_type}.as_rate()
+
+# Environment-specific configuration
+environments:
+  development:
+    logs_enabled: false
+    apm_config:
+      trace_sample_rate: 1.0
+    
+  staging:
+    logs_enabled: true
+    apm_config:
+      trace_sample_rate: 1.0
+    
+  production:
+    logs_enabled: true
+    apm_config:
+      trace_sample_rate: 0.1
+    
+    # Production-specific monitors
+    additional_monitors:
+      - name: Database Connection Pool
+        type: metric alert
+        query: avg(last_5m):avg:postgres.connections{*} > 80
+        message: Database connection pool is near capacity
+        priority: high
+      
+      - name: Memory Usage
+        type: metric alert
+        query: avg(last_10m):avg:system.mem.pct_usable{*} < 0.1
+        message: Memory usage is critically high
+        priority: critical
+      
+      - name: Disk Space
+        type: metric alert
+        query: avg(last_5m):avg:system.disk.free{*} < 1000000000
+        message: Disk space is running low
+        priority: high

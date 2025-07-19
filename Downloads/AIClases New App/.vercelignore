@@ -1,0 +1,28 @@
+# Ignore packages directory for web app deployment
+packages/
+apps/docs/
+apps/mobile/
+
+# Ignore development files
+*.md
+.storybook/
+e2e/
+__tests__/
+**/*.test.*
+**/*.spec.*
+coverage/
+
+# Ignore development configuration
+.env.local
+.env.example
+jest.config.js
+playwright.config.ts
+
+# Ignore build artifacts from other apps
+apps/*/dist/
+apps/*/.next/
+apps/*/node_modules/
+
+# Ignore root development files
+turbo.json
+.turbo/
