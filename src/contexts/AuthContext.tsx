@@ -66,6 +66,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      setLoading(true);
+      
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -74,17 +76,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error fetching user profile:', error);
-        // If users table doesn't exist or user not found, create a fallback profile
-        if (error.code === '42P01' || error.code === 'PGRST116') {
-          console.warn('Users table not found or user profile missing, creating fallback profile');
-          setProfile(null);
+        
+        // Handle specific error cases
+        if (error.code === '42P01') {
+          console.warn('Users table does not exist. Please run the database setup script.');
+        } else if (error.code === '42P17') {
+          console.warn('RLS policy recursion detected. Please fix the database policies.');
+        } else if (error.code === 'PGRST116') {
+          console.warn('User profile not found in users table.');
         }
+        
+        // Set profile to null instead of undefined to prevent infinite loops
+        setProfile(null);
       } else {
         setProfile(data);
       }
     } catch (error) {
-      console.error('Error fetching user profile:', error);
-      // Set profile to null instead of leaving it undefined to prevent infinite loops
+      console.error('Unexpected error fetching user profile:', error);
       setProfile(null);
     } finally {
       setLoading(false);
