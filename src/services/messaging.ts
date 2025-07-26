@@ -1,0 +1,514 @@
+import { supabase } from '@/integrations/supabase/client';
+import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+
+export type Conversation = Tables<'conversations'> & {
+  creator_profile: Tables<'creator_profiles'> & {
+    user: Tables<'users'>;
+  };
+  business_profile: Tables<'business_profiles'> & {
+    user: Tables<'users'>;
+  };
+  collaboration?: Tables<'collaborations'> | null;
+  latest_message?: Tables<'messages'> | null;
+  unread_count?: number;
+};
+
+export type Message = Tables<'messages'> & {
+  sender: Tables<'users'>;
+};
+
+class MessagingService {
+  // Get all conversations for a user
+  async getUserConversations(userId: string): Promise<Conversation[]> {
+    // First, get the user's profile to determine if they're a creator or business
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single();
+
+    if (userError) {
+      console.error('Error fetching user role:', userError);
+      throw userError;
+    }
+
+    let query;
+    
+    if (user.role === 'creator') {
+      // Get creator profile ID first
+      const { data: creatorProfile } = await supabase
+        .from('creator_profiles')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (!creatorProfile) {
+        return [];
+      }
+
+      query = supabase
+        .from('conversations')
+        .select(`
+          *,
+          creator_profile:creator_profiles(
+            *,
+            user:users(*)
+          ),
+          business_profile:business_profiles(
+            *,
+            user:users(*)
+          ),
+          collaboration:collaborations(*),
+          messages!inner(
+            id,
+            content,
+            created_at,
+            sender_id,
+            is_read
+          )
+        `)
+        .eq('creator_id', creatorProfile.id);
+    } else {
+      // Get business profile ID first
+      const { data: businessProfile } = await supabase
+        .from('business_profiles')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (!businessProfile) {
+        return [];
+      }
+
+      query = supabase
+        .from('conversations')
+        .select(`
+          *,
+          creator_profile:creator_profiles(
+            *,
+            user:users(*)
+          ),
+          business_profile:business_profiles(
+            *,
+            user:users(*)
+          ),
+          collaboration:collaborations(*),
+          messages!inner(
+            id,
+            content,
+            created_at,
+            sender_id,
+            is_read
+          )
+        `)
+        .eq('business_id', businessProfile.id);
+    }
+
+    const { data, error } = await query
+      .eq('is_archived', false)
+      .order('last_message_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching conversations:', error);
+      throw error;
+    }
+
+    // Process conversations to add latest message and unread count
+    const processedConversations = await Promise.all(
+      (data || []).map(async (conversation) => {
+        // Get latest message
+        const { data: latestMessage } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('conversation_id', conversation.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        // Get unread count
+        const { count: unreadCount } = await supabase
+          .from('messages')
+          .select('id', { count: 'exact' })
+          .eq('conversation_id', conversation.id)
+          .eq('is_read', false)
+          .neq('sender_id', userId);
+
+        return {
+          ...conversation,
+          latest_message: latestMessage,
+          unread_count: unreadCount || 0,
+        };
+      })
+    );
+
+    return processedConversations;
+  }
+
+  // Get or create conversation between creator and business
+  async getOrCreateConversation(
+    creatorId: string,
+    businessId: string,
+    collaborationId?: string
+  ): Promise<Conversation> {
+    // Try to find existing conversation
+    let { data: conversation, error } = await supabase
+      .from('conversations')
+      .select(`
+        *,
+        creator_profile:creator_profiles(
+          *,
+          user:users(*)
+        ),
+        business_profile:business_profiles(
+          *,
+          user:users(*)
+        ),
+        collaboration:collaborations(*)
+      `)
+      .eq('creator_id', creatorId)
+      .eq('business_id', businessId)
+      .single();
+
+    // If conversation doesn't exist, create it
+    if (error && error.code === 'PGRST116') {
+      const { data: newConversation, error: createError } = await supabase
+        .from('conversations')
+        .insert({
+          creator_id: creatorId,
+          business_id: businessId,
+          collaboration_id: collaborationId,
+        })
+        .select(`
+          *,
+          creator_profile:creator_profiles(
+            *,
+            user:users(*)
+          ),
+          business_profile:business_profiles(
+            *,
+            user:users(*)
+          ),
+          collaboration:collaborations(*)
+        `)
+        .single();
+
+      if (createError) {
+        console.error('Error creating conversation:', createError);
+        throw createError;
+      }
+
+      conversation = newConversation;
+    } else if (error) {
+      console.error('Error fetching conversation:', error);
+      throw error;
+    }
+
+    return conversation!;
+  }
+
+  // Get messages for a conversation
+  async getConversationMessages(
+    conversationId: string,
+    limit: number = 50,
+    offset: number = 0
+  ): Promise<Message[]> {
+    const { data, error } = await supabase
+      .from('messages')
+      .select(`
+        *,
+        sender:users(*)
+      `)
+      .eq('conversation_id', conversationId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      console.error('Error fetching messages:', error);
+      throw error;
+    }
+
+    return data || [];
+  }
+
+  // Send a message
+  async sendMessage(
+    conversationId: string,
+    senderId: string,
+    content: string,
+    messageType: string = 'text',
+    attachmentUrl?: string
+  ): Promise<Message> {
+    const { data, error } = await supabase
+      .from('messages')
+      .insert({
+        conversation_id: conversationId,
+        sender_id: senderId,
+        content,
+        message_type: messageType,
+        attachment_url: attachmentUrl,
+        is_read: false,
+      })
+      .select(`
+        *,
+        sender:users(*)
+      `)
+      .single();
+
+    if (error) {
+      console.error('Error sending message:', error);
+      throw error;
+    }
+
+    // Update conversation last_message_at
+    await supabase
+      .from('conversations')
+      .update({ last_message_at: new Date().toISOString() })
+      .eq('id', conversationId);
+
+    return data;
+  }
+
+  // Mark messages as read
+  async markMessagesAsRead(conversationId: string, userId: string): Promise<void> {
+    const { error } = await supabase
+      .from('messages')
+      .update({ is_read: true })
+      .eq('conversation_id', conversationId)
+      .neq('sender_id', userId)
+      .eq('is_read', false);
+
+    if (error) {
+      console.error('Error marking messages as read:', error);
+      throw error;
+    }
+  }
+
+  // Archive conversation
+  async archiveConversation(conversationId: string): Promise<void> {
+    const { error } = await supabase
+      .from('conversations')
+      .update({ is_archived: true })
+      .eq('id', conversationId);
+
+    if (error) {
+      console.error('Error archiving conversation:', error);
+      throw error;
+    }
+  }
+
+  // Unarchive conversation
+  async unarchiveConversation(conversationId: string): Promise<void> {
+    const { error } = await supabase
+      .from('conversations')
+      .update({ is_archived: false })
+      .eq('id', conversationId);
+
+    if (error) {
+      console.error('Error unarchiving conversation:', error);
+      throw error;
+    }
+  }
+
+  // Get unread message count for user
+  async getUnreadCount(userId: string): Promise<number> {
+    // Get user's conversations first
+    const conversations = await this.getUserConversations(userId);
+    const conversationIds = conversations.map(c => c.id);
+
+    if (conversationIds.length === 0) {
+      return 0;
+    }
+
+    const { count, error } = await supabase
+      .from('messages')
+      .select('id', { count: 'exact' })
+      .in('conversation_id', conversationIds)
+      .neq('sender_id', userId)
+      .eq('is_read', false);
+
+    if (error) {
+      console.error('Error getting unread count:', error);
+      throw error;
+    }
+
+    return count || 0;
+  }
+
+  // Search messages
+  async searchMessages(
+    userId: string,
+    query: string,
+    limit: number = 20
+  ): Promise<Message[]> {
+    // Get user's conversations first
+    const conversations = await this.getUserConversations(userId);
+    const conversationIds = conversations.map(c => c.id);
+
+    if (conversationIds.length === 0) {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('messages')
+      .select(`
+        *,
+        sender:users(*)
+      `)
+      .in('conversation_id', conversationIds)
+      .ilike('content', `%${query}%`)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Error searching messages:', error);
+      throw error;
+    }
+
+    return data || [];
+  }
+
+  // Delete message (soft delete by updating content)
+  async deleteMessage(messageId: string, userId: string): Promise<void> {
+    const { error } = await supabase
+      .from('messages')
+      .update({ 
+        content: 'Este mensaje fue eliminado',
+        message_type: 'deleted',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', messageId)
+      .eq('sender_id', userId);
+
+    if (error) {
+      console.error('Error deleting message:', error);
+      throw error;
+    }
+  }
+
+  // Set up real-time subscription for conversation
+  subscribeToConversation(
+    conversationId: string,
+    onNewMessage: (message: Message) => void,
+    onMessageUpdate: (message: Message) => void
+  ) {
+    const subscription = supabase
+      .channel(`conversation_${conversationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        async (payload) => {
+          // Fetch the complete message with sender info
+          const { data: message } = await supabase
+            .from('messages')
+            .select(`
+              *,
+              sender:users(*)
+            `)
+            .eq('id', payload.new.id)
+            .single();
+
+          if (message) {
+            onNewMessage(message);
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        async (payload) => {
+          // Fetch the updated message with sender info
+          const { data: message } = await supabase
+            .from('messages')
+            .select(`
+              *,
+              sender:users(*)
+            `)
+            .eq('id', payload.new.id)
+            .single();
+
+          if (message) {
+            onMessageUpdate(message);
+          }
+        }
+      )
+      .subscribe();
+
+    return subscription;
+  }
+
+  // Set up real-time subscription for user's conversations
+  subscribeToUserConversations(
+    userId: string,
+    onConversationUpdate: (conversation: Conversation) => void
+  ) {
+    const subscription = supabase
+      .channel(`user_conversations_${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'conversations',
+        },
+        async (payload) => {
+          // Check if this conversation involves the user
+          const conversation = payload.new || payload.old;
+          
+          // Fetch user profiles to check if they're involved
+          const { data: creatorProfile } = await supabase
+            .from('creator_profiles')
+            .select('user_id')
+            .eq('id', conversation.creator_id)
+            .single();
+
+          const { data: businessProfile } = await supabase
+            .from('business_profiles')
+            .select('user_id')
+            .eq('id', conversation.business_id)
+            .single();
+
+          if (
+            creatorProfile?.user_id === userId || 
+            businessProfile?.user_id === userId
+          ) {
+            // Fetch the complete conversation data
+            const { data: fullConversation } = await supabase
+              .from('conversations')
+              .select(`
+                *,
+                creator_profile:creator_profiles(
+                  *,
+                  user:users(*)
+                ),
+                business_profile:business_profiles(
+                  *,
+                  user:users(*)
+                ),
+                collaboration:collaborations(*)
+              `)
+              .eq('id', conversation.id)
+              .single();
+
+            if (fullConversation) {
+              onConversationUpdate(fullConversation);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return subscription;
+  }
+}
+
+export const messagingService = new MessagingService();

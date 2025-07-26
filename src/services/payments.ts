@@ -1,0 +1,534 @@
+import { supabase } from '@/integrations/supabase/client';
+import { Tables, TablesInsert } from '@/integrations/supabase/types';
+
+export type PaymentType = 'membership' | 'collaboration' | 'experience' | 'campaign_deposit';
+export type PaymentStatus = 'approved' | 'pending' | 'rejected' | 'cancelled' | 'refunded';
+
+export interface Payment {
+  id: string;
+  user_id: string;
+  type: PaymentType;
+  status: PaymentStatus;
+  amount: number;
+  currency: string;
+  description: string;
+  payment_method: string;
+  transaction_id: string;
+  mercadopago_payment_id?: string;
+  reference_id?: string;
+  reference_type?: string;
+  metadata?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+  processed_at?: string;
+  failed_at?: string;
+  refunded_at?: string;
+  failure_reason?: string;
+}
+
+export interface PaymentFilters {
+  user_id?: string;
+  type?: PaymentType;
+  status?: PaymentStatus;
+  date_from?: string;
+  date_to?: string;
+  amount_min?: number;
+  amount_max?: number;
+  search_term?: string;
+}
+
+export interface PaymentStats {
+  total_approved: number;
+  total_pending: number;
+  total_rejected: number;
+  total_amount_approved: number;
+  total_amount_pending: number;
+  total_transactions: number;
+  avg_transaction_amount: number;
+  by_type: Record<PaymentType, {
+    count: number;
+    amount: number;
+  }>;
+  by_method: Record<string, {
+    count: number;
+    amount: number;
+  }>;
+}
+
+export interface CreatePaymentRequest {
+  user_id: string;
+  type: PaymentType;
+  amount: number;
+  currency?: string;
+  description: string;
+  payment_method: string;
+  reference_id?: string;
+  reference_type?: string;
+  metadata?: Record<string, any>;
+}
+
+class PaymentsService {
+  // Get all payments with filtering and pagination
+  async getPayments(
+    filters: PaymentFilters = {},
+    limit: number = 50,
+    offset: number = 0
+  ): Promise<Payment[]> {
+    let query = supabase
+      .from('payments')
+      .select('*');
+
+    // Apply filters
+    if (filters.user_id) {
+      query = query.eq('user_id', filters.user_id);
+    }
+
+    if (filters.type) {
+      query = query.eq('type', filters.type);
+    }
+
+    if (filters.status) {
+      query = query.eq('status', filters.status);
+    }
+
+    if (filters.date_from) {
+      query = query.gte('created_at', filters.date_from);
+    }
+
+    if (filters.date_to) {
+      query = query.lte('created_at', filters.date_to);
+    }
+
+    if (filters.amount_min) {
+      query = query.gte('amount', filters.amount_min);
+    }
+
+    if (filters.amount_max) {
+      query = query.lte('amount', filters.amount_max);
+    }
+
+    if (filters.search_term) {
+      query = query.or(`description.ilike.%${filters.search_term}%,transaction_id.ilike.%${filters.search_term}%`);
+    }
+
+    const { data, error } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      console.error('Error fetching payments:', error);
+      throw error;
+    }
+
+    return data || [];
+  }
+
+  // Get single payment by ID
+  async getPayment(id: string): Promise<Payment | null> {
+    const { data, error } = await supabase
+      .from('payments')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching payment:', error);
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw error;
+    }
+
+    return data;
+  }
+
+  // Get payment by MercadoPago payment ID
+  async getPaymentByMPId(mpPaymentId: string): Promise<Payment | null> {
+    const { data, error } = await supabase
+      .from('payments')
+      .select('*')
+      .eq('mercadopago_payment_id', mpPaymentId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching payment by MP ID:', error);
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw error;
+    }
+
+    return data;
+  }
+
+  // Create new payment record
+  async createPayment(paymentData: CreatePaymentRequest): Promise<Payment> {
+    const payment: TablesInsert<'payments'> = {
+      user_id: paymentData.user_id,
+      type: paymentData.type,
+      status: 'pending',
+      amount: paymentData.amount,
+      currency: paymentData.currency || 'ARS',
+      description: paymentData.description,
+      payment_method: paymentData.payment_method,
+      transaction_id: `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      reference_id: paymentData.reference_id,
+      reference_type: paymentData.reference_type,
+      metadata: paymentData.metadata,
+    };
+
+    const { data, error } = await supabase
+      .from('payments')
+      .insert(payment)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating payment:', error);
+      throw error;
+    }
+
+    return data;
+  }
+
+  // Update payment status
+  async updatePaymentStatus(
+    paymentId: string,
+    status: PaymentStatus,
+    mpPaymentId?: string,
+    failureReason?: string
+  ): Promise<Payment> {
+    const updateData: any = {
+      status,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (mpPaymentId) {
+      updateData.mercadopago_payment_id = mpPaymentId;
+    }
+
+    if (status === 'approved') {
+      updateData.processed_at = new Date().toISOString();
+    } else if (status === 'rejected' || status === 'cancelled') {
+      updateData.failed_at = new Date().toISOString();
+      if (failureReason) {
+        updateData.failure_reason = failureReason;
+      }
+    } else if (status === 'refunded') {
+      updateData.refunded_at = new Date().toISOString();
+    }
+
+    const { data, error } = await supabase
+      .from('payments')
+      .update(updateData)
+      .eq('id', paymentId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating payment status:', error);
+      throw error;
+    }
+
+    return data;
+  }
+
+  // Get user's payment history
+  async getUserPayments(
+    userId: string,
+    filters: Omit<PaymentFilters, 'user_id'> = {},
+    limit: number = 50
+  ): Promise<Payment[]> {
+    return this.getPayments({ ...filters, user_id: userId }, limit);
+  }
+
+  // Get payments by type
+  async getPaymentsByType(
+    type: PaymentType,
+    filters: Omit<PaymentFilters, 'type'> = {},
+    limit: number = 50
+  ): Promise<Payment[]> {
+    return this.getPayments({ ...filters, type }, limit);
+  }
+
+  // Get payment statistics
+  async getPaymentStats(filters: PaymentFilters = {}): Promise<PaymentStats> {
+    const payments = await this.getPayments(filters, 1000); // Get larger dataset for stats
+
+    const stats: PaymentStats = {
+      total_approved: 0,
+      total_pending: 0,
+      total_rejected: 0,
+      total_amount_approved: 0,
+      total_amount_pending: 0,
+      total_transactions: payments.length,
+      avg_transaction_amount: 0,
+      by_type: {
+        membership: { count: 0, amount: 0 },
+        collaboration: { count: 0, amount: 0 },
+        experience: { count: 0, amount: 0 },
+        campaign_deposit: { count: 0, amount: 0 },
+      },
+      by_method: {},
+    };
+
+    let totalAmount = 0;
+
+    payments.forEach(payment => {
+      // Count by status
+      if (payment.status === 'approved') {
+        stats.total_approved++;
+        stats.total_amount_approved += payment.amount;
+      } else if (payment.status === 'pending') {
+        stats.total_pending++;
+        stats.total_amount_pending += payment.amount;
+      } else if (payment.status === 'rejected') {
+        stats.total_rejected++;
+      }
+
+      // Count by type
+      if (stats.by_type[payment.type]) {
+        stats.by_type[payment.type].count++;
+        stats.by_type[payment.type].amount += payment.amount;
+      }
+
+      // Count by payment method
+      if (!stats.by_method[payment.payment_method]) {
+        stats.by_method[payment.payment_method] = { count: 0, amount: 0 };
+      }
+      stats.by_method[payment.payment_method].count++;
+      stats.by_method[payment.payment_method].amount += payment.amount;
+
+      totalAmount += payment.amount;
+    });
+
+    stats.avg_transaction_amount = payments.length > 0 ? totalAmount / payments.length : 0;
+
+    return stats;
+  }
+
+  // Create membership payment
+  async createMembershipPayment(
+    userId: string,
+    membershipTier: 'basic' | 'premium' | 'vip',
+    membershipId: string
+  ): Promise<Payment> {
+    const amounts = {
+      basic: 299900, // $2,999 in cents
+      premium: 899900, // $8,999 in cents
+      vip: 1999900, // $19,999 in cents
+    };
+
+    return this.createPayment({
+      user_id: userId,
+      type: 'membership',
+      amount: amounts[membershipTier],
+      description: `URContent ${membershipTier.charAt(0).toUpperCase() + membershipTier.slice(1)} - Plan Mensual`,
+      payment_method: 'MercadoPago',
+      reference_id: membershipId,
+      reference_type: 'membership',
+      metadata: {
+        membership_tier: membershipTier,
+        billing_period: 'monthly',
+      },
+    });
+  }
+
+  // Create collaboration payment
+  async createCollaborationPayment(
+    userId: string,
+    collaborationId: string,
+    amount: number,
+    description: string,
+    metadata?: Record<string, any>
+  ): Promise<Payment> {
+    return this.createPayment({
+      user_id: userId,
+      type: 'collaboration',
+      amount: amount * 100, // Convert to cents
+      description,
+      payment_method: 'MercadoPago',
+      reference_id: collaborationId,
+      reference_type: 'collaboration',
+      metadata,
+    });
+  }
+
+  // Create experience payment (Beauty Pass)
+  async createExperiencePayment(
+    userId: string,
+    reservationId: string,
+    amount: number,
+    venueName: string,
+    experienceTitle: string
+  ): Promise<Payment> {
+    return this.createPayment({
+      user_id: userId,
+      type: 'experience',
+      amount: amount * 100, // Convert to cents
+      description: `${experienceTitle} en ${venueName}`,
+      payment_method: 'MercadoPago',
+      reference_id: reservationId,
+      reference_type: 'reservation',
+      metadata: {
+        venue: venueName,
+        experience_title: experienceTitle,
+      },
+    });
+  }
+
+  // Create campaign deposit payment
+  async createCampaignDepositPayment(
+    userId: string,
+    campaignId: string,
+    amount: number,
+    campaignTitle: string,
+    creatorName?: string
+  ): Promise<Payment> {
+    return this.createPayment({
+      user_id: userId,
+      type: 'campaign_deposit',
+      amount: amount * 100, // Convert to cents
+      description: `Depósito inicial - ${campaignTitle}`,
+      payment_method: 'MercadoPago',
+      reference_id: campaignId,
+      reference_type: 'campaign',
+      metadata: {
+        campaign_title: campaignTitle,
+        creator_name: creatorName,
+      },
+    });
+  }
+
+  // Process MercadoPago webhook
+  async processMercadoPageWebhook(
+    mpPaymentId: string,
+    status: string,
+    statusDetail?: string
+  ): Promise<Payment | null> {
+    const payment = await this.getPaymentByMPId(mpPaymentId);
+    if (!payment) {
+      console.warn(`Payment not found for MercadoPago ID: ${mpPaymentId}`);
+      return null;
+    }
+
+    let newStatus: PaymentStatus;
+    
+    switch (status) {
+      case 'approved':
+        newStatus = 'approved';
+        break;
+      case 'pending':
+        newStatus = 'pending';
+        break;
+      case 'rejected':
+      case 'cancelled':
+        newStatus = 'rejected';
+        break;
+      case 'refunded':
+        newStatus = 'refunded';
+        break;
+      default:
+        console.warn(`Unknown MercadoPago status: ${status}`);
+        return payment;
+    }
+
+    return this.updatePaymentStatus(
+      payment.id,
+      newStatus,
+      mpPaymentId,
+      statusDetail
+    );
+  }
+
+  // Get recent payments
+  async getRecentPayments(
+    userId?: string,
+    limit: number = 10
+  ): Promise<Payment[]> {
+    const filters: PaymentFilters = {};
+    if (userId) {
+      filters.user_id = userId;
+    }
+
+    return this.getPayments(filters, limit);
+  }
+
+  // Search payments
+  async searchPayments(
+    searchTerm: string,
+    filters: PaymentFilters = {},
+    limit: number = 50
+  ): Promise<Payment[]> {
+    return this.getPayments({ ...filters, search_term: searchTerm }, limit);
+  }
+
+  // Export payments to CSV format
+  async exportPayments(filters: PaymentFilters = {}): Promise<string> {
+    const payments = await this.getPayments(filters, 10000);
+    
+    const headers = [
+      'ID',
+      'Fecha',
+      'Usuario',
+      'Tipo',
+      'Estado',
+      'Monto',
+      'Moneda',
+      'Descripción',
+      'Método de Pago',
+      'ID Transacción',
+      'ID MercadoPago',
+      'Referencia',
+      'Metadatos'
+    ];
+
+    const rows = payments.map(payment => [
+      payment.id,
+      payment.created_at,
+      payment.user_id,
+      payment.type,
+      payment.status,
+      payment.amount,
+      payment.currency,
+      payment.description,
+      payment.payment_method,
+      payment.transaction_id,
+      payment.mercadopago_payment_id || '',
+      payment.reference_id || '',
+      payment.metadata ? JSON.stringify(payment.metadata) : ''
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+
+    return csvContent;
+  }
+
+  // Refund payment
+  async refundPayment(
+    paymentId: string,
+    reason?: string
+  ): Promise<Payment> {
+    const payment = await this.getPayment(paymentId);
+    if (!payment) {
+      throw new Error('Payment not found');
+    }
+
+    if (payment.status !== 'approved') {
+      throw new Error('Only approved payments can be refunded');
+    }
+
+    // TODO: Implement actual MercadoPago refund API call here
+
+    return this.updatePaymentStatus(
+      paymentId,
+      'refunded',
+      payment.mercadopago_payment_id,
+      reason
+    );
+  }
+}
+
+export const paymentsService = new PaymentsService();

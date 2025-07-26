@@ -1,0 +1,589 @@
+import { supabase } from '@/integrations/supabase/client';
+import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+
+export type Reservation = Tables<'reservations'> & {
+  user: Tables<'users'>;
+  offer: Tables<'offers'> & {
+    venue: Tables<'venues'>;
+  };
+  venue: Tables<'venues'> & {
+    business_profile: Tables<'business_profiles'>;
+  };
+};
+
+export type ReservationFilters = {
+  user_id?: string;
+  venue_id?: string;
+  offer_id?: string;
+  status?: string;
+  date_from?: string;
+  date_to?: string;
+  scheduled_date?: string;
+};
+
+export type BookingRequest = {
+  offer_id: string;
+  scheduled_date: string;
+  scheduled_time?: string;
+  guest_count?: number;
+  special_requests?: string;
+  instagram_handle?: string;
+  content_commitment?: string;
+};
+
+export type ReservationStats = {
+  totalReservations: number;
+  confirmedReservations: number;
+  completedReservations: number;
+  cancelledReservations: number;
+  totalCreditsUsed: number;
+  totalRevenue: number;
+  avgRating: number;
+  noShowRate: number;
+};
+
+class ReservationsService {
+  // Get all reservations with filters
+  async getReservations(filters: ReservationFilters = {}): Promise<Reservation[]> {
+    let query = supabase
+      .from('reservations')
+      .select(`
+        *,
+        user:users(*),
+        offer:offers(
+          *,
+          venue:venues(*)
+        ),
+        venue:venues(
+          *,
+          business_profile:business_profiles(*)
+        )
+      `);
+
+    // Apply filters
+    if (filters.user_id) {
+      query = query.eq('user_id', filters.user_id);
+    }
+
+    if (filters.venue_id) {
+      query = query.eq('venue_id', filters.venue_id);
+    }
+
+    if (filters.offer_id) {
+      query = query.eq('offer_id', filters.offer_id);
+    }
+
+    if (filters.status) {
+      query = query.eq('status', filters.status);
+    }
+
+    if (filters.date_from) {
+      query = query.gte('scheduled_date', filters.date_from);
+    }
+
+    if (filters.date_to) {
+      query = query.lte('scheduled_date', filters.date_to);
+    }
+
+    if (filters.scheduled_date) {
+      query = query.eq('scheduled_date', filters.scheduled_date);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching reservations:', error);
+      throw error;
+    }
+
+    return data || [];
+  }
+
+  // Get single reservation by ID
+  async getReservation(id: string): Promise<Reservation | null> {
+    const { data, error } = await supabase
+      .from('reservations')
+      .select(`
+        *,
+        user:users(*),
+        offer:offers(
+          *,
+          venue:venues(*)
+        ),
+        venue:venues(
+          *,
+          business_profile:business_profiles(*)
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching reservation:', error);
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw error;
+    }
+
+    return data;
+  }
+
+  // Get reservation by QR code
+  async getReservationByQRCode(qrCode: string): Promise<Reservation | null> {
+    const { data, error } = await supabase
+      .from('reservations')
+      .select(`
+        *,
+        user:users(*),
+        offer:offers(
+          *,
+          venue:venues(*)
+        ),
+        venue:venues(
+          *,
+          business_profile:business_profiles(*)
+        )
+      `)
+      .eq('qr_code', qrCode)
+      .single();
+
+    if (error) {
+      console.error('Error fetching reservation by QR code:', error);
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw error;
+    }
+
+    return data;
+  }
+
+  // Create new reservation (booking) with refundable credit deposit
+  async createReservation(
+    userId: string,
+    bookingRequest: BookingRequest
+  ): Promise<Reservation> {
+    // First, get the offer to validate and calculate costs
+    const { data: offer, error: offerError } = await supabase
+      .from('offers')
+      .select(`
+        *,
+        venue:venues(*)
+      `)
+      .eq('id', bookingRequest.offer_id)
+      .single();
+
+    if (offerError || !offer) {
+      throw new Error('Offer not found');
+    }
+
+    // Hold credits as a refundable deposit using database function
+    const { error: holdError } = await supabase.rpc('hold_credits_for_reservation', {
+      target_user_id: userId,
+      credit_amount: offer.credit_cost,
+      reservation_id: null, // Will be updated after reservation creation
+      description_text: `Refundable deposit for ${offer.title}`
+    });
+
+    if (holdError) {
+      console.error('Error holding credits:', holdError);
+      throw new Error('Insufficient credits for this booking');
+    }
+
+    const reservationData: TablesInsert<'reservations'> = {
+      user_id: userId,
+      offer_id: bookingRequest.offer_id,
+      venue_id: offer.venue_id,
+      status: 'booked',
+      credits_used: offer.credit_cost,
+      scheduled_date: bookingRequest.scheduled_date,
+      scheduled_time: bookingRequest.scheduled_time,
+      guest_count: bookingRequest.guest_count || 1,
+      special_requests: bookingRequest.special_requests,
+      content_submitted: false,
+      content_approved: false,
+      // QR code will be generated by the database trigger
+    };
+
+    const { data, error } = await supabase
+      .from('reservations')
+      .insert(reservationData)
+      .select(`
+        *,
+        user:users(*),
+        offer:offers(
+          *,
+          venue:venues(*)
+        ),
+        venue:venues(
+          *,
+          business_profile:business_profiles(*)
+        )
+      `)
+      .single();
+
+    if (error) {
+      console.error('Error creating reservation:', error);
+      throw error;
+    }
+
+    // Update the credit hold transaction to reference this reservation
+    const { error: updateHoldError } = await supabase
+      .from('credit_transactions')
+      .update({ related_reservation_id: data.id })
+      .eq('user_id', userId)
+      .eq('type', 'hold')
+      .is('related_reservation_id', null)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (updateHoldError) {
+      console.error('Error updating credit hold reference:', updateHoldError);
+      // Don't throw here as reservation was successfully created
+    }
+
+    return data;
+  }
+
+  // Update reservation
+  async updateReservation(
+    id: string,
+    updates: TablesUpdate<'reservations'>
+  ): Promise<Reservation> {
+    const { data, error } = await supabase
+      .from('reservations')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select(`
+        *,
+        user:users(*),
+        offer:offers(
+          *,
+          venue:venues(*)
+        ),
+        venue:venues(
+          *,
+          business_profile:business_profiles(*)
+        )
+      `)
+      .single();
+
+    if (error) {
+      console.error('Error updating reservation:', error);
+      throw error;
+    }
+
+    return data;
+  }
+
+  // Cancel reservation
+  async cancelReservation(id: string, reason?: string): Promise<Reservation> {
+    const reservation = await this.getReservation(id);
+    if (!reservation) {
+      throw new Error('Reservation not found');
+    }
+
+    // Check if cancellation is allowed based on cancellation policy
+    if (reservation.offer?.cancellation_hours) {
+      const scheduledDateTime = new Date(`${reservation.scheduled_date}T${reservation.scheduled_time || '00:00'}`);
+      const now = new Date();
+      const hoursUntilReservation = (scheduledDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+      
+      if (hoursUntilReservation < reservation.offer.cancellation_hours) {
+        throw new Error(`Cancellation not allowed within ${reservation.offer.cancellation_hours} hours of the reservation`);
+      }
+    }
+
+    return this.updateReservation(id, {
+      status: 'cancelled',
+      cancelled_at: new Date().toISOString(),
+      staff_notes: reason ? `Cancelled: ${reason}` : 'Cancelled by user',
+    });
+  }
+
+  // Check-in reservation (venue staff) and refund credits
+  async checkInReservation(
+    id: string,
+    staffNotes?: string,
+    locationData?: any
+  ): Promise<Reservation> {
+    const reservation = await this.getReservation(id);
+    if (!reservation) {
+      throw new Error('Reservation not found');
+    }
+
+    if (!['booked', 'confirmed'].includes(reservation.status)) {
+      throw new Error('Reservation must be booked or confirmed to check in');
+    }
+
+    // Create venue check-in record
+    const { error: checkinError } = await supabase
+      .from('venue_checkins')
+      .insert({
+        reservation_id: id,
+        user_id: reservation.user_id,
+        venue_id: reservation.venue_id,
+        check_in_method: 'qr_code',
+        location_data: locationData,
+        verified_by_venue: true,
+        verification_notes: staffNotes,
+      });
+
+    if (checkinError) {
+      console.error('Error creating venue check-in:', checkinError);
+      throw checkinError;
+    }
+
+    // Refund held credits upon successful check-in
+    const { error: refundError } = await supabase.rpc('refund_held_credits', {
+      target_user_id: reservation.user_id,
+      reservation_id: id,
+      description_text: `Credit refund for successful check-in at ${reservation.venue?.name || 'venue'}`
+    });
+
+    if (refundError) {
+      console.error('Error refunding credits:', refundError);
+      // Don't throw here as check-in was successful
+    }
+
+    return this.updateReservation(id, {
+      status: 'checked_in',
+      check_in_time: new Date().toISOString(),
+      staff_notes: staffNotes,
+    });
+  }
+
+  // Confirm check-in (alternative method that just calls checkInReservation)
+  async confirmCheckIn(reservationId: string): Promise<Reservation> {
+    return this.checkInReservation(reservationId, 'Checked in via QR scan');
+  }
+
+  // Complete reservation
+  async completeReservation(
+    id: string,
+    rating?: number,
+    reviewComment?: string
+  ): Promise<Reservation> {
+    const updates: TablesUpdate<'reservations'> = {
+      status: 'completed',
+      completed_at: new Date().toISOString(),
+    };
+
+    if (rating) {
+      updates.rating = rating;
+    }
+
+    if (reviewComment) {
+      updates.review_comment = reviewComment;
+    }
+
+    return this.updateReservation(id, updates);
+  }
+
+  // Mark as no-show
+  async markAsNoShow(id: string, staffNotes?: string): Promise<Reservation> {
+    return this.updateReservation(id, {
+      status: 'no_show',
+      staff_notes: staffNotes || 'Customer did not show up',
+    });
+  }
+
+  // Submit content for reservation
+  async submitContent(
+    id: string,
+    contentUrls: string[]
+  ): Promise<Reservation> {
+    return this.updateReservation(id, {
+      content_submitted: true,
+      content_urls: contentUrls,
+    });
+  }
+
+  // Approve submitted content (venue/admin)
+  async approveContent(id: string): Promise<Reservation> {
+    return this.updateReservation(id, {
+      content_approved: true,
+    });
+  }
+
+  // Get user's reservations
+  async getUserReservations(
+    userId: string,
+    limit: number = 20
+  ): Promise<Reservation[]> {
+    return this.getReservations({
+      user_id: userId,
+    });
+  }
+
+  // Get venue's reservations
+  async getVenueReservations(
+    venueId: string,
+    filters: Omit<ReservationFilters, 'venue_id'> = {}
+  ): Promise<Reservation[]> {
+    return this.getReservations({
+      ...filters,
+      venue_id: venueId,
+    });
+  }
+
+  // Get today's reservations for a venue
+  async getTodaysReservations(venueId: string): Promise<Reservation[]> {
+    const today = new Date().toISOString().split('T')[0];
+    
+    return this.getReservations({
+      venue_id: venueId,
+      scheduled_date: today,
+    });
+  }
+
+  // Get upcoming reservations for a user
+  async getUpcomingReservations(
+    userId: string,
+    limit: number = 10
+  ): Promise<Reservation[]> {
+    const today = new Date().toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
+      .from('reservations')
+      .select(`
+        *,
+        user:users(*),
+        offer:offers(
+          *,
+          venue:venues(*)
+        ),
+        venue:venues(
+          *,
+          business_profile:business_profiles(*)
+        )
+      `)
+      .eq('user_id', userId)
+      .gte('scheduled_date', today)
+      .in('status', ['confirmed', 'checked_in'])
+      .order('scheduled_date', { ascending: true })
+      .order('scheduled_time', { ascending: true })
+      .limit(limit);
+
+    if (error) {
+      console.error('Error fetching upcoming reservations:', error);
+      throw error;
+    }
+
+    return data || [];
+  }
+
+  // Get reservation statistics
+  async getReservationStats(filters: ReservationFilters = {}): Promise<ReservationStats> {
+    const reservations = await this.getReservations(filters);
+    
+    const totalReservations = reservations.length;
+    const confirmedReservations = reservations.filter(r => r.status === 'confirmed').length;
+    const completedReservations = reservations.filter(r => r.status === 'completed').length;
+    const cancelledReservations = reservations.filter(r => r.status === 'cancelled').length;
+    const noShowCount = reservations.filter(r => r.status === 'no_show').length;
+    
+    const totalCreditsUsed = reservations.reduce((sum, r) => sum + (r.credits_used || 0), 0);
+    const totalRevenue = reservations.reduce((sum, r) => sum + (r.venue_commission_ars || 0), 0);
+    
+    // Calculate average rating
+    const ratings = reservations.filter(r => r.rating && r.status === 'completed').map(r => r.rating!);
+    const avgRating = ratings.length > 0 
+      ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length 
+      : 0;
+    
+    const noShowRate = totalReservations > 0 ? (noShowCount / totalReservations) * 100 : 0;
+
+    return {
+      totalReservations,
+      confirmedReservations,
+      completedReservations,
+      cancelledReservations,
+      totalCreditsUsed,
+      totalRevenue,
+      avgRating,
+      noShowRate,
+    };
+  }
+
+  // Get reservation history for analytics
+  async getReservationHistory(
+    filters: ReservationFilters & { 
+      period?: 'day' | 'week' | 'month' | 'year';
+      limit?: number;
+    } = {}
+  ): Promise<any[]> {
+    const { period = 'day', limit = 30, ...baseFilters } = filters;
+    
+    // This would typically use database functions for proper date grouping
+    // For now, we'll get the raw data and group in JavaScript
+    const reservations = await this.getReservations(baseFilters);
+    
+    // Group by period
+    const grouped = reservations.reduce((acc, reservation) => {
+      const date = new Date(reservation.created_at);
+      let key: string;
+      
+      switch (period) {
+        case 'day':
+          key = date.toISOString().split('T')[0];
+          break;
+        case 'week':
+          const weekStart = new Date(date);
+          weekStart.setDate(date.getDate() - date.getDay());
+          key = weekStart.toISOString().split('T')[0];
+          break;
+        case 'month':
+          key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          break;
+        case 'year':
+          key = String(date.getFullYear());
+          break;
+        default:
+          key = date.toISOString().split('T')[0];
+      }
+      
+      if (!acc[key]) {
+        acc[key] = {
+          period: key,
+          count: 0,
+          revenue: 0,
+          credits: 0,
+        };
+      }
+      
+      acc[key].count++;
+      acc[key].revenue += reservation.venue_commission_ars || 0;
+      acc[key].credits += reservation.credits_used || 0;
+      
+      return acc;
+    }, {} as Record<string, any>);
+    
+    return Object.values(grouped).slice(0, limit);
+  }
+
+  // Send reminder notifications (would integrate with notification service)
+  async sendReservationReminder(id: string): Promise<void> {
+    // This would integrate with email/SMS notification service
+    const reservation = await this.getReservation(id);
+    if (!reservation) {
+      throw new Error('Reservation not found');
+    }
+
+    // TODO: Implement notification sending
+    console.log(`Sending reminder for reservation ${id} to user ${reservation.user_id}`);
+  }
+
+  // Auto-confirm reservations (for venues with instant booking)
+  async autoConfirmReservation(id: string): Promise<Reservation> {
+    return this.updateReservation(id, {
+      status: 'confirmed',
+    });
+  }
+}
+
+export const reservationsService = new ReservationsService();

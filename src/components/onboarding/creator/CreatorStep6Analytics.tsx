@@ -1,0 +1,220 @@
+import React from 'react';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { BarChart3, Users, Heart, AlertCircle } from 'lucide-react';
+import { CreatorOnboardingData } from '@/hooks/useOnboarding';
+
+interface CreatorStep6AnalyticsProps {
+  data: CreatorOnboardingData;
+  updateData: (updates: Partial<CreatorOnboardingData>) => void;
+  errors: Record<string, string>;
+  isLoading: boolean;
+}
+
+const ageRanges = ['13-17', '18-24', '25-34', '35-44', '45-54', '55+'];
+const interests = ['Moda', 'Belleza', 'Fitness', 'Tecnología', 'Gastronomía', 'Viajes', 'Música', 'Arte'];
+const locations = ['CABA', 'Buenos Aires', 'Córdoba', 'Santa Fe', 'Mendoza', 'Tucumán'];
+
+export const CreatorStep6Analytics: React.FC<CreatorStep6AnalyticsProps> = ({
+  data,
+  updateData,
+  errors
+}) => {
+  const toggleAudienceItem = (type: 'ageRanges' | 'topInterests' | 'topLocations', item: string) => {
+    const current = data.audienceDemographics?.[type] || [];
+    const updated = current.includes(item)
+      ? current.filter(i => i !== item)
+      : [...current, item];
+    
+    updateData({
+      audienceDemographics: {
+        ...data.audienceDemographics,
+        [type]: updated
+      }
+    });
+  };
+
+  const updateGenderSplit = (gender: 'male' | 'female' | 'other', value: number) => {
+    updateData({
+      audienceDemographics: {
+        ...data.audienceDemographics,
+        genderSplit: {
+          ...data.audienceDemographics?.genderSplit,
+          [gender]: value
+        }
+      }
+    });
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+        <BarChart3 className="w-4 h-4" />
+        <span>Analytics de audiencia</span>
+      </div>
+
+      <Alert className="bg-blue-50 border-blue-200">
+        <AlertCircle className="h-4 w-4 text-blue-600" />
+        <AlertDescription className="text-blue-800">
+          Esta información nos ayuda a conectarte con marcas que buscan tu audiencia específica. 
+          Puedes saltar este paso y completarlo más tarde desde tu perfil.
+        </AlertDescription>
+      </Alert>
+
+      {/* Engagement Metrics */}
+      <div className="grid md:grid-cols-3 gap-4">
+        <div className="space-y-3">
+          <Label>Tasa de Engagement (%)</Label>
+          <div className="relative">
+            <Heart className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              type="number"
+              step="0.1"
+              min="0"
+              max="50"
+              placeholder="6.5"
+              value={data.engagementRate || ''}
+              onChange={(e) => updateData({ engagementRate: parseFloat(e.target.value) || 0 })}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <Label>Likes Promedio</Label>
+          <Input
+            type="number"
+            placeholder="1500"
+            value={data.avgLikes || ''}
+            onChange={(e) => updateData({ avgLikes: parseInt(e.target.value) || 0 })}
+          />
+        </div>
+
+        <div className="space-y-3">
+          <Label>Comentarios Promedio</Label>
+          <Input
+            type="number"
+            placeholder="120"
+            value={data.avgComments || ''}
+            onChange={(e) => updateData({ avgComments: parseInt(e.target.value) || 0 })}
+          />
+        </div>
+      </div>
+
+      {/* Age Demographics */}
+      <div className="space-y-4">
+        <Label className="text-base font-semibold">Rangos de Edad de tu Audiencia</Label>
+        <div className="flex flex-wrap gap-2">
+          {ageRanges.map((age) => (
+            <Badge
+              key={age}
+              variant={data.audienceDemographics?.ageRanges?.includes(age) ? "default" : "outline"}
+              className={`cursor-pointer px-3 py-2 ${
+                data.audienceDemographics?.ageRanges?.includes(age)
+                  ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                  : 'hover:bg-gray-100'
+              }`}
+              onClick={() => toggleAudienceItem('ageRanges', age)}
+            >
+              {age} años
+            </Badge>
+          ))}
+        </div>
+      </div>
+
+      {/* Gender Split */}
+      <div className="space-y-4">
+        <Label className="text-base font-semibold">Distribución por Género (%)</Label>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label className="text-sm">Masculino</Label>
+            <Input
+              type="number"
+              min="0"
+              max="100"
+              placeholder="45"
+              value={data.audienceDemographics?.genderSplit?.male || ''}
+              onChange={(e) => updateGenderSplit('male', parseInt(e.target.value) || 0)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm">Femenino</Label>
+            <Input
+              type="number"
+              min="0"
+              max="100"
+              placeholder="50"
+              value={data.audienceDemographics?.genderSplit?.female || ''}
+              onChange={(e) => updateGenderSplit('female', parseInt(e.target.value) || 0)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm">Otro</Label>
+            <Input
+              type="number"
+              min="0"
+              max="100"
+              placeholder="5"
+              value={data.audienceDemographics?.genderSplit?.other || ''}
+              onChange={(e) => updateGenderSplit('other', parseInt(e.target.value) || 0)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Interests */}
+      <div className="space-y-4">
+        <Label className="text-base font-semibold">Principales Intereses de tu Audiencia</Label>
+        <div className="flex flex-wrap gap-2">
+          {interests.map((interest) => (
+            <Badge
+              key={interest}
+              variant={data.audienceDemographics?.topInterests?.includes(interest) ? "default" : "outline"}
+              className={`cursor-pointer px-3 py-2 ${
+                data.audienceDemographics?.topInterests?.includes(interest)
+                  ? 'bg-green-500 hover:bg-green-600 text-white'
+                  : 'hover:bg-gray-100'
+              }`}
+              onClick={() => toggleAudienceItem('topInterests', interest)}
+            >
+              {interest}
+            </Badge>
+          ))}
+        </div>
+      </div>
+
+      {/* Locations */}
+      <div className="space-y-4">
+        <Label className="text-base font-semibold">Principales Ubicaciones</Label>
+        <div className="flex flex-wrap gap-2">
+          {locations.map((location) => (
+            <Badge
+              key={location}
+              variant={data.audienceDemographics?.topLocations?.includes(location) ? "default" : "outline"}
+              className={`cursor-pointer px-3 py-2 ${
+                data.audienceDemographics?.topLocations?.includes(location)
+                  ? 'bg-purple-500 hover:bg-purple-600 text-white'
+                  : 'hover:bg-gray-100'
+              }`}
+              onClick={() => toggleAudienceItem('topLocations', location)}
+            >
+              {location}
+            </Badge>
+          ))}
+        </div>
+      </div>
+
+      {errors.general && (
+        <Alert className="bg-red-50 border-red-200">
+          <AlertCircle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">
+            {errors.general}
+          </AlertDescription>
+        </Alert>
+      )}
+    </div>
+  );
+};

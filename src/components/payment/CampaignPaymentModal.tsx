@@ -1,0 +1,372 @@
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import { 
+  CreditCard, 
+  DollarSign, 
+  Calendar, 
+  User, 
+  Star,
+  Briefcase,
+  Clock,
+  CheckCircle,
+  AlertCircle
+} from 'lucide-react';
+import { PaymentButton } from './PaymentButton';
+import { formatCurrency, calculatePlatformFee } from '@/lib/mercadopago';
+
+interface CampaignPaymentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  campaign: {
+    id: string;
+    title: string;
+    description: string;
+    budget: number;
+    deadline: string;
+    brandName: string;
+    creatorName: string;
+    creatorId: string;
+    brandId: string;
+  };
+  onPaymentSuccess?: (paymentId: string) => void;
+}
+
+export const CampaignPaymentModal: React.FC<CampaignPaymentModalProps> = ({
+  isOpen,
+  onClose,
+  campaign,
+  onPaymentSuccess
+}) => {
+  const [paymentMethod, setPaymentMethod] = useState<'full' | 'deposit' | 'milestone'>('full');
+  const [customAmount, setCustomAmount] = useState(campaign.budget);
+  const [milestones, setMilestones] = useState([
+    { name: 'Inicio del proyecto', amount: campaign.budget * 0.5, date: '' },
+    { name: 'Entrega final', amount: campaign.budget * 0.5, date: '' }
+  ]);
+
+  const platformFee = calculatePlatformFee(customAmount);
+  const depositAmount = campaign.budget * 0.3; // 30% deposit
+  const depositPlatformFee = calculatePlatformFee(depositAmount);
+
+  const handlePaymentSuccess = (paymentId: string) => {
+    onPaymentSuccess?.(paymentId);
+    onClose();
+  };
+
+  const getPaymentTypeData = () => {
+    switch (paymentMethod) {
+      case 'deposit':
+        return {
+          amount: depositAmount,
+          description: `Depósito inicial - ${campaign.title}`,
+          platformFee: depositPlatformFee
+        };
+      case 'milestone':
+        const currentMilestone = milestones[0];
+        return {
+          amount: currentMilestone.amount,
+          description: `${currentMilestone.name} - ${campaign.title}`,
+          platformFee: calculatePlatformFee(currentMilestone.amount)
+        };
+      default:
+        return {
+          amount: customAmount,
+          description: `Pago completo - ${campaign.title}`,
+          platformFee
+        };
+    }
+  };
+
+  const paymentData = getPaymentTypeData();
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-gray-900">
+            Procesar Pago de Campaña
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Campaign Details */}
+          <div className="space-y-6">
+            <Card className="p-6 bg-blue-50 border-blue-200">
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <Briefcase className="w-6 h-6 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 mb-2">{campaign.title}</h3>
+                  <p className="text-sm text-gray-600 mb-4">{campaign.description}</p>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <User className="w-4 h-4 mr-2" />
+                      <span>Marca: {campaign.brandName}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Star className="w-4 h-4 mr-2" />
+                      <span>Creador: {campaign.creatorName}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      <span>Entrega: {new Date(campaign.deadline).toLocaleDateString('es-AR')}</span>
+                    </div>
+                    <div className="flex items-center text-sm font-medium text-blue-600">
+                      <DollarSign className="w-4 h-4 mr-2" />
+                      <span>Presupuesto: {formatCurrency(campaign.budget)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Payment Method Selection */}
+            <Card className="p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Método de Pago</h3>
+              
+              <div className="space-y-3">
+                <label className="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="full"
+                    checked={paymentMethod === 'full'}
+                    onChange={(e) => setPaymentMethod(e.target.value as any)}
+                    className="text-blue-600"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">Pago Completo</div>
+                    <div className="text-sm text-gray-600">
+                      Pagar el monto total ahora ({formatCurrency(campaign.budget)})
+                    </div>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800">Recomendado</Badge>
+                </label>
+
+                <label className="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="deposit"
+                    checked={paymentMethod === 'deposit'}
+                    onChange={(e) => setPaymentMethod(e.target.value as any)}
+                    className="text-blue-600"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">Depósito Inicial</div>
+                    <div className="text-sm text-gray-600">
+                      Pagar 30% ahora ({formatCurrency(depositAmount)}), resto al finalizar
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="milestone"
+                    checked={paymentMethod === 'milestone'}
+                    onChange={(e) => setPaymentMethod(e.target.value as any)}
+                    className="text-blue-600"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">Pago por Hitos</div>
+                    <div className="text-sm text-gray-600">
+                      Dividir el pago en etapas específicas del proyecto
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </Card>
+
+            {/* Custom Amount (if full payment) */}
+            {paymentMethod === 'full' && (
+              <Card className="p-6">
+                <Label htmlFor="customAmount" className="text-sm font-medium text-gray-700">
+                  Monto Personalizado
+                </Label>
+                <div className="mt-2">
+                  <Input
+                    id="customAmount"
+                    type="number"
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(Number(e.target.value))}
+                    className="text-lg font-medium"
+                    min={campaign.budget * 0.1}
+                    max={campaign.budget * 2}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Rango permitido: {formatCurrency(campaign.budget * 0.1)} - {formatCurrency(campaign.budget * 2)}
+                  </p>
+                </div>
+              </Card>
+            )}
+
+            {/* Milestone Details (if milestone payment) */}
+            {paymentMethod === 'milestone' && (
+              <Card className="p-6">
+                <h4 className="font-medium text-gray-900 mb-4">Hitos del Proyecto</h4>
+                <div className="space-y-4">
+                  {milestones.map((milestone, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm font-medium text-gray-700">
+                            Nombre del Hito
+                          </Label>
+                          <Input
+                            value={milestone.name}
+                            onChange={(e) => {
+                              const updated = [...milestones];
+                              updated[index].name = e.target.value;
+                              setMilestones(updated);
+                            }}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-gray-700">
+                            Monto
+                          </Label>
+                          <Input
+                            type="number"
+                            value={milestone.amount}
+                            onChange={(e) => {
+                              const updated = [...milestones];
+                              updated[index].amount = Number(e.target.value);
+                              setMilestones(updated);
+                            }}
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-sm text-gray-600 mt-4">
+                  Solo se procesará el primer hito. Los siguientes se pagarán cuando se completen.
+                </p>
+              </Card>
+            )}
+          </div>
+
+          {/* Payment Summary and Processing */}
+          <div className="space-y-6">
+            {/* Payment Summary */}
+            <Card className="p-6 bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+              <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
+                <CreditCard className="w-5 h-5 mr-2" />
+                Resumen del Pago
+              </h3>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Monto a Pagar:</span>
+                  <span className="font-medium text-gray-900">
+                    {formatCurrency(paymentData.amount)}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Para el Creador:</span>
+                  <span className="font-medium text-green-600">
+                    {formatCurrency(paymentData.platformFee.creatorAmount)}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Comisión Plataforma:</span>
+                  <span className="font-medium text-gray-600">
+                    {formatCurrency(paymentData.platformFee.platformFee)}
+                  </span>
+                </div>
+                
+                <Separator />
+                
+                <div className="flex justify-between text-lg font-semibold">
+                  <span>Total:</span>
+                  <span className="text-blue-600">
+                    {formatCurrency(paymentData.amount)}
+                  </span>
+                </div>
+              </div>
+            </Card>
+
+            {/* Payment Protection */}
+            <Card className="p-6 bg-blue-50 border-blue-200">
+              <div className="flex items-start space-x-3">
+                <CheckCircle className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-medium text-blue-900 mb-2">Protección de Pago</h4>
+                  <ul className="text-sm text-blue-700 space-y-1">
+                    <li>• Pago seguro a través de MercadoPago</li>
+                    <li>• Liberación de fondos al completar el trabajo</li>
+                    <li>• Soporte 24/7 para resolver disputas</li>
+                    <li>• Garantía de devolución si no se cumple</li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+
+            {/* Terms and Conditions */}
+            <Card className="p-6">
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Términos Importantes</h4>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    <li>• Los fondos se liberarán al creador cuando se entregue el trabajo</li>
+                    <li>• Tienes 7 días para solicitar revisiones después de la entrega</li>
+                    <li>• Las disputas se resuelven a través de nuestro sistema de mediación</li>
+                    <li>• Los pagos parciales requieren aprobación para liberar siguientes hitos</li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+
+            {/* Payment Button */}
+            <PaymentButton
+              amount={paymentData.amount}
+              description={paymentData.description}
+              paymentType={paymentMethod === 'deposit' ? 'campaign_deposit' : 'collaboration'}
+              userId={campaign.brandId}
+              userEmail="brand@example.com"
+              userName={campaign.brandName}
+              metadata={{
+                campaign_id: campaign.id,
+                creator_id: campaign.creatorId,
+                brand_id: campaign.brandId,
+                payment_method: paymentMethod,
+                creator_amount: paymentData.platformFee.creatorAmount,
+                platform_fee: paymentData.platformFee.platformFee,
+                original_budget: campaign.budget
+              }}
+              onSuccess={handlePaymentSuccess}
+              variant="premium"
+              size="lg"
+              className="w-full"
+            />
+
+            {/* Cancel Button */}
+            <Button
+              variant="outline"
+              onClick={onClose}
+              className="w-full"
+            >
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};

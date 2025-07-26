@@ -1,0 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* URContent.app Design System - Professional & Modern */
+
+@layer base {
+  :root {
+    /* Core Brand Colors */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* Primary: Indigo vibrante */
+    --primary: 245 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 245 84% 62%;
+
+    /* Secondary: Rosa moderno */
+    --secondary: 330 81% 60%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Success: Verde confianza */
+    --success: 159 64% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 220 14% 96%;
+    --accent-foreground: 220 9% 15%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 245 84% 67%;
+
+    /* URContent Brand Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(245 84% 67%), hsl(330 81% 60%));
+    --gradient-secondary: linear-gradient(135deg, hsl(245 84% 67%), hsl(245 84% 72%));
+    --gradient-hero: linear-gradient(135deg, hsl(245 84% 67%) 0%, hsl(330 81% 60%) 50%, hsl(245 84% 67%) 100%);
+    
+    /* Shadows */
+    --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-elevation: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-glow: 0 0 20px hsl(245 84% 67% / 0.3);
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark mode - URContent Professional */
+    --background: 210 11% 5%;
+    --foreground: 210 40% 98%;
+
+    --card: 210 11% 8%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 210 11% 8%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 245 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 245 84% 72%;
+
+    --secondary: 330 81% 60%;
+    --secondary-foreground: 0 0% 100%;
+
+    --success: 159 64% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --muted: 210 11% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 210 11% 15%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 210 11% 20%;
+    --input: 210 11% 20%;
+    --ring: 245 84% 67%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-inter antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-poppins;
+  }
+}
+
+@layer components {
+  /* URContent Custom Components */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  /* Liquid Glass Effects */
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl;
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.37),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-button {
+    @apply bg-white/20 backdrop-blur-md border border-white/30 rounded-xl;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  }
+
+  .glass-button:hover {
+    @apply bg-white/30 border-white/50 scale-105;
+    box-shadow: 0 10px 40px rgba(31, 38, 135, 0.4);
+  }
+
+  .floating-orb {
+    @apply absolute rounded-full blur-3xl opacity-30;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .liquid-blob {
+    @apply absolute rounded-full opacity-20;
+    animation: liquid-move 8s ease-in-out infinite;
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-elevation {
+    box-shadow: var(--shadow-elevation);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .btn-primary {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground shadow-card;
+    @apply transition-all duration-200 hover:shadow-elevation hover:scale-[1.02];
+  }
+
+  .btn-secondary {
+    @apply bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-card;
+    @apply transition-all duration-200 hover:shadow-elevation hover:scale-[1.02];
+  }
+
+  .btn-gradient {
+    @apply gradient-primary text-white shadow-card border-0;
+    @apply transition-all duration-200 hover:shadow-glow hover:scale-[1.02];
+  }
+
+  .card-interactive {
+    @apply bg-card border border-border rounded-xl shadow-card;
+    @apply transition-all duration-200 hover:shadow-elevation hover:scale-[1.01];
+  }
+
+  .navbar-blur {
+    @apply bg-background/80 backdrop-blur-xl border-b border-border;
+  }
+}
+
+@layer utilities {
+  /* Animations */
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: var(--shadow-glow); }
+    50% { box-shadow: 0 0 30px hsl(245 84% 67% / 0.5); }
+  }
+
+  @keyframes float {
+    0%, 100% { 
+      transform: translateY(0px) rotate(0deg); 
+    }
+    33% { 
+      transform: translateY(-20px) rotate(120deg); 
+    }
+    66% { 
+      transform: translateY(10px) rotate(240deg); 
+    }
+  }
+
+  @keyframes liquid-move {
+    0%, 100% { 
+      transform: translateX(0px) translateY(0px) scale(1); 
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+    25% { 
+      transform: translateX(20px) translateY(-15px) scale(1.1); 
+      border-radius: 40% 60% 70% 30% / 40% 70% 30% 60%;
+    }
+    50% { 
+      transform: translateX(-10px) translateY(20px) scale(0.9); 
+      border-radius: 70% 30% 40% 60% / 30% 60% 40% 70%;
+    }
+    75% { 
+      transform: translateX(-20px) translateY(-10px) scale(1.05); 
+      border-radius: 30% 70% 60% 40% / 70% 40% 60% 30%;
+    }
+  }
+
+  @keyframes morph {
+    0%, 100% {
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+    50% {
+      border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .font-inter {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .font-poppins {
+    font-family: 'Poppins', sans-serif;
+  }
+}

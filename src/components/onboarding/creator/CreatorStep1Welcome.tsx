@@ -1,0 +1,231 @@
+import React from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, DollarSign, Users, Star, Camera, TrendingUp, Heart } from 'lucide-react';
+import { CreatorOnboardingData } from '@/hooks/useOnboarding';
+
+interface CreatorStep1WelcomeProps {
+  data: CreatorOnboardingData;
+  updateData: (updates: Partial<CreatorOnboardingData>) => void;
+  errors: Record<string, string>;
+  isLoading: boolean;
+}
+
+export const CreatorStep1Welcome: React.FC<CreatorStep1WelcomeProps> = ({
+  data,
+  updateData,
+  errors
+}) => {
+  const benefits = [
+    {
+      icon: DollarSign,
+      title: 'Monetiza tu Contenido',
+      description: 'Gana dinero creando contenido auténtico para marcas que amas',
+      color: 'text-green-600'
+    },
+    {
+      icon: Users,
+      title: 'Colabora con +850 Marcas',
+      description: 'Accede a oportunidades con las mejores empresas de Argentina',
+      color: 'text-blue-600'
+    },
+    {
+      icon: TrendingUp,
+      title: 'Haz Crecer tu Audiencia',
+      description: 'Aumenta tu alcance colaborando con marcas reconocidas',
+      color: 'text-purple-600'
+    },
+    {
+      icon: Camera,
+      title: 'Mantén tu Creatividad',
+      description: 'Libertad creativa total, las marcas confían en tu estilo único',
+      color: 'text-pink-600'
+    }
+  ];
+
+  const stats = [
+    { label: 'Creadores Activos', value: '2,500+', icon: Users },
+    { label: 'Pago Promedio', value: '$850', icon: DollarSign },
+    { label: 'Colaboraciones/Mes', value: '1,200', icon: TrendingUp },
+    { label: 'Satisfacción', value: '98%', icon: Star }
+  ];
+
+  const earnings = [
+    { followers: '1K-10K', range: '$100-500', description: 'Ideal para comenzar' },
+    { followers: '10K-50K', range: '$500-2K', description: 'Ingresos regulares' },
+    { followers: '50K-100K', range: '$2K-5K', description: 'Ingresos profesionales' },
+    { followers: '100K+', range: '$5K+', description: 'Ingresos premium' }
+  ];
+
+  const handleMarkComplete = () => {
+    updateData({ welcomeComplete: true });
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Hero Section */}
+      <div className="text-center">
+        <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mx-auto mb-6 flex items-center justify-center">
+          <span className="text-3xl">✨</span>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          Tu creatividad merece ser recompensada
+        </h2>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          Únete a la comunidad de creadores más grande de Argentina. Colabora con marcas increíbles, 
+          mantén tu autenticidad y genera ingresos consistentes con tu contenido.
+        </p>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {stats.map((stat, index) => (
+          <Card key={index} className="p-4 text-center border-2 hover:border-purple-200 transition-colors">
+            <stat.icon className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+            <div className="text-sm text-gray-600">{stat.label}</div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Benefits */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {benefits.map((benefit, index) => (
+          <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-start space-x-4">
+              <div className={`p-3 rounded-xl bg-gray-50`}>
+                <benefit.icon className={`w-6 h-6 ${benefit.color}`} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-gray-900 mb-2">{benefit.title}</h3>
+                <p className="text-gray-600 text-sm">{benefit.description}</p>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Earning Potential */}
+      <Card className="p-6">
+        <div className="flex items-center space-x-3 mb-4">
+          <DollarSign className="w-6 h-6 text-green-600" />
+          <h3 className="font-semibold text-gray-900">Potencial de Ingresos</h3>
+        </div>
+        <div className="grid md:grid-cols-2 gap-4">
+          {earnings.map((earning, index) => (
+            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div>
+                <div className="font-medium text-gray-900">{earning.followers} seguidores</div>
+                <div className="text-sm text-gray-600">{earning.description}</div>
+              </div>
+              <div className="text-right">
+                <div className="font-semibold text-green-600">{earning.range}</div>
+                <div className="text-xs text-gray-500">por colaboración</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* What to Expect */}
+      <Card className="p-6">
+        <h3 className="font-semibold text-gray-900 mb-4">
+          ¿Qué configuraremos juntos?
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3">
+              <Badge variant="outline" className="w-6 h-6 rounded-full p-0 flex items-center justify-center">
+                1
+              </Badge>
+              <span className="text-sm text-gray-700">Tu información personal</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Badge variant="outline" className="w-6 h-6 rounded-full p-0 flex items-center justify-center">
+                2
+              </Badge>
+              <span className="text-sm text-gray-700">Verificación de redes sociales</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Badge variant="outline" className="w-6 h-6 rounded-full p-0 flex items-center justify-center">
+                3
+              </Badge>
+              <span className="text-sm text-gray-700">Especialidades de contenido</span>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3">
+              <Badge variant="outline" className="w-6 h-6 rounded-full p-0 flex items-center justify-center">
+                4
+              </Badge>
+              <span className="text-sm text-gray-700">Portfolio y tarifas</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Badge variant="outline" className="w-6 h-6 rounded-full p-0 flex items-center justify-center">
+                5
+              </Badge>
+              <span className="text-sm text-gray-700">Analytics de audiencia</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <CheckCircle className="w-6 h-6 text-green-600" />
+              <span className="text-sm text-gray-700">¡Listo para colaborar!</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Success Stories Preview */}
+      <Card className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
+              <Heart className="w-5 h-5 mr-2 text-pink-600" />
+              Historias de éxito
+            </h3>
+            <p className="text-gray-600 text-sm">
+              "En 6 meses pude hacer de mi contenido mi trabajo full-time" - María, @maria_travels
+            </p>
+          </div>
+          <Button variant="outline" size="sm">
+            Ver más historias
+          </Button>
+        </div>
+      </Card>
+
+      {/* Confirmation */}
+      <Card className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-gray-900 mb-2">
+              ¿Listo para monetizar tu creatividad?
+            </h3>
+            <p className="text-gray-600 text-sm">
+              Solo te tomará 5 minutos configurar tu perfil y empezar a recibir propuestas
+            </p>
+          </div>
+          <Button
+            onClick={handleMarkComplete}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white"
+          >
+            {data.welcomeComplete ? (
+              <>
+                <CheckCircle className="w-4 h-4 mr-2" />
+                ¡Confirmado!
+              </>
+            ) : (
+              'Sí, ¡empezar ahora!'
+            )}
+          </Button>
+        </div>
+      </Card>
+
+      {/* Error display */}
+      {errors.general && (
+        <Card className="p-4 bg-red-50 border-red-200">
+          <p className="text-red-700 text-sm">{errors.general}</p>
+        </Card>
+      )}
+    </div>
+  );
+};

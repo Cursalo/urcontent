@@ -1,0 +1,106 @@
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Users, TrendingUp, Star, Zap, Shield, Clock } from "lucide-react";
+
+export const CTA = () => {
+  return (
+    <section className="py-32 relative overflow-hidden bg-black">
+      {/* Sophisticated background elements */}
+      <div className="absolute inset-0">
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900" />
+        
+        {/* Elegant floating elements */}
+        <div className="absolute top-20 left-10 w-96 h-96 bg-white/[0.02] rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-white/[0.03] rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.01] rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        
+        {/* Grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
+      </div>
+
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center">
+          {/* Premium badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-8">
+            <Star className="w-4 h-4 text-white/70" />
+            <span className="text-sm text-white/80 font-medium">La plataforma más confiable de Argentina</span>
+          </div>
+
+          {/* Main headline */}
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-light text-white mb-8 leading-tight">
+            Conecta tu marca con
+            <br />
+            <span className="font-semibold">creadores auténticos</span>
+          </h2>
+
+          {/* Subheading */}
+          <p className="text-xl md:text-2xl text-white/60 mb-16 max-w-3xl mx-auto font-light leading-relaxed">
+            La plataforma líder que conecta comercios con creadores de contenido. 
+            Resultados reales, colaboraciones auténticas.
+          </p>
+
+          {/* Enhanced stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
+            <div className="group">
+              <div className="text-4xl md:text-5xl font-light text-white mb-2 group-hover:scale-105 transition-transform duration-300">1,250+</div>
+              <div className="text-white/50 text-sm uppercase tracking-wider">Comercios</div>
+            </div>
+            <div className="group">
+              <div className="text-4xl md:text-5xl font-light text-white mb-2 group-hover:scale-105 transition-transform duration-300">5,800+</div>
+              <div className="text-white/50 text-sm uppercase tracking-wider">Creadores</div>
+            </div>
+            <div className="group">
+              <div className="text-4xl md:text-5xl font-light text-white mb-2 group-hover:scale-105 transition-transform duration-300">98%</div>
+              <div className="text-white/50 text-sm uppercase tracking-wider">Satisfacción</div>
+            </div>
+            <div className="group">
+              <div className="text-4xl md:text-5xl font-light text-white mb-2 group-hover:scale-105 transition-transform duration-300">24hs</div>
+              <div className="text-white/50 text-sm uppercase tracking-wider">Conexión</div>
+            </div>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
+            <Link to="/registro/comercio" className="group">
+              <Button 
+                size="lg" 
+                className="bg-white text-black hover:bg-gray-100 text-lg px-10 py-6 h-auto rounded-full font-medium transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-white/20"
+              >
+                Comenzar como Comercio
+                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
+              </Button>
+            </Link>
+            
+            <Link to="/registro/creador" className="group">
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="border-white/20 text-white hover:bg-white/5 text-lg px-10 py-6 h-auto rounded-full font-medium transition-all duration-300 group-hover:scale-105 group-hover:border-white/40"
+              >
+                Unirme como Creador
+                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
+              </Button>
+            </Link>
+          </div>
+
+          {/* Premium trust indicators */}
+          <div className="flex flex-wrap items-center justify-center gap-8 text-white/40 text-sm">
+            <div className="flex items-center gap-3 group hover:text-white/60 transition-colors duration-300">
+              <Shield className="w-4 h-4" />
+              <span className="font-medium">100% Seguro</span>
+            </div>
+            <div className="flex items-center gap-3 group hover:text-white/60 transition-colors duration-300">
+              <Zap className="w-4 h-4" />
+              <span className="font-medium">Conexión Inmediata</span>
+            </div>
+            <div className="flex items-center gap-3 group hover:text-white/60 transition-colors duration-300">
+              <Clock className="w-4 h-4" />
+              <span className="font-medium">Soporte 24/7</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};

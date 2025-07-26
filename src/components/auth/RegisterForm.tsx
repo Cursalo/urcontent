@@ -1,0 +1,273 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Eye, EyeOff, Loader2, User, Building2 } from 'lucide-react';
+
+interface RegisterFormProps {
+  onSuccess?: () => void;
+}
+
+export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
+  const { signUp } = useAuth();
+  const [formData, setFormData] = useState({
+    full_name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    role: 'creator' as 'creator' | 'business',
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+
+  const validateForm = () => {
+    if (formData.password !== formData.confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return false;
+    }
+    if (formData.password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await signUp(formData.email, formData.password, {
+        full_name: formData.full_name,
+        role: formData.role,
+      });
+      
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess(true);
+        setTimeout(() => {
+          onSuccess?.();
+        }, 2000);
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  if (success) {
+    return (
+      <Card className="w-full max-w-md mx-auto bg-white border border-gray-100 rounded-3xl shadow-xl shadow-black/5">
+        <CardHeader className="pt-12 pb-8">
+          <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <CardTitle className="text-3xl font-light text-center text-black mb-4">
+            ¡Registro <span className="font-semibold">exitoso!</span>
+          </CardTitle>
+          <CardDescription className="text-center text-gray-600 leading-relaxed">
+            Hemos enviado un email de confirmación a tu dirección de correo. 
+            Por favor verifica tu cuenta antes de iniciar sesión.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="px-8 pb-12">
+          <Button asChild className="w-full h-12 bg-black hover:bg-gray-800 text-white rounded-2xl font-medium transition-all duration-300 hover:scale-105">
+            <Link to="/login">Ir a Iniciar Sesión</Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="w-full max-w-md mx-auto bg-white border border-gray-100 rounded-3xl shadow-xl shadow-black/5">
+      <CardHeader className="space-y-6 pt-12 pb-8">
+      </CardHeader>
+      <form onSubmit={handleSubmit}>
+        <CardContent className="space-y-6 px-8">
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <div className="space-y-4">
+            <Label className="text-sm font-medium text-black">¿Qué tipo de cuenta quieres crear?</Label>
+            <RadioGroup
+              value={formData.role}
+              onValueChange={(value: 'creator' | 'business') => 
+                setFormData(prev => ({ ...prev, role: value }))
+              }
+              className="flex flex-col space-y-3"
+            >
+              <div className="flex items-center space-x-3 p-4 border border-gray-200 rounded-2xl hover:border-gray-300 hover:bg-gray-50 transition-all">
+                <RadioGroupItem value="creator" id="creator" className="data-[state=checked]:bg-black data-[state=checked]:border-black" />
+                <Label htmlFor="creator" className="flex items-center space-x-3 cursor-pointer flex-1">
+                  <div className="w-10 h-10 bg-black/5 rounded-xl flex items-center justify-center">
+                    <User className="h-5 w-5 text-black/70" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-black">Soy Creador</div>
+                    <div className="text-sm text-gray-600">
+                      Influencer, content creator, artista
+                    </div>
+                  </div>
+                </Label>
+              </div>
+              
+              <div className="flex items-center space-x-3 p-4 border border-gray-200 rounded-2xl hover:border-gray-300 hover:bg-gray-50 transition-all">
+                <RadioGroupItem value="business" id="business" className="data-[state=checked]:bg-black data-[state=checked]:border-black" />
+                <Label htmlFor="business" className="flex items-center space-x-3 cursor-pointer flex-1">
+                  <div className="w-10 h-10 bg-black/5 rounded-xl flex items-center justify-center">
+                    <Building2 className="h-5 w-5 text-black/70" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-black">Soy una Empresa</div>
+                    <div className="text-sm text-gray-600">
+                      Marca, agencia, comercio
+                    </div>
+                  </div>
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+          
+          <div className="space-y-3">
+            <Label htmlFor="full_name" className="text-sm font-medium text-black">Nombre Completo</Label>
+            <Input
+              id="full_name"
+              name="full_name"
+              type="text"
+              placeholder="Tu nombre completo"
+              value={formData.full_name}
+              onChange={handleChange}
+              required
+              disabled={loading}
+              className="h-12 rounded-2xl border-gray-200 focus:border-black focus:ring-black text-base"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label htmlFor="email" className="text-sm font-medium text-black">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="tu@email.com"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              disabled={loading}
+              className="h-12 rounded-2xl border-gray-200 focus:border-black focus:ring-black text-base"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label htmlFor="password" className="text-sm font-medium text-black">Contraseña</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                className="h-12 rounded-2xl border-gray-200 focus:border-black focus:ring-black text-base pr-12"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-0 top-0 h-12 px-4 hover:bg-transparent rounded-r-2xl"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={loading}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-400" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-400" />
+                )}
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label htmlFor="confirmPassword" className="text-sm font-medium text-black">Confirmar Contraseña</Label>
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                className="h-12 rounded-2xl border-gray-200 focus:border-black focus:ring-black text-base pr-12"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-0 top-0 h-12 px-4 hover:bg-transparent rounded-r-2xl"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                disabled={loading}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-400" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-400" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+        
+        <CardFooter className="flex flex-col space-y-6 px-8 pb-12">
+          <Button 
+            type="submit" 
+            className="w-full h-12 bg-black hover:bg-gray-800 text-white rounded-2xl font-medium text-base transition-all duration-300 hover:scale-105" 
+            disabled={loading}
+          >
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Crear Cuenta
+          </Button>
+          
+          <div className="text-center text-sm text-gray-600">
+            ¿Ya tienes cuenta?{' '}
+            <Link to="/login" className="text-black font-medium hover:underline transition-colors">
+              Inicia sesión aquí
+            </Link>
+          </div>
+        </CardFooter>
+      </form>
+    </Card>
+  );
+};
