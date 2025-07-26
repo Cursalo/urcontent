@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Store, Camera, Star, Play } from "lucide-react";
+import { ArrowRight, Store, Camera, Star, Play, Sparkles, TrendingUp, Shield } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { StatsCounter } from "@/components/ui/stats-counter";
 import socialMediaCreators from "@/assets/social-media-creators.jpg";
@@ -10,44 +10,66 @@ import restaurantFood from "@/assets/restaurant-food-ugc.jpg";
 export const Hero = () => {
   return (
     <div className="relative min-h-screen bg-white overflow-hidden">
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-50" />
+      {/* Enhanced background with animated gradients */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-purple-50/30" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.02)_1px,transparent_1px)] [background-size:24px_24px]" />
+      
+      {/* Animated floating elements */}
+      <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full opacity-20 animate-pulse" />
+      <div className="absolute top-40 right-20 w-16 h-16 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full opacity-20 animate-bounce" style={{animationDelay: '1s'}} />
+      <div className="absolute bottom-40 left-20 w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full opacity-20 animate-pulse" style={{animationDelay: '2s'}} />
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-center min-h-screen text-center py-20">
           
-          {/* Trust badge */}
-          <div className="inline-flex items-center px-4 py-2 bg-black text-white text-sm rounded-full mb-8 font-medium">
-            <Star className="w-4 h-4 mr-2 fill-current" />
-            URContent - Plataforma de Creadores
+          {/* Enhanced trust badge with animation */}
+          <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-black to-gray-800 text-white text-sm rounded-full mb-8 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+            <Sparkles className="w-4 h-4 mr-2 text-yellow-400 animate-pulse" />
+            URContent - Plataforma #1 de Creadores
             <div className="ml-3 flex space-x-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
+                <Star key={i} className="w-3 h-3 text-yellow-400 fill-current animate-pulse" style={{animationDelay: `${i * 0.1}s`}} />
               ))}
             </div>
+            <Badge className="ml-3 bg-green-500 text-white text-xs px-2 py-1">NUEVO</Badge>
           </div>
 
-          {/* Main headline */}
+          {/* Enhanced main headline with gradient text */}
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-light text-black mb-6 leading-tight max-w-4xl">
             Conecta marcas con
             <br />
-            <span className="font-semibold">creadores de contenido</span>
+            <span className="font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">creadores de contenido</span>
           </h1>
 
-          {/* Subtitle */}
-          <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl leading-relaxed">
+          {/* Enhanced subtitle */}
+          <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl leading-relaxed">
             La plataforma líder para colaboraciones entre influencers y marcas en Argentina.
             <br />
             <span className="text-black font-medium">Experiencias exclusivas para miembros.</span>
           </p>
 
-          {/* CTA Buttons */}
+          {/* New feature highlights */}
+          <div className="flex flex-wrap justify-center gap-4 mb-12">
+            <div className="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium text-gray-700 shadow-md">
+              <TrendingUp className="w-4 h-4 mr-2 text-green-500" />
+              +340% ROI promedio
+            </div>
+            <div className="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium text-gray-700 shadow-md">
+              <Shield className="w-4 h-4 mr-2 text-blue-500" />
+              Pagos garantizados
+            </div>
+            <div className="flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium text-gray-700 shadow-md">
+              <Star className="w-4 h-4 mr-2 text-yellow-500" />
+              4.9/5 rating
+            </div>
+          </div>
+
+          {/* Enhanced CTA Buttons with better gradients */}
           <div className="flex flex-col sm:flex-row gap-4 mb-16">
             <Link to="/onboarding/creator">
               <Button 
                 size="lg" 
-                className="bg-black hover:bg-gray-800 text-white px-8 py-4 h-auto text-lg font-medium rounded-full border-0 transform hover:scale-105 transition-all duration-300 shadow-lg"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 h-auto text-lg font-medium rounded-full border-0 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <Camera className="mr-2 h-5 w-5" />
                 Soy Creador
@@ -59,7 +81,7 @@ export const Hero = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-2 border-black text-black hover:bg-black hover:text-white px-8 py-4 h-auto text-lg font-medium rounded-full transform hover:scale-105 transition-all duration-300"
+                className="border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-4 h-auto text-lg font-medium rounded-full transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <Store className="mr-2 h-5 w-5" />
                 Soy Marca
@@ -71,10 +93,10 @@ export const Hero = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-2 border-black text-black hover:bg-black hover:text-white px-8 py-4 h-auto text-lg font-medium rounded-full transform hover:scale-105 transition-all duration-300"
+                className="border-2 border-pink-600 text-pink-600 hover:bg-pink-600 hover:text-white px-8 py-4 h-auto text-lg font-medium rounded-full transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <Star className="mr-2 h-5 w-5" />
-                Membresía
+                Membresía VIP
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>

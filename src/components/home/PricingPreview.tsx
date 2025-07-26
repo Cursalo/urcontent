@@ -1,0 +1,185 @@
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Check, Star, Zap, Crown } from "lucide-react";
+
+const plans = [
+  {
+    name: "Básico",
+    price: "$2,999",
+    period: "/mes",
+    description: "Perfecto para creadores principiantes",
+    icon: Star,
+    color: "from-gray-500 to-gray-600",
+    borderColor: "border-gray-200",
+    features: [
+      "5 colaboraciones por mes",
+      "Perfil básico verificado",
+      "Soporte por email",
+      "Métricas básicas",
+      "Pagos estándar"
+    ],
+    cta: "Empezar gratis",
+    popular: false
+  },
+  {
+    name: "Premium",
+    price: "$8,999",
+    period: "/mes",
+    description: "Para creadores establecidos",
+    icon: Zap,
+    color: "from-purple-500 to-pink-500",
+    borderColor: "border-purple-200",
+    features: [
+      "15 colaboraciones por mes",
+      "Perfil premium destacado",
+      "Soporte prioritario",
+      "Analytics avanzados",
+      "Pagos rápidos (24h)",
+      "Acceso a experiencias VIP"
+    ],
+    cta: "Actualizar",
+    popular: true
+  },
+  {
+    name: "VIP Elite",
+    price: "$19,999",
+    period: "/mes",
+    description: "Para creadores profesionales",
+    icon: Crown,
+    color: "from-yellow-500 to-orange-500",
+    borderColor: "border-yellow-200",
+    features: [
+      "Colaboraciones ilimitadas",
+      "Perfil VIP con verificación azul",
+      "Manager personal dedicado",
+      "Suite completa de analytics",
+      "Pagos instantáneos",
+      "Experiencias exclusivas VIP",
+      "Eventos privados"
+    ],
+    cta: "Contactar",
+    popular: false
+  }
+];
+
+export const PricingPreview = () => {
+  return (
+    <section className="py-24 bg-gradient-to-br from-gray-50 to-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Header */}
+        <div className="text-center mb-20">
+          <Badge variant="outline" className="mb-6 bg-black text-white border-black px-6 py-2 text-sm font-medium rounded-full">
+            Planes y precios
+          </Badge>
+          
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-light text-black mb-6 leading-tight">
+            Elige tu plan
+            <br />
+            <span className="font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              perfecto
+            </span>
+          </h2>
+          
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Desde creadores emergentes hasta influencers establecidos, 
+            tenemos el plan perfecto para impulsar tu carrera.
+          </p>
+        </div>
+
+        {/* Pricing Cards */}
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
+          {plans.map((plan, index) => (
+            <Card 
+              key={index}
+              className={`relative border-2 ${plan.borderColor} ${
+                plan.popular ? 'scale-105 shadow-2xl' : 'shadow-lg hover:shadow-xl'
+              } transition-all duration-300 bg-white rounded-3xl overflow-hidden group`}
+            >
+              {plan.popular && (
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                  <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 text-sm font-medium">
+                    MÁS POPULAR
+                  </Badge>
+                </div>
+              )}
+              
+              <CardContent className="p-8 text-center">
+                
+                {/* Icon */}
+                <div className={`w-16 h-16 mx-auto mb-6 bg-gradient-to-r ${plan.color} rounded-2xl flex items-center justify-center`}>
+                  <plan.icon className="w-8 h-8 text-white" />
+                </div>
+
+                {/* Plan Name */}
+                <h3 className="text-2xl font-semibold mb-2 text-black">
+                  {plan.name}
+                </h3>
+                
+                <p className="text-gray-600 mb-6">
+                  {plan.description}
+                </p>
+
+                {/* Price */}
+                <div className="mb-8">
+                  <span className="text-4xl font-light text-black">{plan.price}</span>
+                  <span className="text-gray-600">{plan.period}</span>
+                </div>
+
+                {/* Features */}
+                <ul className="space-y-4 mb-8 text-left">
+                  {plan.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-center">
+                      <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-gray-700">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA Button */}
+                <Link to="/membership">
+                  <Button 
+                    className={`w-full py-3 h-auto text-lg font-medium rounded-full transition-all duration-300 ${
+                      plan.popular 
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl' 
+                        : 'border-2 border-gray-300 text-gray-700 hover:border-black hover:text-black'
+                    }`}
+                    variant={plan.popular ? "default" : "outline"}
+                  >
+                    {plan.cta}
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="text-center bg-black rounded-3xl p-12 text-white">
+          <h3 className="text-3xl font-light mb-4">
+            ¿Necesitas un plan personalizado?
+          </h3>
+          <p className="text-white/80 mb-8 max-w-2xl mx-auto">
+            Para empresas y agencias que manejan múltiples creadores, 
+            ofrecemos soluciones enterprise con precios especiales.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              variant="outline" 
+              className="border-white text-white hover:bg-white hover:text-black px-8 py-3 rounded-full"
+            >
+              Contactar ventas
+            </Button>
+            <Button 
+              className="bg-white text-black hover:bg-gray-100 px-8 py-3 rounded-full"
+            >
+              Ver demo
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};

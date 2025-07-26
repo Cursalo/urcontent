@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Zap, TrendingUp, Users, Award, Globe } from "lucide-react";
+import { Shield, Zap, TrendingUp, Users, Award, Globe, Sparkles } from "lucide-react";
 
 const features = [
   {
@@ -46,16 +46,17 @@ export const Features = () => {
     <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header */}
+        {/* Enhanced Header */}
         <div className="text-center mb-20">
-          <Badge variant="outline" className="mb-6 bg-black text-white border-black px-6 py-2 text-sm font-medium rounded-full">
+          <Badge variant="outline" className="mb-6 bg-gradient-to-r from-black to-gray-800 text-white border-black px-6 py-2 text-sm font-medium rounded-full shadow-lg">
+            <Sparkles className="w-4 h-4 mr-2" />
             Características principales
           </Badge>
           
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-light text-black mb-6 leading-tight">
             La plataforma más
             <br />
-            <span className="font-semibold">avanzada del mercado</span>
+            <span className="font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">avanzada del mercado</span>
           </h2>
           
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
