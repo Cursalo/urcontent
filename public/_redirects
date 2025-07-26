@@ -1,2 +1,20 @@
-# Redirect all requests to index.html for SPA routing
-/*    /index.html   200
+# Single Page Application redirects
+/login              /index.html   200
+/register           /index.html   200
+/dashboard          /index.html   200
+/marketplace        /index.html   200
+/experiences        /index.html   200
+/membership         /index.html   200
+/campaigns          /index.html   200
+/messages           /index.html   200
+/messages/*         /index.html   200
+/creator/*          /index.html   200
+/c/*                /index.html   200
+/business/*         /index.html   200
+/onboarding/*       /index.html   200
+/payment/*          /index.html   200
+/test-payments      /index.html   200
+/admin/*            /index.html   200
+
+# Catch-all redirect for any other routes
+/*                  /index.html   200

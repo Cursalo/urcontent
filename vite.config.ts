@@ -8,6 +8,16 @@ export default defineConfig({
   server: {
     host: '::',
     port: 8080,
+    historyApiFallback: true,
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
   },
   resolve: {
     alias: {
