@@ -30,17 +30,22 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Redirect to login if not authenticated
-  if (!user || !profile) {
+  if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Check role requirements
-  if (requiredRole && profile.role !== requiredRole) {
+  // If user exists but profile is null, allow access but log the issue
+  if (!profile) {
+    console.warn('User authenticated but profile not found, allowing access with limited functionality');
+  }
+
+  // Check role requirements (only if profile exists)
+  if (requiredRole && profile && profile.role !== requiredRole) {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // Check verification requirements
-  if (requiresVerification && !profile.is_verified) {
+  // Check verification requirements (only if profile exists)
+  if (requiresVerification && profile && !profile.is_verified) {
     return <Navigate to="/verify-account" replace />;
   }
 

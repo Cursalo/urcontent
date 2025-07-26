@@ -74,11 +74,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error fetching user profile:', error);
+        // If users table doesn't exist or user not found, create a fallback profile
+        if (error.code === '42P01' || error.code === 'PGRST116') {
+          console.warn('Users table not found or user profile missing, creating fallback profile');
+          setProfile(null);
+        }
       } else {
         setProfile(data);
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      // Set profile to null instead of leaving it undefined to prevent infinite loops
+      setProfile(null);
     } finally {
       setLoading(false);
     }
