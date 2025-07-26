@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# URContent - Plataforma de Creadores y Beauty Pass
+# https://urcontent.com
+
+Sitemap: https://urcontent.com/sitemap.xml
