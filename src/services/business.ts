@@ -1,5 +1,8 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { ApiError, handleSupabaseError } from '@/lib/error-handling';
+import { withRetry } from '@/lib/retry';
+import { validateBusinessProfile } from '@/lib/validation';
 
 export type BusinessProfile = Tables<'business_profiles'> & {
   user: Tables<'users'>;
@@ -17,49 +20,59 @@ export type BusinessFilters = {
 class BusinessService {
   // Get all business profiles with filters
   async getBusinesses(filters: BusinessFilters = {}): Promise<BusinessProfile[]> {
-    let query = supabase
-      .from('business_profiles')
-      .select(`
-        *,
-        user:users(*),
-        venues(*)
-      `);
+    return withRetry(async () => {
+      try {
+        let query = supabase
+          .from('business_profiles')
+          .select(`
+            *,
+            user:users(*),
+            venues(*)
+          `);
 
-    // Apply search filter
-    if (filters.search) {
-      query = query.or(
-        `company_name.ilike.%${filters.search}%,description.ilike.%${filters.search}%,industry.ilike.%${filters.search}%`
-      );
-    }
+        // Apply search filter with sanitization
+        if (filters.search) {
+          const sanitizedSearch = filters.search.replace(/[%_]/g, '\\$&');
+          query = query.or(
+            `company_name.ilike.%${sanitizedSearch}%,description.ilike.%${sanitizedSearch}%,industry.ilike.%${sanitizedSearch}%`
+          );
+        }
 
-    // Apply industry filter
-    if (filters.industry) {
-      query = query.eq('industry', filters.industry);
-    }
+        // Apply industry filter
+        if (filters.industry) {
+          query = query.eq('industry', filters.industry);
+        }
 
-    // Apply company size filter
-    if (filters.company_size) {
-      query = query.eq('company_size', filters.company_size);
-    }
+        // Apply company size filter
+        if (filters.company_size) {
+          query = query.eq('company_size', filters.company_size);
+        }
 
-    // Apply location filter
-    if (filters.location) {
-      query = query.ilike('address', `%${filters.location}%`);
-    }
+        // Apply location filter
+        if (filters.location) {
+          const sanitizedLocation = filters.location.replace(/[%_]/g, '\\$&');
+          query = query.ilike('address', `%${sanitizedLocation}%`);
+        }
 
-    // Apply verification filter
-    if (filters.is_verified !== undefined) {
-      query = query.eq('is_verified_business', filters.is_verified);
-    }
+        // Apply verification filter
+        if (filters.is_verified !== undefined) {
+          query = query.eq('is_verified_business', filters.is_verified);
+        }
 
-    const { data, error } = await query.order('created_at', { ascending: false });
+        const { data, error } = await query
+          .order('created_at', { ascending: false })
+          .limit(50); // Add pagination limit
 
-    if (error) {
-      console.error('Error fetching businesses:', error);
-      throw error;
-    }
+        if (error) {
+          throw handleSupabaseError(error, 'Failed to fetch businesses');
+        }
 
-    return data || [];
+        return data || [];
+      } catch (error) {
+        console.error('Error fetching businesses:', error);
+        throw error instanceof ApiError ? error : new ApiError('Failed to fetch businesses', 500);
+      }
+    }, 3, 1000);
   }
 
   // Get single business profile by ID

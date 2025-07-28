@@ -1,0 +1,114 @@
+groups:
+  - name: content-weave-alerts
+    rules:
+      # Application availability
+      - alert: ApplicationDown
+        expr: up{job="content-weave-app"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Content Weave application is down"
+          description: "The Content Weave application has been down for more than 2 minutes."
+
+      # High response time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }} seconds."
+
+      # High error rate
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes."
+
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: (100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for more than 10 minutes."
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 85% for more than 10 minutes."
+
+      # Disk space low
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space detected"
+          description: "Disk space is below 20% on {{ $labels.device }}."
+
+      # Redis down
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis has been down for more than 2 minutes."
+
+      # SSL certificate expiry
+      - alert: SSLCertExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 30
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate expires in {{ $value | humanizeDuration }}."
+
+      # Supabase connection issues
+      - alert: SupabaseConnectionIssues
+        expr: increase(supabase_connection_errors_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Supabase connection issues detected"
+          description: "{{ $value }} connection errors to Supabase in the last 5 minutes."
+
+  - name: business-metrics
+    rules:
+      # Low user registration rate
+      - alert: LowUserRegistrations
+        expr: increase(user_registrations_total[1h]) < 5
+        for: 2h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low user registration rate"
+          description: "Only {{ $value }} user registrations in the last hour."
+
+      # High payment failure rate
+      - alert: HighPaymentFailureRate
+        expr: rate(payment_failures_total[5m]) / rate(payment_attempts_total[5m]) > 0.10
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High payment failure rate"
+          description: "Payment failure rate is {{ $value | humanizePercentage }}."

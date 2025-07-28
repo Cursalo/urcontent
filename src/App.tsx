@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,43 +6,49 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import Index from "./pages/Index";
-import Precios from "./pages/Precios";
-import ComoFunciona from "./pages/ComoFunciona";
-import Marketplace from "./pages/Marketplace";
-import Experiences from "./pages/Experiences";
-import ExperiencesSimple from "./pages/ExperiencesSimple";
-import Membership from "./pages/Membership";
-import CreatorProfile from "./pages/CreatorProfile";
-import CampaignManagement from "./pages/CampaignManagement";
-import Messages from "./pages/Messages";
-import RegistroComercio from "./pages/RegistroComercio";
-import RegistroCreador from "./pages/RegistroCreador";
-import BusinessOnboarding from "./pages/BusinessOnboarding";
-import CreatorOnboarding from "./pages/CreatorOnboarding";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import Dashboard from "./pages/Dashboard";
-import VenueDashboard from "./pages/business/VenueDashboard";
-import ContentReview from "./pages/business/ContentReview";
-import PublicCreatorProfile from "./pages/PublicCreatorProfile";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import PaymentFailure from "./pages/PaymentFailure";
-import PaymentPending from "./pages/PaymentPending";
-import TestPayments from "./pages/TestPayments";
-import NotFound from "./pages/NotFound";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
+
+// Lazy load all page components for code splitting
+const Index = lazy(() => import("./pages/Index"));
+const Precios = lazy(() => import("./pages/Precios"));
+const ComoFunciona = lazy(() => import("./pages/ComoFunciona"));
+const Marketplace = lazy(() => import("./pages/Marketplace"));
+const Experiences = lazy(() => import("./pages/Experiences"));
+const ExperiencesSimple = lazy(() => import("./pages/ExperiencesSimple"));
+const Membership = lazy(() => import("./pages/Membership"));
+const CreatorProfile = lazy(() => import("./pages/CreatorProfile"));
+const CampaignManagement = lazy(() => import("./pages/CampaignManagement"));
+const Messages = lazy(() => import("./pages/Messages"));
+const RegistroComercio = lazy(() => import("./pages/RegistroComercio"));
+const RegistroCreador = lazy(() => import("./pages/RegistroCreador"));
+const BusinessOnboarding = lazy(() => import("./pages/BusinessOnboarding"));
+const CreatorOnboarding = lazy(() => import("./pages/CreatorOnboarding"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const VenueDashboard = lazy(() => import("./pages/business/VenueDashboard"));
+const ContentReview = lazy(() => import("./pages/business/ContentReview"));
+const PublicCreatorProfile = lazy(() => import("./pages/PublicCreatorProfile"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const PaymentFailure = lazy(() => import("./pages/PaymentFailure"));
+const PaymentPending = lazy(() => import("./pages/PaymentPending"));
+const TestPayments = lazy(() => import("./pages/TestPayments"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/precios" element={<Precios />} />
             <Route path="/como-funciona" element={<ComoFunciona />} />
@@ -94,11 +101,13 @@ const App = () => (
             <Route path="/test-payments" element={<TestPayments />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+            </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

@@ -1,0 +1,157 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: content-weave-app
+  namespace: content-weave
+  labels:
+    app: content-weave
+    component: frontend
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: content-weave
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: content-weave
+        component: frontend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: content-weave
+        image: ghcr.io/cursalo/urcontent/content-weave:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: VITE_SUPABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: content-weave-secrets
+              key: supabase-url
+        - name: VITE_SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: content-weave-secrets
+              key: supabase-anon-key
+        - name: VITE_MERCADOPAGO_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: content-weave-secrets
+              key: mercadopago-public-key
+        - name: VITE_APP_URL
+          valueFrom:
+            configMapKeyRef:
+              name: content-weave-config
+              key: app-url
+        - name: VITE_APP_NAME
+          value: "Content Weave"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1001
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      imagePullSecrets:
+      - name: ghcr-secret
+      securityContext:
+        fsGroup: 1001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: content-weave-service
+  namespace: content-weave
+  labels:
+    app: content-weave
+    component: frontend
+spec:
+  selector:
+    app: content-weave
+    component: frontend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: content-weave-ingress
+  namespace: content-weave
+  labels:
+    app: content-weave
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  tls:
+  - hosts:
+    - content-weave.com
+    - www.content-weave.com
+    secretName: content-weave-tls
+  rules:
+  - host: content-weave.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: content-weave-service
+            port:
+              number: 80
+  - host: www.content-weave.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: content-weave-service
+            port:
+              number: 80

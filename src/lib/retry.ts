@@ -1,0 +1,126 @@
+export interface RetryOptions {
+  attempts: number;
+  delay: number;
+  backoff?: boolean;
+  shouldRetry?: (error: Error) => boolean;
+}
+
+export const withRetry = async <T>(
+  operation: () => Promise<T>,
+  maxAttempts: number = 3,
+  baseDelay: number = 1000,
+  options?: Partial<RetryOptions>
+): Promise<T> => {
+  const { backoff = true, shouldRetry = defaultShouldRetry } = options || {};
+  
+  let lastError: Error;
+  
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error as Error;
+      
+      // Don't retry if this is the last attempt or if we shouldn't retry this error
+      if (attempt === maxAttempts || !shouldRetry(lastError)) {
+        throw lastError;
+      }
+      
+      // Calculate delay with exponential backoff
+      const delay = backoff ? baseDelay * Math.pow(2, attempt - 1) : baseDelay;
+      
+      console.warn(`Operation failed (attempt ${attempt}/${maxAttempts}), retrying in ${delay}ms:`, lastError.message);
+      
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError!;
+};
+
+const defaultShouldRetry = (error: Error): boolean => {
+  // Don't retry client errors (4xx), except for 429 (rate limit)
+  if (error.name === 'ApiError') {
+    const apiError = error as any;
+    return apiError.statusCode >= 500 || apiError.statusCode === 429;
+  }
+  
+  // Retry network errors
+  if (error.message.includes('network') || error.message.includes('timeout')) {
+    return true;
+  }
+  
+  // Don't retry validation errors
+  if (error.name === 'ValidationError') {
+    return false;
+  }
+  
+  // Retry by default for unknown errors
+  return true;
+};
+
+// Circuit breaker implementation
+class CircuitBreaker {
+  private failures = 0;
+  private nextAttempt = Date.now();
+  private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED';
+  
+  constructor(
+    private failureThreshold: number = 5,
+    private recoveryTimeout: number = 60000
+  ) {}
+  
+  async execute<T>(operation: () => Promise<T>): Promise<T> {
+    if (this.state === 'OPEN') {
+      if (Date.now() < this.nextAttempt) {
+        throw new Error('Circuit breaker is OPEN');
+      }
+      this.state = 'HALF_OPEN';
+    }
+    
+    try {
+      const result = await operation();
+      this.onSuccess();
+      return result;
+    } catch (error) {
+      this.onFailure();
+      throw error;
+    }
+  }
+  
+  private onSuccess() {
+    this.failures = 0;
+    this.state = 'CLOSED';
+  }
+  
+  private onFailure() {
+    this.failures++;
+    if (this.failures >= this.failureThreshold) {
+      this.state = 'OPEN';
+      this.nextAttempt = Date.now() + this.recoveryTimeout;
+    }
+  }
+  
+  getState() {
+    return {
+      state: this.state,
+      failures: this.failures,
+      nextAttempt: new Date(this.nextAttempt)
+    };
+  }
+}
+
+// Global circuit breakers for different services
+export const circuitBreakers = {
+  database: new CircuitBreaker(5, 30000),
+  payment: new CircuitBreaker(3, 60000),
+  external: new CircuitBreaker(10, 30000)
+};
+
+// Helper function to execute with circuit breaker
+export const withCircuitBreaker = async <T>(
+  operation: () => Promise<T>,
+  breakerType: keyof typeof circuitBreakers = 'database'
+): Promise<T> => {
+  return circuitBreakers[breakerType].execute(operation);
+};

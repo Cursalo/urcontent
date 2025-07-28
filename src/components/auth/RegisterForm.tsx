@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, memo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,53 +10,60 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Eye, EyeOff, Loader2, User, Building2 } from 'lucide-react';
+import { passwordSchema, emailSchema } from '@/lib/validation';
+
+// Enhanced form validation schema
+const registerSchema = z.object({
+  full_name: z.string()
+    .min(2, "El nombre debe tener al menos 2 caracteres")
+    .max(100, "El nombre no puede exceder 100 caracteres")
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, "El nombre solo puede contener letras y espacios"),
+  email: emailSchema,
+  password: passwordSchema,
+  confirmPassword: z.string()
+    .min(1, "Confirma tu contraseña"),
+  role: z.enum(['creator', 'business'])
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Las contraseñas no coinciden",
+  path: ["confirmPassword"]
+});
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 interface RegisterFormProps {
   onSuccess?: () => void;
 }
 
-export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
+export const RegisterForm: React.FC<RegisterFormProps> = memo(({ onSuccess }) => {
   const { signUp } = useAuth();
-  const [formData, setFormData] = useState({
-    full_name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'creator' as 'creator' | 'business',
-  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const validateForm = () => {
-    if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
-      return false;
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      full_name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      role: 'creator'
     }
-    if (formData.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
-      return false;
-    }
-    return true;
-  };
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const { handleSubmit, formState: { isSubmitting }, watch } = form;
+  const watchedRole = watch('role');
+
+  const onSubmit = useCallback(async (data: RegisterFormData) => {
     setError('');
 
-    if (!validateForm()) {
-      setLoading(false);
-      return;
-    }
-
     try {
-      const { error } = await signUp(formData.email, formData.password, {
-        full_name: formData.full_name,
-        role: formData.role,
+      const { error } = await signUp(data.email, data.password, {
+        full_name: data.full_name,
+        role: data.role,
       });
       
       if (error) {
@@ -66,17 +76,16 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
       }
     } catch (err) {
       setError('An unexpected error occurred');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [signUp, onSuccess]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  const togglePasswordVisibility = useCallback(() => {
+    setShowPassword(prev => !prev);
+  }, []);
+
+  const toggleConfirmPasswordVisibility = useCallback(() => {
+    setShowConfirmPassword(prev => !prev);
+  }, []);
 
   if (success) {
     return (
@@ -108,23 +117,27 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
     <Card className="w-full max-w-md mx-auto bg-white border border-gray-100 rounded-3xl shadow-xl shadow-black/5">
       <CardHeader className="space-y-6 pt-12 pb-8">
       </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-6 px-8">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <CardContent className="space-y-6 px-8">
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-          <div className="space-y-4">
-            <Label className="text-sm font-medium text-black">¿Qué tipo de cuenta quieres crear?</Label>
-            <RadioGroup
-              value={formData.role}
-              onValueChange={(value: 'creator' | 'business') => 
-                setFormData(prev => ({ ...prev, role: value }))
-              }
-              className="flex flex-col space-y-3"
-            >
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem className="space-y-4">
+                  <FormLabel className="text-sm font-medium text-black">¿Qué tipo de cuenta quieres crear?</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      className="flex flex-col space-y-3"
+                    >
               <div className="flex items-center space-x-3 p-4 border border-gray-200 rounded-2xl hover:border-gray-300 hover:bg-gray-50 transition-all">
                 <RadioGroupItem value="creator" id="creator" className="data-[state=checked]:bg-black data-[state=checked]:border-black" />
                 <Label htmlFor="creator" className="flex items-center space-x-3 cursor-pointer flex-1">
@@ -154,109 +167,133 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
                   </div>
                 </Label>
               </div>
-            </RadioGroup>
-          </div>
-          
-          <div className="space-y-3">
-            <Label htmlFor="full_name" className="text-sm font-medium text-black">Nombre Completo</Label>
-            <Input
-              id="full_name"
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
               name="full_name"
-              type="text"
-              placeholder="Tu nombre completo"
-              value={formData.full_name}
-              onChange={handleChange}
-              required
-              disabled={loading}
-              className="h-12 rounded-2xl border-gray-200 focus:border-black focus:ring-black text-base"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel className="text-sm font-medium text-black">Nombre Completo</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="text"
+                      placeholder="Tu nombre completo"
+                      disabled={isSubmitting}
+                      className="h-12 rounded-2xl border-gray-200 focus:border-black focus:ring-black text-base"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="space-y-3">
-            <Label htmlFor="email" className="text-sm font-medium text-black">Email</Label>
-            <Input
-              id="email"
+            <FormField
+              control={form.control}
               name="email"
-              type="email"
-              placeholder="tu@email.com"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              disabled={loading}
-              className="h-12 rounded-2xl border-gray-200 focus:border-black focus:ring-black text-base"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel className="text-sm font-medium text-black">Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="tu@email.com"
+                      disabled={isSubmitting}
+                      className="h-12 rounded-2xl border-gray-200 focus:border-black focus:ring-black text-base"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="space-y-3">
-            <Label htmlFor="password" className="text-sm font-medium text-black">Contraseña</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="h-12 rounded-2xl border-gray-200 focus:border-black focus:ring-black text-base pr-12"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-12 px-4 hover:bg-transparent rounded-r-2xl"
-                onClick={() => setShowPassword(!showPassword)}
-                disabled={loading}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-gray-400" />
-                ) : (
-                  <Eye className="h-4 w-4 text-gray-400" />
-                )}
-              </Button>
-            </div>
-          </div>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel className="text-sm font-medium text-black">Contraseña</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="••••••••"
+                        disabled={isSubmitting}
+                        className="h-12 rounded-2xl border-gray-200 focus:border-black focus:ring-black text-base pr-12"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-12 px-4 hover:bg-transparent rounded-r-2xl"
+                        onClick={togglePasswordVisibility}
+                        disabled={isSubmitting}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400" />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <div className="space-y-3">
-            <Label htmlFor="confirmPassword" className="text-sm font-medium text-black">Confirmar Contraseña</Label>
-            <div className="relative">
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="h-12 rounded-2xl border-gray-200 focus:border-black focus:ring-black text-base pr-12"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-12 px-4 hover:bg-transparent rounded-r-2xl"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                disabled={loading}
-              >
-                {showConfirmPassword ? (
-                  <EyeOff className="h-4 w-4 text-gray-400" />
-                ) : (
-                  <Eye className="h-4 w-4 text-gray-400" />
-                )}
-              </Button>
-            </div>
-          </div>
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel className="text-sm font-medium text-black">Confirmar Contraseña</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        placeholder="••••••••"
+                        disabled={isSubmitting}
+                        className="h-12 rounded-2xl border-gray-200 focus:border-black focus:ring-black text-base pr-12"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-12 px-4 hover:bg-transparent rounded-r-2xl"
+                        onClick={toggleConfirmPasswordVisibility}
+                        disabled={isSubmitting}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400" />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
         </CardContent>
         
         <CardFooter className="flex flex-col space-y-6 px-8 pb-12">
           <Button 
             type="submit" 
             className="w-full h-12 bg-black hover:bg-gray-800 text-white rounded-2xl font-medium text-base transition-all duration-300 hover:scale-105" 
-            disabled={loading}
+            disabled={isSubmitting}
           >
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Crear Cuenta
           </Button>
           
@@ -267,7 +304,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
             </Link>
           </div>
         </CardFooter>
-      </form>
+        </form>
+      </Form>
     </Card>
   );
-};
+});
+
+RegisterForm.displayName = "RegisterForm";

@@ -1,6 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useMemo, useCallback } from "react";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { StatsCard } from "@/components/dashboard/StatsCard";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
+import { performanceMonitor } from "@/lib/performance";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,6 +32,12 @@ import {
   RadialBarChart,
   RadialBar
 } from 'recharts';
+
+// Lazy load chart components for better performance
+const LazyLineChart = memo(LineChart);
+const LazyAreaChart = memo(AreaChart);
+const LazyBarChart = memo(BarChart);
+const LazyRadialBarChart = memo(RadialBarChart);
 import {
   Camera,
   DollarSign,

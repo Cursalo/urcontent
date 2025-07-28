@@ -1,22 +1,22 @@
 // MercadoPago Configuration and Service
 import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 
-// MercadoPago Credentials
+// MercadoPago Credentials - SECURE VERSION
+// These credentials are now loaded from environment variables
 export const MERCADOPAGO_CONFIG = {
-  publicKey: 'APP_USR-4bf8a6c3-d4dc-49c5-ac76-3521ae177c65',
-  accessToken: 'APP_USR-932682478526432-072600-09dd6280a56b305123226077353cecd8-239559910',
-  clientId: '932682478526432',
-  clientSecret: 'MRk4tMDSU9XHqYOzbbAVzEb2RgEl12oC'
+  publicKey: import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY || '',
+  // Access token should NEVER be exposed in client-side code
+  // This will be handled server-side only via Supabase Edge Functions
 };
 
-// Initialize MercadoPago client
-const client = new MercadoPagoConfig({ 
-  accessToken: MERCADOPAGO_CONFIG.accessToken,
-  options: { timeout: 5000 }
-});
+// Validate that required credentials are present
+if (!MERCADOPAGO_CONFIG.publicKey) {
+  console.warn('VITE_MERCADOPAGO_PUBLIC_KEY is not configured. Payment functionality will be limited.');
+}
 
-export const payment = new Payment(client);
-export const preference = new Preference(client);
+// CLIENT-SIDE: Only use public key for frontend operations
+// This is safe to expose as it's designed for client-side use
+export const getPublicKey = () => MERCADOPAGO_CONFIG.publicKey;
 
 // Payment types
 export type PaymentType = 'membership' | 'collaboration' | 'experience' | 'campaign_deposit';
@@ -49,63 +49,88 @@ export interface CollaborationPaymentData extends PaymentData {
   };
 }
 
-// Create payment preference
+// Input validation and sanitization
+const sanitizeString = (input: string): string => {
+  return input.replace(/[<>"'&]/g, '').trim();
+};
+
+const validatePaymentData = (paymentData: PaymentData): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = [];
+  
+  if (!paymentData.amount || paymentData.amount <= 0) {
+    errors.push('Invalid payment amount');
+  }
+  
+  if (paymentData.amount > 999999999) {
+    errors.push('Payment amount exceeds maximum limit');
+  }
+  
+  if (!paymentData.description || paymentData.description.length < 3) {
+    errors.push('Payment description is required');
+  }
+  
+  if (!paymentData.userId || !paymentData.userEmail || !paymentData.userName) {
+    errors.push('User information is required');
+  }
+  
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (paymentData.userEmail && !emailRegex.test(paymentData.userEmail)) {
+    errors.push('Invalid email format');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+// SECURE: Create payment preference via server-side API
 export const createPaymentPreference = async (paymentData: PaymentData) => {
   try {
-    const preferenceData = {
-      items: [
-        {
-          id: `${paymentData.paymentType}_${Date.now()}`,
-          title: paymentData.description,
-          quantity: 1,
-          unit_price: paymentData.amount,
-          currency_id: 'ARS'
-        }
-      ],
-      payer: {
-        name: paymentData.userName,
-        email: paymentData.userEmail
-      },
-      payment_methods: {
-        default_payment_method_id: null,
-        excluded_payment_types: [
-          { id: 'ticket' }
-        ],
-        excluded_payment_methods: [],
-        installments: paymentData.amount > 10000 ? 12 : 6,
-        default_installments: 1
-      },
-      shipments: {
-        cost: 0,
-        mode: 'not_specified'
-      },
-      back_urls: {
-        success: paymentData.successUrl || `${window.location.origin}/payment/success`,
-        failure: paymentData.failureUrl || `${window.location.origin}/payment/failure`,
-        pending: paymentData.pendingUrl || `${window.location.origin}/payment/pending`
-      },
-      auto_return: 'approved',
-      external_reference: `${paymentData.paymentType}_${paymentData.userId}_${Date.now()}`,
-      notification_url: `${window.location.origin}/api/mercadopago/webhook`,
-      metadata: {
-        user_id: paymentData.userId,
-        payment_type: paymentData.paymentType,
-        ...paymentData.metadata
-      }
+    // Validate input data
+    const validation = validatePaymentData(paymentData);
+    if (!validation.isValid) {
+      return {
+        success: false,
+        error: 'Validation failed: ' + validation.errors.join(', ')
+      };
+    }
+    
+    // Sanitize input data
+    const sanitizedData = {
+      ...paymentData,
+      description: sanitizeString(paymentData.description),
+      userName: sanitizeString(paymentData.userName),
+      userEmail: sanitizeString(paymentData.userEmail)
     };
-
-    const response = await preference.create({ body: preferenceData });
+    
+    // Call secure server-side API endpoint
+    const response = await fetch('/api/secure-payments/create-preference', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(sanitizedData)
+    });
+    
+    if (!response.ok) {
+      throw new Error('HTTP error! status: ' + response.status);
+    }
+    
+    const result = await response.json();
+    
     return {
       success: true,
-      preferenceId: response.id,
-      initPoint: response.init_point,
-      sandboxInitPoint: response.sandbox_init_point
+      preferenceId: result.preferenceId,
+      initPoint: result.initPoint,
+      sandboxInitPoint: result.sandboxInitPoint
     };
   } catch (error) {
-    console.error('Error creating MercadoPago preference:', error);
+    console.error('Error creating payment preference:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Error creating payment preference'
+      error: 'Error creating payment preference. Please try again.'
     };
   }
 };
@@ -119,14 +144,14 @@ export const createMembershipPayment = async (membershipData: MembershipPaymentD
   };
 
   const amount = membershipPrices[membershipData.membershipTier][membershipData.billingPeriod];
-  const description = `URContent ${membershipData.membershipTier.toUpperCase()} - ${membershipData.billingPeriod === 'monthly' ? 'Mensual' : 'Anual'}`;
+  const description = 'URContent ' + membershipData.membershipTier.toUpperCase() + ' - ' + (membershipData.billingPeriod === 'monthly' ? 'Mensual' : 'Anual');
 
   return createPaymentPreference({
     ...membershipData,
     amount,
     description,
-    successUrl: `${window.location.origin}/membership/success`,
-    failureUrl: `${window.location.origin}/membership/failure`,
+    successUrl: window.location.origin + '/membership/success',
+    failureUrl: window.location.origin + '/membership/failure',
     metadata: {
       membership_tier: membershipData.membershipTier,
       billing_period: membershipData.billingPeriod
@@ -142,8 +167,8 @@ export const createCollaborationPayment = async (collaborationData: Collaboratio
 
   return createPaymentPreference({
     ...collaborationData,
-    successUrl: `${window.location.origin}/collaboration/success`,
-    failureUrl: `${window.location.origin}/collaboration/failure`,
+    successUrl: window.location.origin + '/collaboration/success',
+    failureUrl: window.location.origin + '/collaboration/failure',
     metadata: {
       collaboration_id: collaborationData.collaborationId,
       creator_id: collaborationData.creatorId,
@@ -154,47 +179,42 @@ export const createCollaborationPayment = async (collaborationData: Collaboratio
   });
 };
 
-// Process payment webhook
-export const processPaymentWebhook = async (data: any) => {
+// SECURE: Get payment status via server-side API
+export const getPaymentStatus = async (paymentId: string) => {
   try {
-    if (data.type === 'payment') {
-      const paymentId = data.data.id;
-      const paymentInfo = await payment.get({ id: paymentId });
-      
+    // Validate payment ID format
+    if (!paymentId || paymentId.length < 8) {
       return {
-        success: true,
-        payment: paymentInfo,
-        status: paymentInfo.status,
-        externalReference: paymentInfo.external_reference
+        success: false,
+        error: 'Invalid payment ID'
       };
     }
     
-    return { success: false, error: 'Invalid webhook type' };
-  } catch (error) {
-    console.error('Error processing payment webhook:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Error processing webhook' 
-    };
-  }
-};
-
-// Get payment status
-export const getPaymentStatus = async (paymentId: string) => {
-  try {
-    const paymentInfo = await payment.get({ id: paymentId });
+    const response = await fetch('/api/secure-payments/status/' + encodeURIComponent(paymentId), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('HTTP error! status: ' + response.status);
+    }
+    
+    const result = await response.json();
+    
     return {
       success: true,
-      status: paymentInfo.status,
-      statusDetail: paymentInfo.status_detail,
-      amount: paymentInfo.transaction_amount,
-      externalReference: paymentInfo.external_reference
+      status: result.status,
+      statusDetail: result.statusDetail,
+      amount: result.amount,
+      externalReference: result.externalReference
     };
   } catch (error) {
     console.error('Error getting payment status:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Error getting payment status'
+      error: 'Error retrieving payment status'
     };
   }
 };
@@ -204,16 +224,26 @@ export type PaymentStatus = 'approved' | 'pending' | 'in_process' | 'rejected' |
 
 // Format currency for display
 export const formatCurrency = (amount: number): string => {
+  // Input validation
+  if (typeof amount !== 'number' || isNaN(amount)) {
+    return '$0';
+  }
+  
   return new Intl.NumberFormat('es-AR', {
     style: 'currency',
     currency: 'ARS',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
-  }).format(amount);
+  }).format(Math.abs(amount)); // Use absolute value to prevent negative currency display
 };
 
 // Calculate platform fee
 export const calculatePlatformFee = (amount: number, feePercentage: number = 0.15): { creatorAmount: number; platformFee: number } => {
+  // Input validation
+  if (typeof amount !== 'number' || amount < 0 || typeof feePercentage !== 'number' || feePercentage < 0 || feePercentage > 1) {
+    return { creatorAmount: 0, platformFee: 0 };
+  }
+  
   const platformFee = amount * feePercentage;
   const creatorAmount = amount - platformFee;
   
@@ -225,11 +255,16 @@ export const calculatePlatformFee = (amount: number, feePercentage: number = 0.1
 
 // Validate payment amount
 export const validatePaymentAmount = (amount: number, minAmount: number = 100): boolean => {
-  return amount >= minAmount && amount <= 999999999;
+  return typeof amount === 'number' && 
+         !isNaN(amount) && 
+         amount >= minAmount && 
+         amount <= 999999999;
 };
 
 // Create installment options
 export const getInstallmentOptions = (amount: number) => {
+  if (!validatePaymentAmount(amount)) return [1];
+  
   if (amount >= 50000) return [1, 3, 6, 9, 12];
   if (amount >= 20000) return [1, 3, 6, 9];
   if (amount >= 10000) return [1, 3, 6];
@@ -241,10 +276,10 @@ export default {
   createPaymentPreference,
   createMembershipPayment,
   createCollaborationPayment,
-  processPaymentWebhook,
   getPaymentStatus,
   formatCurrency,
   calculatePlatformFee,
   validatePaymentAmount,
-  getInstallmentOptions
+  getInstallmentOptions,
+  getPublicKey
 };
