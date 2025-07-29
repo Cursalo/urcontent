@@ -1,0 +1,402 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { 
+  CheckCircle2, 
+  Circle, 
+  Plus, 
+  Calendar,
+  Clock,
+  StickyNote,
+  Bell,
+  Target,
+  Calculator,
+  FileText,
+  Download,
+  Trash2,
+  Edit2,
+  Star
+} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+interface Tarea {
+  id: string;
+  titulo: string;
+  completada: boolean;
+  prioridad: 'alta' | 'media' | 'baja';
+  fechaLimite?: string;
+  categoria: string;
+}
+
+interface Nota {
+  id: string;
+  titulo: string;
+  contenido: string;
+  fecha: string;
+  color: string;
+}
+
+interface Recordatorio {
+  id: string;
+  titulo: string;
+  fecha: string;
+  hora: string;
+  repetir: 'no' | 'diario' | 'semanal' | 'mensual';
+}
+
+interface HerramientasProductividadProps {
+  tareas: Tarea[];
+  notas: Nota[];
+  recordatorios: Recordatorio[];
+}
+
+export const HerramientasProductividad: React.FC<HerramientasProductividadProps> = ({
+  tareas: tareasIniciales,
+  notas: notasIniciales,
+  recordatorios: recordatoriosIniciales
+}) => {
+  const [tareas, setTareas] = useState(tareasIniciales);
+  const [notas, setNotas] = useState(notasIniciales);
+  const [recordatorios, setRecordatorios] = useState(recordatoriosIniciales);
+  const [nuevaTarea, setNuevaTarea] = useState('');
+  const [calculadoraTarifa, setCalculadoraTarifa] = useState({
+    seguidores: '',
+    engagementRate: '',
+    tipoContenido: 'post'
+  });
+
+  const formatearFecha = (fecha: string) => {
+    return new Intl.DateTimeFormat('es-MX', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    }).format(new Date(fecha));
+  };
+
+  const obtenerColorPrioridad = (prioridad: string) => {
+    const colores = {
+      alta: 'text-red-600 bg-red-50',
+      media: 'text-yellow-600 bg-yellow-50',
+      baja: 'text-green-600 bg-green-50'
+    };
+    return colores[prioridad as keyof typeof colores] || 'text-gray-600 bg-gray-50';
+  };
+
+  const agregarTarea = () => {
+    if (nuevaTarea.trim()) {
+      const tarea: Tarea = {
+        id: Date.now().toString(),
+        titulo: nuevaTarea,
+        completada: false,
+        prioridad: 'media',
+        categoria: 'General'
+      };
+      setTareas([tarea, ...tareas]);
+      setNuevaTarea('');
+    }
+  };
+
+  const toggleTarea = (id: string) => {
+    setTareas(tareas.map(tarea => 
+      tarea.id === id ? { ...tarea, completada: !tarea.completada } : tarea
+    ));
+  };
+
+  const calcularTarifa = () => {
+    const seguidores = parseInt(calculadoraTarifa.seguidores) || 0;
+    const engagement = parseFloat(calculadoraTarifa.engagementRate) || 0;
+    
+    let tarifaBase = 0;
+    if (seguidores < 10000) {
+      tarifaBase = seguidores * 0.1;
+    } else if (seguidores < 50000) {
+      tarifaBase = seguidores * 0.08;
+    } else if (seguidores < 100000) {
+      tarifaBase = seguidores * 0.06;
+    } else {
+      tarifaBase = seguidores * 0.05;
+    }
+
+    // Ajuste por engagement rate
+    const factorEngagement = 1 + (engagement / 10);
+    
+    // Ajuste por tipo de contenido
+    const factorContenido = {
+      post: 1,
+      story: 0.7,
+      reel: 1.5,
+      video: 2
+    };
+
+    const tarifaFinal = tarifaBase * factorEngagement * (factorContenido[calculadoraTarifa.tipoContenido as keyof typeof factorContenido] || 1);
+
+    return {
+      minimo: Math.round(tarifaFinal * 0.8),
+      sugerido: Math.round(tarifaFinal),
+      premium: Math.round(tarifaFinal * 1.3)
+    };
+  };
+
+  const tarifasCalculadas = calcularTarifa();
+
+  return (
+    <div className="space-y-6">
+      <Tabs defaultValue="tareas" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="tareas">Tareas</TabsTrigger>
+          <TabsTrigger value="notas">Notas</TabsTrigger>
+          <TabsTrigger value="recordatorios">Recordatorios</TabsTrigger>
+          <TabsTrigger value="calculadora">Calculadora</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="tareas" className="space-y-6 mt-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl">Lista de Tareas</CardTitle>
+                <Badge variant="secondary">
+                  {tareas.filter(t => !t.completada).length} pendientes
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Agregar nueva tarea */}
+              <div className="flex gap-2 mb-6">
+                <Input
+                  placeholder="Agregar nueva tarea..."
+                  value={nuevaTarea}
+                  onChange={(e) => setNuevaTarea(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && agregarTarea()}
+                  className="flex-1"
+                />
+                <Button onClick={agregarTarea} className="rounded-full">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Lista de tareas */}
+              <div className="space-y-2">
+                {tareas.length === 0 ? (
+                  <div className="text-center py-8">
+                    <CheckCircle2 className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">No hay tareas pendientes</p>
+                  </div>
+                ) : (
+                  tareas.map((tarea) => (
+                    <div 
+                      key={tarea.id} 
+                      className={`flex items-start gap-3 p-4 rounded-xl border transition-all ${
+                        tarea.completada ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <Checkbox
+                        checked={tarea.completada}
+                        onCheckedChange={() => toggleTarea(tarea.id)}
+                        className="mt-0.5"
+                      />
+                      <div className="flex-1">
+                        <p className={`font-medium ${tarea.completada ? 'line-through text-gray-400' : 'text-gray-900'}`}>
+                          {tarea.titulo}
+                        </p>
+                        <div className="flex items-center gap-3 mt-2">
+                          <Badge className={obtenerColorPrioridad(tarea.prioridad)} variant="secondary">
+                            {tarea.prioridad}
+                          </Badge>
+                          {tarea.fechaLimite && (
+                            <span className="text-xs text-gray-500 flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {formatearFecha(tarea.fechaLimite)}
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-400">{tarea.categoria}</span>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Trash2 className="w-4 h-4 text-gray-400" />
+                      </Button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notas" className="space-y-6 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Botón para nueva nota */}
+            <Card className="border-dashed border-2 hover:border-gray-400 cursor-pointer transition-all">
+              <CardContent className="flex items-center justify-center h-[200px]">
+                <div className="text-center">
+                  <Plus className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500">Nueva Nota</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Notas existentes */}
+            {notas.map((nota) => (
+              <Card 
+                key={nota.id} 
+                className="hover:shadow-md transition-all cursor-pointer"
+                style={{ borderTopWidth: '4px', borderTopColor: nota.color }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <h4 className="font-semibold text-gray-900">{nota.titulo}</h4>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Edit2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  <p className="text-sm text-gray-600 line-clamp-4">{nota.contenido}</p>
+                  <p className="text-xs text-gray-400 mt-4">{formatearFecha(nota.fecha)}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="recordatorios" className="space-y-6 mt-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl">Recordatorios</CardTitle>
+                <Button className="rounded-full">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nuevo Recordatorio
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recordatorios.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">No hay recordatorios configurados</p>
+                  </div>
+                ) : (
+                  recordatorios.map((recordatorio) => (
+                    <div key={recordatorio.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
+                        <Bell className="w-5 h-5 text-gray-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900">{recordatorio.titulo}</h4>
+                        <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {formatearFecha(recordatorio.fecha)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {recordatorio.hora}
+                          </span>
+                          {recordatorio.repetir !== 'no' && (
+                            <Badge variant="secondary">{recordatorio.repetir}</Badge>
+                          )}
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="icon">
+                        <Trash2 className="w-4 h-4 text-gray-400" />
+                      </Button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="calculadora" className="space-y-6 mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">Calculadora de Tarifas</CardTitle>
+              <p className="text-gray-500">Calcula tu tarifa sugerida basada en tus métricas</p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Número de Seguidores
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="50000"
+                    value={calculadoraTarifa.seguidores}
+                    onChange={(e) => setCalculadoraTarifa({...calculadoraTarifa, seguidores: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Engagement Rate (%)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    placeholder="5.5"
+                    value={calculadoraTarifa.engagementRate}
+                    onChange={(e) => setCalculadoraTarifa({...calculadoraTarifa, engagementRate: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tipo de Contenido
+                  </label>
+                  <select 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    value={calculadoraTarifa.tipoContenido}
+                    onChange={(e) => setCalculadoraTarifa({...calculadoraTarifa, tipoContenido: e.target.value})}
+                  >
+                    <option value="post">Post Regular</option>
+                    <option value="story">Story</option>
+                    <option value="reel">Reel/TikTok</option>
+                    <option value="video">Video YouTube</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Resultados */}
+              {calculadoraTarifa.seguidores && calculadoraTarifa.engagementRate && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-gray-50 rounded-xl">
+                  <div className="text-center p-4 bg-white rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Tarifa Mínima</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      ${tarifasCalculadas.minimo.toLocaleString('es-MX')}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">MXN</p>
+                  </div>
+                  <div className="text-center p-4 bg-black text-white rounded-lg">
+                    <p className="text-sm text-gray-300 mb-1">Tarifa Sugerida</p>
+                    <p className="text-2xl font-bold">
+                      ${tarifasCalculadas.sugerido.toLocaleString('es-MX')}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">MXN</p>
+                    <Star className="w-4 h-4 mx-auto mt-2 text-yellow-400" />
+                  </div>
+                  <div className="text-center p-4 bg-white rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Tarifa Premium</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      ${tarifasCalculadas.premium.toLocaleString('es-MX')}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">MXN</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>Tip:</strong> Estas tarifas son sugerencias basadas en promedios de la industria. 
+                  Considera factores adicionales como tu nicho, calidad del contenido y relación con la marca.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};

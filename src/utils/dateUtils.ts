@@ -1,0 +1,120 @@
+// Utilidades para formatear fechas en español
+
+export const formatearFechaCompleta = (fecha: string | Date): string => {
+  const date = typeof fecha === 'string' ? new Date(fecha) : fecha;
+  return new Intl.DateTimeFormat('es-MX', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+};
+
+export const formatearFechaCorta = (fecha: string | Date): string => {
+  const date = typeof fecha === 'string' ? new Date(fecha) : fecha;
+  return new Intl.DateTimeFormat('es-MX', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  }).format(date);
+};
+
+export const formatearSoloFecha = (fecha: string | Date): string => {
+  const date = typeof fecha === 'string' ? new Date(fecha) : fecha;
+  return new Intl.DateTimeFormat('es-MX', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }).format(date);
+};
+
+export const obtenerDiasRestantes = (fechaLimite: string | Date): {
+  dias: number;
+  texto: string;
+  urgente: boolean;
+} => {
+  const limite = typeof fechaLimite === 'string' ? new Date(fechaLimite) : fechaLimite;
+  const hoy = new Date();
+  const diferencia = limite.getTime() - hoy.getTime();
+  const dias = Math.ceil(diferencia / (1000 * 60 * 60 * 24));
+
+  if (dias < 0) {
+    return {
+      dias: Math.abs(dias),
+      texto: `Vencido hace ${Math.abs(dias)} ${Math.abs(dias) === 1 ? 'día' : 'días'}`,
+      urgente: true
+    };
+  } else if (dias === 0) {
+    return {
+      dias: 0,
+      texto: 'Vence hoy',
+      urgente: true
+    };
+  } else if (dias === 1) {
+    return {
+      dias: 1,
+      texto: 'Vence mañana',
+      urgente: true
+    };
+  } else if (dias <= 3) {
+    return {
+      dias,
+      texto: `Vence en ${dias} días`,
+      urgente: true
+    };
+  } else if (dias <= 7) {
+    return {
+      dias,
+      texto: `Vence en ${dias} días`,
+      urgente: false
+    };
+  } else {
+    return {
+      dias,
+      texto: formatearFechaCorta(limite),
+      urgente: false
+    };
+  }
+};
+
+export const formatearHoraRelativa = (fecha: string | Date): string => {
+  const date = typeof fecha === 'string' ? new Date(fecha) : fecha;
+  const ahora = new Date();
+  const diferencia = ahora.getTime() - date.getTime();
+  const minutos = Math.floor(diferencia / 60000);
+  const horas = Math.floor(minutos / 60);
+  const dias = Math.floor(horas / 24);
+
+  if (minutos < 1) {
+    return 'Justo ahora';
+  } else if (minutos < 60) {
+    return `Hace ${minutos} ${minutos === 1 ? 'minuto' : 'minutos'}`;
+  } else if (horas < 24) {
+    return `Hace ${horas} ${horas === 1 ? 'hora' : 'horas'}`;
+  } else if (dias < 7) {
+    return `Hace ${dias} ${dias === 1 ? 'día' : 'días'}`;
+  } else {
+    return formatearFechaCorta(date);
+  }
+};
+
+export const obtenerSaludo = (): string => {
+  const hora = new Date().getHours();
+  
+  if (hora >= 5 && hora < 12) {
+    return 'Buenos días';
+  } else if (hora >= 12 && hora < 19) {
+    return 'Buenas tardes';
+  } else {
+    return 'Buenas noches';
+  }
+};
+
+export const obtenerMesActual = (): string => {
+  return new Intl.DateTimeFormat('es-MX', { month: 'long' }).format(new Date());
+};
+
+export const obtenerAñoActual = (): number => {
+  return new Date().getFullYear();
+};

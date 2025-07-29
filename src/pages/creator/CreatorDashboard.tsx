@@ -1,79 +1,46 @@
-import React, { useState, useEffect, memo, useMemo, useCallback } from "react";
+import React, { useState, useEffect, memo } from "react";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
-import { StatsCard } from "@/components/dashboard/StatsCard";
-import { UserInfoCard } from "@/components/dashboard/UserInfoCard";
-import { CollaborationsTable } from "@/components/dashboard/CollaborationsTable";
-import { PortfolioShowcase } from "@/components/dashboard/PortfolioShowcase";
-import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
-import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { DashboardLoadingSkeleton } from "@/components/dashboard/LoadingSkeleton";
-import { useDebounce } from "@/hooks/useDebounce";
-import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
-import { performanceMonitor } from "@/lib/performance";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  RadialBarChart,
-  RadialBar
-} from 'recharts';
-
-// Lazy load chart components for better performance
-const LazyLineChart = memo(LineChart);
-const LazyAreaChart = memo(AreaChart);
-const LazyBarChart = memo(BarChart);
-const LazyRadialBarChart = memo(RadialBarChart);
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Camera,
   DollarSign,
   TrendingUp,
   MessageCircle,
   Star,
-  Award,
-  Clock,
-  CheckCircle,
-  Instagram,
-  Youtube,
-  Eye,
-  Heart,
-  Share2,
-  Calendar,
-  Target,
-  Loader2,
-  ExternalLink,
-  Copy
+  LayoutDashboard,
+  FileImage,
+  Briefcase,
+  BarChart3,
+  CheckSquare,
+  Palette,
+  Menu,
+  X,
+  Moon,
+  Sun,
+  Bell,
+  Settings,
+  LogOut
 } from "lucide-react";
-import { ImageCarousel } from "@/components/ui/image-carousel";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHybridDashboard } from "@/hooks/useHybridDashboard";
 import { toast } from "sonner";
-import socialMediaCreators from "@/assets/social-media-creators.jpg";
-import fitnessCreators from "@/assets/fitness-creators.jpg";
-import restaurantFood from "@/assets/restaurant-food-ugc.jpg";
 import { DashboardErrorBoundary, CardErrorFallback } from "@/components/dashboard/DashboardErrorBoundary";
+import { cn } from "@/lib/utils";
+
+// Importar nuevos componentes
+import { PanelPrincipal } from "@/components/creator/PanelPrincipal";
+import { GestionContenido } from "@/components/creator/GestionContenido";
+import { ColaboracionesKanban } from "@/components/creator/ColaboracionesKanban";
+import { AnalyticsProfesionales } from "@/components/creator/AnalyticsProfesionales";
+import { HerramientasProductividad } from "@/components/creator/HerramientasProductividad";
+import { MiBrandKit } from "@/components/creator/MiBrandKit";
 
 const CreatorDashboard = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
+  const [activeTab, setActiveTab] = useState('panel');
   const { user, profile } = useAuth();
   const {
     loading,
@@ -140,49 +107,308 @@ const CreatorDashboard = () => {
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
       currency: 'MXN',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
     }).format(amount);
   };
 
-  // Dynamic stats based on real or mock data
-  const creatorStats = [
-    { 
-      title: "Monthly Earnings", 
-      value: formatCurrency(dashboardStats.monthlyEarnings), 
-      icon: DollarSign, 
-      trend: { value: "22.5%", isPositive: true }, 
-      description: "This month's revenue",
-      color: "green" as const,
-      progress: 75
+  // Preparar datos para los nuevos componentes
+  const metricasPrincipales = [
+    {
+      titulo: "Ingresos del Mes",
+      valor: formatCurrency(dashboardStats.monthlyEarnings),
+      cambio: 22.5,
+      esCrecimiento: true,
+      objetivo: 50000,
+      actual: dashboardStats.monthlyEarnings,
+      icono: <DollarSign className="w-6 h-6 text-green-600" />,
+      color: "bg-green-100"
     },
-    { 
-      title: "Active Collaborations", 
-      value: dashboardStats.activeCollaborations.toString(), 
-      icon: MessageCircle, 
-      trend: { value: "3", isPositive: true }, 
-      description: "Projects in progress",
-      color: "blue" as const,
-      progress: 60
+    {
+      titulo: "Colaboraciones Activas",
+      valor: dashboardStats.activeCollaborations.toString(),
+      cambio: 15,
+      esCrecimiento: true,
+      objetivo: 10,
+      actual: dashboardStats.activeCollaborations,
+      icono: <Briefcase className="w-6 h-6 text-blue-600" />,
+      color: "bg-blue-100"
     },
-    { 
-      title: "URScore™", 
-      value: `${dashboardStats.urScore}/100`, 
-      icon: Star, 
-      trend: { value: "2 points", isPositive: true }, 
-      description: "Elite tier ranking",
-      color: "orange" as const,
-      progress: dashboardStats.urScore
+    {
+      titulo: "URScore™",
+      valor: `${dashboardStats.urScore}/100`,
+      cambio: 2,
+      esCrecimiento: true,
+      objetivo: 100,
+      actual: dashboardStats.urScore,
+      icono: <Star className="w-6 h-6 text-yellow-600" />,
+      color: "bg-yellow-100"
     },
-    { 
-      title: "Total Followers", 
-      value: formatFollowers(dashboardStats.totalFollowers), 
-      icon: TrendingUp, 
-      trend: { value: "5.2K", isPositive: true }, 
-      description: "Across all platforms",
-      color: "purple" as const,
-      progress: 85
+    {
+      titulo: "Seguidores Totales",
+      valor: formatFollowers(dashboardStats.totalFollowers),
+      cambio: 8.3,
+      esCrecimiento: true,
+      objetivo: 150000,
+      actual: dashboardStats.totalFollowers,
+      icono: <TrendingUp className="w-6 h-6 text-purple-600" />,
+      color: "bg-purple-100"
     }
   ];
+
+  // Datos para gráfico de ingresos
+  const datosIngresos = [
+    { mes: 'Ene', ingresos: 25000, objetivo: 30000 },
+    { mes: 'Feb', ingresos: 32000, objetivo: 30000 },
+    { mes: 'Mar', ingresos: 28000, objetivo: 35000 },
+    { mes: 'Abr', ingresos: 41000, objetivo: 35000 },
+    { mes: 'May', ingresos: 38000, objetivo: 40000 },
+    { mes: 'Jun', ingresos: dashboardStats.monthlyEarnings, objetivo: 45000 }
+  ];
+
+  // Datos de contenido mock
+  const contenidosMock = [
+    {
+      id: '1',
+      titulo: 'Rutina de Skincare Matutina',
+      tipo: 'video' as const,
+      plataforma: 'instagram' as const,
+      estado: 'publicado' as const,
+      fechaPublicacion: '2024-01-15T10:00:00',
+      miniatura: '/api/placeholder/400/400',
+      vistas: 15420,
+      engagement: 8.7
+    },
+    {
+      id: '2',
+      titulo: 'Outfit del Día - Casual Chic',
+      tipo: 'carrusel' as const,
+      plataforma: 'instagram' as const,
+      estado: 'programado' as const,
+      fechaPublicacion: '2024-01-20T14:00:00',
+      miniatura: '/api/placeholder/400/400',
+      engagement: 0
+    },
+    {
+      id: '3',
+      titulo: 'Review Restaurante Nuevo',
+      tipo: 'video' as const,
+      plataforma: 'tiktok' as const,
+      estado: 'borrador' as const,
+      miniatura: '/api/placeholder/400/400'
+    }
+  ];
+
+  // Datos de colaboraciones para Kanban
+  const columnasKanban = [
+    {
+      id: 'negociacion',
+      titulo: 'En Negociación',
+      color: 'bg-yellow-100',
+      colaboraciones: collaborations.filter(c => c.status === 'pending').map(c => ({
+        id: c.id,
+        empresa: c.business_profile?.company_name || 'Empresa',
+        titulo: c.title || 'Colaboración',
+        valor: c.compensation_amount || 0,
+        fechaEntrega: c.end_date || new Date().toISOString(),
+        entregables: [],
+        prioridad: 'media' as const,
+        progreso: 0,
+        mensajesSinLeer: Math.floor(Math.random() * 5)
+      }))
+    },
+    {
+      id: 'aceptadas',
+      titulo: 'Aceptadas',
+      color: 'bg-blue-100',
+      colaboraciones: collaborations.filter(c => c.status === 'accepted').map(c => ({
+        id: c.id,
+        empresa: c.business_profile?.company_name || 'Empresa',
+        titulo: c.title || 'Colaboración',
+        valor: c.compensation_amount || 0,
+        fechaEntrega: c.end_date || new Date().toISOString(),
+        entregables: [],
+        prioridad: 'alta' as const,
+        progreso: 25
+      }))
+    },
+    {
+      id: 'en_progreso',
+      titulo: 'En Progreso',
+      color: 'bg-purple-100',
+      colaboraciones: collaborations.filter(c => c.status === 'in_progress').map(c => ({
+        id: c.id,
+        empresa: c.business_profile?.company_name || 'Empresa',
+        titulo: c.title || 'Colaboración',
+        valor: c.compensation_amount || 0,
+        fechaEntrega: c.end_date || new Date().toISOString(),
+        entregables: [],
+        prioridad: 'alta' as const,
+        progreso: 60
+      }))
+    },
+    {
+      id: 'completadas',
+      titulo: 'Completadas',
+      color: 'bg-green-100',
+      colaboraciones: collaborations.filter(c => c.status === 'completed').map(c => ({
+        id: c.id,
+        empresa: c.business_profile?.company_name || 'Empresa',
+        titulo: c.title || 'Colaboración',
+        valor: c.compensation_amount || 0,
+        fechaEntrega: c.end_date || new Date().toISOString(),
+        entregables: [],
+        prioridad: 'baja' as const,
+        progreso: 100
+      }))
+    }
+  ];
+
+  // Datos de analytics mock
+  const metricasPorPlataforma = [
+    {
+      plataforma: 'Instagram',
+      seguidores: 87000,
+      crecimiento: 12.5,
+      engagementRate: 6.8,
+      alcancePromedio: 45000,
+      mejorHorario: '20:00 - 22:00'
+    },
+    {
+      plataforma: 'TikTok',
+      seguidores: 32000,
+      crecimiento: 28.3,
+      engagementRate: 8.2,
+      alcancePromedio: 28000,
+      mejorHorario: '19:00 - 21:00'
+    },
+    {
+      plataforma: 'YouTube',
+      seguidores: 26000,
+      crecimiento: 5.7,
+      engagementRate: 4.9,
+      alcancePromedio: 15000,
+      mejorHorario: '18:00 - 20:00'
+    }
+  ];
+
+  const datosEngagement = [
+    { fecha: '01/01', engagement: 5.2 },
+    { fecha: '02/01', engagement: 5.8 },
+    { fecha: '03/01', engagement: 6.1 },
+    { fecha: '04/01', engagement: 5.9 },
+    { fecha: '05/01', engagement: 6.8 },
+    { fecha: '06/01', engagement: 7.2 },
+    { fecha: '07/01', engagement: 6.9 }
+  ];
+
+  const mejoresPublicaciones = [
+    {
+      titulo: 'Morning Routine 2024',
+      imagen: '/api/placeholder/400/400',
+      alcance: 125000,
+      likes: 15420,
+      comentarios: 342
+    },
+    {
+      titulo: 'Haul de Verano',
+      imagen: '/api/placeholder/400/400',
+      alcance: 98000,
+      likes: 12100,
+      comentarios: 289
+    },
+    {
+      titulo: 'Q&A con Seguidores',
+      imagen: '/api/placeholder/400/400',
+      alcance: 87000,
+      likes: 9800,
+      comentarios: 567
+    }
+  ];
+
+  // Datos para herramientas de productividad
+  const tareasMock = [
+    {
+      id: '1',
+      titulo: 'Grabar contenido para Nike',
+      completada: false,
+      prioridad: 'alta' as const,
+      fechaLimite: '2024-01-20',
+      categoria: 'Contenido'
+    },
+    {
+      id: '2',
+      titulo: 'Editar video de YouTube',
+      completada: false,
+      prioridad: 'media' as const,
+      fechaLimite: '2024-01-22',
+      categoria: 'Edición'
+    },
+    {
+      id: '3',
+      titulo: 'Responder emails de colaboraciones',
+      completada: true,
+      prioridad: 'alta' as const,
+      categoria: 'Comunicación'
+    }
+  ];
+
+  const notasMock = [
+    {
+      id: '1',
+      titulo: 'Ideas para contenido de febrero',
+      contenido: 'Valentine\'s Day special, Rutinas de ejercicio, Colaboración con marca de café...',
+      fecha: '2024-01-15',
+      color: '#FFE4E1'
+    },
+    {
+      id: '2',
+      titulo: 'Feedback de la última campaña',
+      contenido: 'La audiencia respondió muy bien al contenido lifestyle. Más contenido behind the scenes.',
+      fecha: '2024-01-14',
+      color: '#E6E6FA'
+    }
+  ];
+
+  const recordatoriosMock = [
+    {
+      id: '1',
+      titulo: 'Publicar en Instagram',
+      fecha: '2024-01-18',
+      hora: '20:00',
+      repetir: 'diario' as const
+    },
+    {
+      id: '2',
+      titulo: 'Reunión con equipo de Nike',
+      fecha: '2024-01-19',
+      hora: '15:00',
+      repetir: 'no' as const
+    }
+  ];
+
+  // Datos para Brand Kit
+  const brandKitData = {
+    colores: [
+      { nombre: 'Negro Principal', hex: '#000000', uso: 'Textos y elementos principales' },
+      { nombre: 'Rosa Accent', hex: '#E91E63', uso: 'CTAs y elementos destacados' },
+      { nombre: 'Gris Claro', hex: '#F5F5F5', uso: 'Fondos y elementos secundarios' }
+    ],
+    fuentes: [
+      { nombre: 'Títulos', familia: 'Montserrat', peso: '700', uso: 'Títulos y encabezados' },
+      { nombre: 'Cuerpo', familia: 'Open Sans', peso: '400', uso: 'Textos largos y descripciones' }
+    ],
+    logos: [
+      { id: '1', nombre: 'Logo Principal', url: '/api/placeholder/200/200', tipo: 'principal' as const },
+      { id: '2', nombre: 'Logo Icono', url: '/api/placeholder/200/200', tipo: 'icono' as const }
+    ],
+    biografia: 'Creator de contenido lifestyle | 🌟 Inspirando a vivir mejor cada día | 📍 CDMX | 📧 colaboraciones@example.com',
+    enlaces: [
+      { plataforma: 'Instagram', url: '@tucreador' },
+      { plataforma: 'TikTok', url: '@tucreador' },
+      { plataforma: 'YouTube', url: 'youtube.com/tucreador' }
+    ]
+  };
 
   const urScoreBreakdown = [
     { name: 'Content Quality', value: 96, color: '#E91E63' },
@@ -397,330 +623,177 @@ const CreatorDashboard = () => {
     );
   }
 
+  const menuItems = [
+    { id: 'panel', label: 'Panel Principal', icon: LayoutDashboard },
+    { id: 'contenido', label: 'Gestión de Contenido', icon: FileImage },
+    { id: 'colaboraciones', label: 'Colaboraciones', icon: Briefcase },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'herramientas', label: 'Herramientas', icon: CheckSquare },
+    { id: 'brandkit', label: 'Brand Kit', icon: Palette }
+  ];
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className={cn("min-h-screen", darkMode ? "bg-gray-900" : "bg-gray-50")}>
       <DashboardNav />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-10 h-10 bg-black rounded-2xl flex items-center justify-center">
-                  <Camera className="w-5 h-5 text-white" />
-                </div>
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className={cn(
+          "fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 transition-all duration-300 z-40",
+          darkMode && "bg-gray-800 border-gray-700",
+          sidebarOpen ? "w-64" : "w-20"
+        )}>
+          <div className="p-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="mb-4"
+            >
+              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+            
+            <nav className="space-y-2">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all",
+                      activeTab === item.id
+                        ? "bg-black text-white"
+                        : "hover:bg-gray-100 text-gray-700",
+                      darkMode && activeTab !== item.id && "hover:bg-gray-700 text-gray-300"
+                    )}
+                  >
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    {sidebarOpen && <span className="text-sm font-medium">{item.label}</span>}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+          
+          {sidebarOpen && (
+            <div className="absolute bottom-4 left-4 right-4 space-y-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDarkMode(!darkMode)}
+                className="w-full justify-start"
+              >
+                {darkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+                {darkMode ? "Modo Claro" : "Modo Oscuro"}
+              </Button>
+              <Button variant="ghost" size="sm" className="w-full justify-start">
+                <Settings className="w-4 h-4 mr-2" />
+                Configuración
+              </Button>
+              <Button variant="ghost" size="sm" className="w-full justify-start text-red-600">
+                <LogOut className="w-4 h-4 mr-2" />
+                Cerrar Sesión
+              </Button>
+            </div>
+          )}
+        </aside>
+        
+        {/* Main Content */}
+        <main className={cn(
+          "flex-1 transition-all duration-300",
+          sidebarOpen ? "ml-64" : "ml-20"
+        )}>
+          <div className="p-8">
+            {/* Header */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-4xl font-light text-black">Creator Dashboard</h1>
-                  <p className="text-gray-500 text-lg font-light">
-                    Welcome back, {creatorProfile?.user?.full_name || user?.user_metadata?.full_name || 'Creator'}
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    {menuItems.find(item => item.id === activeTab)?.label || 'Dashboard'}
+                  </h1>
+                  <p className="text-gray-500 mt-1">
+                    Bienvenido de vuelta, {creatorProfile?.user?.full_name || user?.user_metadata?.full_name || 'Creator'}
                   </p>
                 </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              {creatorProfile?.public_slug && (
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      const profileUrl = `${window.location.origin}/c/${creatorProfile.public_slug}`;
-                      window.open(profileUrl, '_blank');
-                    }}
-                    className="rounded-full"
-                  >
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    View Public Profile
+                <div className="flex items-center gap-3">
+                  <Button variant="outline" size="icon" className="rounded-full">
+                    <Bell className="w-5 h-5" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      const profileUrl = `${window.location.origin}/c/${creatorProfile.public_slug}`;
-                      navigator.clipboard.writeText(profileUrl);
-                      toast.success('Profile URL copied to clipboard!');
-                    }}
-                    className="rounded-full px-3"
-                  >
-                    <Copy className="w-4 h-4" />
+                  <Button className="bg-black hover:bg-gray-800 text-white rounded-full">
+                    <Camera className="w-4 h-4 mr-2" />
+                    Subir Contenido
                   </Button>
                 </div>
+              </div>
+            </div>
+
+            {/* Content Tabs */}
+            <div className="bg-white rounded-2xl shadow-sm">
+              {activeTab === 'panel' && (
+                <DashboardErrorBoundary componentName="PanelPrincipal" fallback={CardErrorFallback}>
+                  <PanelPrincipal
+                    metricas={metricasPrincipales}
+                    datosIngresos={datosIngresos}
+                    proximasColaboraciones={recentCollaborations.map(c => ({
+                      id: c.id,
+                      empresa: c.brand,
+                      fecha: c.date,
+                      tipo: c.type,
+                      estado: c.status === 'completed' ? 'completada' : c.status === 'in_progress' ? 'en_progreso' : 'pendiente' as any
+                    }))}
+                    tareasPendientes={tareasMock.filter(t => !t.completada).length}
+                  />
+                </DashboardErrorBoundary>
               )}
-              <Button className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-full font-medium transition-all duration-300 hover:scale-105">
-                <Camera className="w-4 h-4 mr-2" />
-                Upload Content
-              </Button>
+              
+              {activeTab === 'contenido' && (
+                <DashboardErrorBoundary componentName="GestionContenido" fallback={CardErrorFallback}>
+                  <GestionContenido contenidos={contenidosMock} />
+                </DashboardErrorBoundary>
+              )}
+              
+              {activeTab === 'colaboraciones' && (
+                <DashboardErrorBoundary componentName="ColaboracionesKanban" fallback={CardErrorFallback}>
+                  <ColaboracionesKanban columnas={columnasKanban} />
+                </DashboardErrorBoundary>
+              )}
+              
+              {activeTab === 'analytics' && (
+                <DashboardErrorBoundary componentName="AnalyticsProfesionales" fallback={CardErrorFallback}>
+                  <AnalyticsProfesionales
+                    metricasPorPlataforma={metricasPorPlataforma}
+                    datosEngagement={datosEngagement}
+                    datosAudiencia={[]}
+                    mejoresPublicaciones={mejoresPublicaciones}
+                  />
+                </DashboardErrorBoundary>
+              )}
+              
+              {activeTab === 'herramientas' && (
+                <DashboardErrorBoundary componentName="HerramientasProductividad" fallback={CardErrorFallback}>
+                  <HerramientasProductividad
+                    tareas={tareasMock}
+                    notas={notasMock}
+                    recordatorios={recordatoriosMock}
+                  />
+                </DashboardErrorBoundary>
+              )}
+              
+              {activeTab === 'brandkit' && (
+                <DashboardErrorBoundary componentName="MiBrandKit" fallback={CardErrorFallback}>
+                  <MiBrandKit
+                    colores={brandKitData.colores}
+                    fuentes={brandKitData.fuentes}
+                    logos={brandKitData.logos}
+                    biografia={brandKitData.biografia}
+                    enlaces={brandKitData.enlaces}
+                  />
+                </DashboardErrorBoundary>
+              )}
             </div>
           </div>
-        </div>
-
-        {/* User Info Card */}
-        <div className="mb-8">
-          <DashboardErrorBoundary componentName="UserInfoCard" fallback={CardErrorFallback}>
-            <UserInfoCard />
-          </DashboardErrorBoundary>
-        </div>
-
-        {/* Enhanced Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {creatorStats.map((stat, index) => (
-            <DashboardErrorBoundary key={index} componentName={`StatsCard-${stat.title}`} fallback={CardErrorFallback}>
-              <StatsCard
-                title={stat.title}
-                value={stat.value}
-                description={stat.description}
-                icon={stat.icon}
-                trend={stat.trend}
-                progress={stat.progress}
-                variant="default"
-                color={stat.color}
-                className="p-8"
-              />
-            </DashboardErrorBoundary>
-          ))}
-        </div>
-
-        {/* URScore & Portfolio Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-          {/* URScore Breakdown */}
-          <div className="bg-white border border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300">
-            <div className="flex items-center space-x-3 mb-8">
-              <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center">
-                <Award className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-medium text-black">URScore™</h3>
-                <p className="text-gray-500 text-sm">Performance metrics</p>
-              </div>
-            </div>
-            <div className="space-y-6">
-              {urScoreBreakdown.map((metric, index) => (
-                <div key={index} className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">{metric.name}</span>
-                    <span className="text-sm font-semibold text-black">{metric.value}/100</span>
-                  </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-gray-800 to-black rounded-full transition-all duration-1000 ease-out"
-                      style={{ width: `${metric.value}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-              <div className="pt-6 border-t border-gray-100">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-black">Overall Score</span>
-                  <div className="flex items-center space-x-3">
-                    <div className="px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-medium rounded-full">
-                      Elite Tier
-                    </div>
-                    <span className="font-bold text-2xl text-black">94/100</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Enhanced Portfolio Showcase */}
-          <div className="lg:col-span-2">
-            <DashboardErrorBoundary componentName="PortfolioShowcase" fallback={CardErrorFallback}>
-              <PortfolioShowcase 
-                portfolioItems={portfolio || []}
-                maxItems={6}
-              />
-            </DashboardErrorBoundary>
-          </div>
-        </div>
-
-        {/* Enhanced Analytics Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-          {/* Earnings Chart */}
-          <DashboardErrorBoundary componentName="EarningsChart" fallback={CardErrorFallback}>
-            <AnalyticsChart 
-              data={analytics.monthly || []}
-              title="Earnings Overview"
-              description="Monthly revenue growth"
-              type="area"
-              metric="earnings"
-              height={300}
-            />
-          </DashboardErrorBoundary>
-
-          {/* Platform Performance */}
-          <DashboardErrorBoundary componentName="PlatformPerformanceChart" fallback={CardErrorFallback}>
-            <AnalyticsChart 
-              data={analytics.weekly || []}
-              title="Platform Performance"
-              description="Engagement by platform"
-              type="bar"
-              metric="engagement"
-              height={300}
-            />
-          </DashboardErrorBoundary>
-        </div>
-
-        {/* Additional Analytics Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-          {/* Follower Growth */}
-          <DashboardErrorBoundary componentName="FollowerGrowthChart" fallback={CardErrorFallback}>
-            <AnalyticsChart 
-              data={analytics.daily || []}
-              title="Follower Growth"
-              description="Daily follower trends"
-              type="line"
-              metric="followers"
-              height={250}
-            />
-          </DashboardErrorBoundary>
-
-          {/* Platform Distribution */}
-          <DashboardErrorBoundary componentName="PlatformDistributionChart" fallback={CardErrorFallback}>
-            <AnalyticsChart 
-              data={[]}
-              title="Platform Distribution"
-              description="Audience by platform"
-              type="pie"
-              metric="distribution"
-              height={250}
-            />
-          </DashboardErrorBoundary>
-
-          {/* Performance Radar */}
-          <DashboardErrorBoundary componentName="PerformanceRadarChart" fallback={CardErrorFallback}>
-            <AnalyticsChart 
-              data={[]}
-              title="Performance Metrics"
-              description="Overall performance score"
-              type="radar"
-              metric="performance"
-              height={250}
-            />
-          </DashboardErrorBoundary>
-        </div>
-
-        {/* Enhanced Collaborations and Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-          {/* Recent Collaborations */}
-          <div className="lg:col-span-2">
-            <DashboardErrorBoundary componentName="CollaborationsTable" fallback={CardErrorFallback}>
-              <CollaborationsTable 
-                collaborations={collaborations}
-                maxItems={4}
-              />
-            </DashboardErrorBoundary>
-          </div>
-
-          {/* Activity Feed */}
-          <div>
-            <DashboardErrorBoundary componentName="ActivityFeed" fallback={CardErrorFallback}>
-              <ActivityFeed maxItems={6} />
-            </DashboardErrorBoundary>
-          </div>
-        </div>
-
-        {/* Achievement Section */}
-        <div className="bg-white border border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300 mb-16">
-          <div className="flex items-center space-x-3 mb-8">
-            <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center">
-              <Award className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-xl font-medium text-black">Recent Achievements</h3>
-              <p className="text-gray-500 text-sm">Your milestones and recognition</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="group p-6 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl hover:from-yellow-100 hover:to-orange-100 transition-all duration-300 cursor-pointer">
-              <div className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                <Star className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <p className="font-bold text-black text-lg">Elite Status</p>
-                <p className="text-sm text-gray-600 mt-1">Reached 90+ URScore</p>
-              </div>
-            </div>
-            
-            <div className="group p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl hover:from-green-100 hover:to-emerald-100 transition-all duration-300 cursor-pointer">
-              <div className="w-14 h-14 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                <Target className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <p className="font-bold text-black text-lg">100K Milestone</p>
-                <p className="text-sm text-gray-600 mt-1">Total followers reached</p>
-              </div>
-            </div>
-            
-            <div className="group p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl hover:from-purple-100 hover:to-pink-100 transition-all duration-300 cursor-pointer">
-              <div className="w-14 h-14 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                <CheckCircle className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <p className="font-bold text-black text-lg">Perfect Month</p>
-                <p className="text-sm text-gray-600 mt-1">100% delivery rate</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Performance Summary Card */}
-        <div className="bg-gradient-to-br from-black to-gray-900 text-white rounded-3xl p-8 mb-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h3 className="text-2xl font-light mb-2">Monthly Performance Summary</h3>
-              <p className="text-gray-300">Your content creation impact this month</p>
-            </div>
-            <div className="text-right">
-              <div className="text-3xl font-light mb-1">{formatCurrency(dashboardStats.monthlyEarnings)}</div>
-              <div className="text-sm text-gray-300">Total Earnings</div>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
-                <MessageCircle className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-2xl font-light mb-1">{dashboardStats.activeCollaborations}</div>
-              <div className="text-xs text-gray-300">Active Projects</div>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
-                <TrendingUp className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-2xl font-light mb-1">{formatFollowers(dashboardStats.totalFollowers)}</div>
-              <div className="text-xs text-gray-300">Total Reach</div>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
-                <Star className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-2xl font-light mb-1">{dashboardStats.urScore}/100</div>
-              <div className="text-xs text-gray-300">URScore</div>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
-                <CheckCircle className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-2xl font-light mb-1">{dashboardStats.completedCollaborations}</div>
-              <div className="text-xs text-gray-300">Completed</div>
-            </div>
-          </div>
-          
-          <div className="mt-8 p-6 bg-white/5 rounded-2xl backdrop-blur-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white font-medium">Ready to create more amazing content?</p>
-                <p className="text-gray-300 text-sm mt-1">Explore new collaboration opportunities</p>
-              </div>
-              <Button className="bg-white text-black hover:bg-gray-100 rounded-full px-6 py-3 font-medium">
-                Find Collaborations
-              </Button>
-            </div>
-          </div>
-        </div>
+        </main>
       </div>
     </div>
   );

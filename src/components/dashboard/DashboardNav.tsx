@@ -26,28 +26,28 @@ import {
   Store
 } from "lucide-react";
 
-// BULLETPROOF NAVIGATION: Role-specific menu items with deep link support
+// NAVEGACIÓN EN ESPAÑOL: Elementos de menú específicos por rol
 const navigationItems = {
   admin: [
-    { name: "Overview", href: "/dashboard", icon: Home, description: "Platform overview" },
-    { name: "Users", href: "/dashboard/users", icon: Users, description: "Manage users" },
-    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3, description: "Platform analytics" },
-    { name: "Platform Settings", href: "/dashboard/settings", icon: Settings, description: "System settings" },
-    { name: "Collaborations", href: "/dashboard/collaborations", icon: MessageCircle, description: "All collaborations" },
+    { name: "Vista General", href: "/dashboard", icon: Home, description: "Vista general de la plataforma" },
+    { name: "Usuarios", href: "/dashboard/users", icon: Users, description: "Gestionar usuarios" },
+    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3, description: "Analytics de plataforma" },
+    { name: "Configuración", href: "/dashboard/settings", icon: Settings, description: "Ajustes del sistema" },
+    { name: "Colaboraciones", href: "/dashboard/collaborations", icon: MessageCircle, description: "Todas las colaboraciones" },
   ],
   creator: [
-    { name: "Dashboard", href: "/dashboard", icon: Home, description: "Creator home" },
-    { name: "My Profile", href: "/dashboard/profile", icon: Camera, description: "Profile & portfolio" },
-    { name: "Collaborations", href: "/dashboard/collaborations", icon: MessageCircle, description: "Your projects" },
-    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3, description: "Performance metrics" },
-    { name: "Settings", href: "/dashboard/settings", icon: Settings, description: "Account settings" },
+    { name: "Dashboard", href: "/dashboard", icon: Home, description: "Inicio creator" },
+    { name: "Mi Perfil", href: "/dashboard/profile", icon: Camera, description: "Perfil y portafolio" },
+    { name: "Colaboraciones", href: "/dashboard/collaborations", icon: MessageCircle, description: "Tus proyectos" },
+    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3, description: "Métricas de rendimiento" },
+    { name: "Configuración", href: "/dashboard/settings", icon: Settings, description: "Ajustes de cuenta" },
   ],
   business: [
-    { name: "Dashboard", href: "/dashboard", icon: Home, description: "Business overview" },
-    { name: "Find Creators", href: "/marketplace", icon: Search, description: "Discover talent" },
-    { name: "My Campaigns", href: "/campaigns", icon: Store, description: "Campaign management" },
-    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3, description: "Campaign insights" },
-    { name: "Settings", href: "/dashboard/settings", icon: Settings, description: "Business settings" },
+    { name: "Dashboard", href: "/dashboard", icon: Home, description: "Vista general del negocio" },
+    { name: "Buscar Creators", href: "/marketplace", icon: Search, description: "Descubrir talento" },
+    { name: "Mis Campañas", href: "/campaigns", icon: Store, description: "Gestión de campañas" },
+    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3, description: "Insights de campañas" },
+    { name: "Configuración", href: "/dashboard/settings", icon: Settings, description: "Ajustes del negocio" },
   ]
 };
 
@@ -144,12 +144,12 @@ export const DashboardNav = () => {
 
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
-            {/* BULLETPROOF ROLE-BASED QUICK ACTIONS */}
+            {/* ACCIONES RÁPIDAS BASADAS EN ROL */}
             {userRole === 'business' && (
               <Link to="/marketplace">
                 <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
                   <Plus className="w-4 h-4 mr-2" />
-                  New Campaign
+                  Nueva Campaña
                 </Button>
               </Link>
             )}
@@ -157,14 +157,14 @@ export const DashboardNav = () => {
             {userRole === 'creator' && (
               <Button size="sm" className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700">
                 <Plus className="w-4 h-4 mr-2" />
-                Add Content
+                Agregar Contenido
               </Button>
             )}
             
             {userRole === 'admin' && (
               <Button size="sm" className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700">
                 <Plus className="w-4 h-4 mr-2" />
-                Admin Panel
+                Panel Admin
               </Button>
             )}
 
@@ -209,19 +209,19 @@ export const DashboardNav = () => {
                 <DropdownMenuItem asChild>
                   <Link to="/dashboard/profile">
                     <Settings className="mr-2 h-4 w-4" />
-                    <span>Profile Settings</span>
+                    <span>Configuración del Perfil</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/dashboard/billing">
                     <BarChart3 className="mr-2 h-4 w-4" />
-                    <span>Billing</span>
+                    <span>Facturación</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                  <span>Cerrar Sesión</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
