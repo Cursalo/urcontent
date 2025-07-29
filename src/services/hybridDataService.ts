@@ -42,7 +42,10 @@ class HybridDataService {
     
     // FORCE MOCK DATA FOR ALL USERS - DATABASE HAS RLS ISSUES
     console.log('🛡️ Using mock data fallback due to RLS infinite recursion');
-    return this.getMockDashboardData(userId);
+    
+    // Fix: Ensure userId is clean (remove any query string artifacts)
+    const cleanUserId = userId.split('?')[0].split(':')[0];
+    return this.getMockDashboardData(cleanUserId);
   }
 
   // Get creator profile with hybrid support
@@ -179,8 +182,12 @@ class HybridDataService {
   // Private methods for specific auth types
   private async getMockDashboardData(userId: string): Promise<HybridDashboardData | null> {
     try {
+      // Clean userId to handle any malformed IDs
+      const cleanUserId = userId.split('?')[0].split(':')[0];
+      console.log('🔍 Searching mock data for clean userId:', cleanUserId);
+      
       // Try to get actual mock data first
-      const creatorData = await mockDataService.getCreatorDashboardData(userId);
+      const creatorData = await mockDataService.getCreatorDashboardData(cleanUserId);
       if (creatorData) {
         console.log('✅ MOCK DATA: Found creator dashboard data');
         return {
@@ -190,7 +197,7 @@ class HybridDataService {
       }
 
       // Try to get business mock data
-      const businessData = await businessMockDataService.getBusinessDashboardData(userId);
+      const businessData = await businessMockDataService.getBusinessDashboardData(cleanUserId);
       if (businessData) {
         console.log('✅ MOCK DATA: Found business dashboard data');
         return {
