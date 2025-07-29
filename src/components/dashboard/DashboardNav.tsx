@@ -61,14 +61,8 @@ export const DashboardNav = () => {
   const userRole = profileRole || metadataRole || 'creator';
   const navigation = navigationItems[userRole as keyof typeof navigationItems] || navigationItems.creator;
   
-  // Log role detection for debugging
-  console.log('DashboardNav role detection:', {
-    profileRole,
-    metadataRole,
-    finalRole: userRole,
-    profileType: typeof profile?.role,
-    metadataType: typeof user?.user_metadata?.role
-  });
+  // Log role detection for debugging - clean output
+  console.log('DashboardNav role detection:', userRole);
   
   const getRoleIcon = (role: string) => {
     switch (role) {

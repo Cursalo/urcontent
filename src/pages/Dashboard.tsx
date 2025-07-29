@@ -24,17 +24,13 @@ const Dashboard = () => {
     return <Navigate to="/login" replace />;
   }
 
-  // Get user role from profile or user metadata with better fallback handling
-  const userRole = profile?.role || user.user_metadata?.role || 'creator';
+  // Get user role with proper string type checking and fallback handling
+  const profileRole = typeof profile?.role === 'string' ? profile.role : null;
+  const metadataRole = typeof user?.user_metadata?.role === 'string' ? user.user_metadata.role : null;
+  const userRole = profileRole || metadataRole || 'creator';
 
-  // Log role detection for debugging
-  console.log('Dashboard role detection:', {
-    profileRole: profile?.role,
-    userMetadataRole: user.user_metadata?.role,
-    finalRole: userRole,
-    userId: user.id,
-    userEmail: user.email
-  });
+  // Log role detection for debugging - clean output
+  console.log('Dashboard role detection:', userRole);
 
   // Route to appropriate dashboard based on role
   switch (userRole) {

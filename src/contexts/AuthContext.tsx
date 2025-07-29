@@ -51,19 +51,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Set a timeout for the entire initialization process
+        // Optimized timeout for immediate feedback
         const initTimeout = setTimeout(() => {
           console.warn('Auth initialization timeout - setting loading to false');
           setLoading(false);
-        }, 10000); // 10 second timeout
+        }, 2000); // 2 second timeout for faster feedback
 
         if (useMockAuth) {
-          // Use mock authentication
+          // Use mock authentication - completely bypass Supabase
           console.log('Using mock authentication system');
           const { session: mockSession } = await mockAuthService.getSession();
           const { user: mockUser } = await mockAuthService.getUser();
           
           if (mockSession && mockUser) {
+            console.log('Mock user authenticated:', { id: mockUser.id, role: mockUser.role, email: mockUser.email });
+            
             // Convert mock session to Session-like object
             const sessionLike = {
               ...mockSession,
@@ -81,7 +83,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             setSession(sessionLike);
             setUser(mockUser as ExtendedUser);
-            setProfile(mockUser);
+            setProfile(mockUser); // Use mockUser directly as profile
+            console.log('Mock auth initialization complete - profile set with role:', mockUser.role);
+          } else {
+            console.log('No mock session found');
           }
           
           setLoading(false);
@@ -122,6 +127,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         data: { subscription },
       } = supabase.auth.onAuthStateChange(async (event, session) => {
         try {
+          console.log('Auth state change:', event, session?.user?.id);
           setSession(session);
           setUser(session?.user ?? null);
           
@@ -142,13 +148,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [useMockAuth]);
 
   const fetchUserProfile = async (userId: string) => {
+    // Skip profile fetch entirely if using mock auth
+    if (useMockAuth) {
+      console.log('Skipping profile fetch - using mock auth');
+      return;
+    }
+
     const fetchTimeout = setTimeout(() => {
       console.warn('Profile fetch timeout - setting loading to false');
       setLoading(false);
-    }, 8000); // 8 second timeout for profile fetch
+    }, 2000); // Optimized timeout for faster feedback
 
     try {
       setLoading(true);
+      console.log('Fetching profile for user:', userId);
       
       // First, get user data from auth.users metadata as fallback
       const { data: authUser } = await supabase.auth.getUser();
@@ -192,13 +205,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             last_seen_at: null,
           };
           
-          console.warn('Using fallback profile from auth metadata:', fallbackProfile);
+          console.log('Using fallback profile from auth metadata:', { role: fallbackProfile.role });
           setProfile(fallbackProfile);
         } else {
           // Set profile to null instead of undefined to prevent infinite loops
           setProfile(null);
         }
       } else {
+        console.log('Profile fetched successfully:', { role: data.role });
         setProfile(data);
       }
     } catch (error) {
@@ -260,6 +274,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       if (result.user && result.session) {
+        console.log('Mock sign-in successful:', { id: result.user.id, role: result.user.role, email: result.user.email });
+        
         // Convert mock session to Session-like object
         const sessionLike = {
           ...result.session,
@@ -277,7 +293,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setSession(sessionLike);
         setUser(result.user as ExtendedUser);
-        setProfile(result.user);
+        setProfile(result.user); // Use mock user directly as profile
+        console.log('Mock sign-in complete - profile set with role:', result.user.role);
       }
       
       return { error: null };

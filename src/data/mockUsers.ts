@@ -224,7 +224,7 @@ export interface MockAnalyticsData {
 export const mockUsers: MockUser[] = [
   {
     id: 'creator-user-001',
-    email: 'sofia.martinez@example.com',
+    email: 'creator@urcontent.com',
     password: 'creator123',
     full_name: 'Sofia Martinez',
     role: 'creator',
@@ -308,8 +308,8 @@ export const mockUsers: MockUser[] = [
   },
   {
     id: 'business-user-001',
-    email: 'contact@laplazarestaurant.com',
-    password: 'business123',
+    email: 'venue@urcontent.com',
+    password: 'venue123',
     full_name: 'Restaurant La Plaza Manager',
     role: 'business',
     username: 'restaurant_laplaza',

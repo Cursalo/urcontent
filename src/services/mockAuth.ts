@@ -27,8 +27,8 @@ class MockAuthService {
 
   // Sign in with email and password
   async signIn(email: string, password: string): Promise<MockAuthResult> {
-    // Simulate network delay
-    await this.delay(500);
+    // Minimal delay for immediate development feedback
+    await this.delay(50);
 
     const user = validateCredentials(email, password);
     
@@ -88,7 +88,7 @@ class MockAuthService {
 
   // Get current session
   async getSession(): Promise<{ session: MockSession | null; error?: MockAuthError }> {
-    await this.delay(100);
+    await this.delay(25); // Very fast session retrieval
     
     const session = this.getStoredSession();
     
@@ -113,7 +113,7 @@ class MockAuthService {
 
   // Get current user
   async getUser(): Promise<{ user: MockUser | null; error?: MockAuthError }> {
-    await this.delay(100);
+    await this.delay(25); // Very fast user retrieval
     
     const user = this.getStoredUser();
     const session = this.getStoredSession();
@@ -177,10 +177,10 @@ class MockAuthService {
     // For mock purposes, we'll just call the callback with current session
     const session = this.getStoredSession();
     
-    // Simulate initial auth state
+    // Simulate initial auth state immediately for fastest startup
     setTimeout(() => {
       callback(session ? 'SIGNED_IN' : 'SIGNED_OUT', session);
-    }, 100);
+    }, 5); // Immediate callback
 
     // Return unsubscribe function
     return {
