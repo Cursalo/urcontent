@@ -1,0 +1,472 @@
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  Eye, 
+  Heart, 
+  MessageCircle, 
+  Share, 
+  Users,
+  Calendar,
+  Filter
+} from 'lucide-react';
+import { formatNumber } from '@/lib/utils';
+
+export interface PerformanceData {
+  id: string;
+  date: string;
+  views: number;
+  likes: number;
+  comments: number;
+  shares: number;
+  reach: number;
+  impressions: number;
+  engagement: number;
+  clicks: number;
+  saves: number;
+  profileVisits: number;
+  followersGained: number;
+  platform: 'instagram' | 'tiktok' | 'youtube' | 'twitter';
+  contentType: 'post' | 'story' | 'reel' | 'video' | 'carousel';
+  contentTitle?: string;
+}
+
+interface PerformanceChartProps {
+  data: PerformanceData[];
+  timeRange: '7d' | '30d' | '90d' | '1y';
+  onTimeRangeChange: (range: '7d' | '30d' | '90d' | '1y') => void;
+  platform?: 'all' | 'instagram' | 'tiktok' | 'youtube' | 'twitter';
+  onPlatformChange?: (platform: 'all' | 'instagram' | 'tiktok' | 'youtube' | 'twitter') => void;
+  className?: string;
+}
+
+const PLATFORM_COLORS = {
+  instagram: '#E4405F',
+  tiktok: '#000000',
+  youtube: '#FF0000',
+  twitter: '#1DA1F2',
+  all: '#6366f1'
+};
+
+const METRICS_CONFIG = {
+  views: { label: 'Visualizaciones', icon: Eye, color: '#8884d8' },
+  likes: { label: 'Me gusta', icon: Heart, color: '#82ca9d' },
+  comments: { label: 'Comentarios', icon: MessageCircle, color: '#ffc658' },
+  shares: { label: 'Compartidos', icon: Share, color: '#ff7300' },
+  reach: { label: 'Alcance', icon: Users, color: '#00c49f' },
+  engagement: { label: 'Engagement', icon: TrendingUp, color: '#0088fe' }
+};
+
+const PIE_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+
+export const PerformanceChart: React.FC<PerformanceChartProps> = ({
+  data,
+  timeRange,
+  onTimeRangeChange,
+  platform = 'all',
+  onPlatformChange,
+  className = ''
+}) => {
+  const [selectedMetric, setSelectedMetric] = useState<keyof typeof METRICS_CONFIG>('views');
+  const [chartType, setChartType] = useState<'line' | 'area' | 'bar'>('line');
+
+  // Filter data based on platform
+  const filteredData = platform === 'all' 
+    ? data 
+    : data.filter(item => item.platform === platform);
+
+  // Aggregate data by date
+  const aggregatedData = React.useMemo(() => {
+    const groupedByDate = filteredData.reduce((acc, item) => {
+      const date = item.date;
+      if (!acc[date]) {
+        acc[date] = {
+          date,
+          views: 0,
+          likes: 0,
+          comments: 0,
+          shares: 0,
+          reach: 0,
+          impressions: 0,
+          engagement: 0,
+          clicks: 0,
+          saves: 0,
+          profileVisits: 0,
+          followersGained: 0
+        };
+      }
+      
+      Object.keys(acc[date]).forEach(key => {
+        if (key !== 'date' && typeof item[key as keyof PerformanceData] === 'number') {
+          acc[date][key as keyof typeof acc[date]] += item[key as keyof PerformanceData] as number;
+        }
+      });
+      
+      return acc;
+    }, {} as Record<string, any>);
+
+    return Object.values(groupedByDate).sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+  }, [filteredData]);
+
+  // Calculate totals and growth
+  const totals = React.useMemo(() => {
+    const current = aggregatedData.slice(-7); // Last 7 days
+    const previous = aggregatedData.slice(-14, -7); // Previous 7 days
+    
+    const currentTotals = current.reduce((acc, item) => {
+      Object.keys(METRICS_CONFIG).forEach(metric => {
+        acc[metric] = (acc[metric] || 0) + (item[metric] || 0);
+      });
+      return acc;
+    }, {} as Record<string, number>);
+    
+    const previousTotals = previous.reduce((acc, item) => {
+      Object.keys(METRICS_CONFIG).forEach(metric => {
+        acc[metric] = (acc[metric] || 0) + (item[metric] || 0);
+      });
+      return acc;
+    }, {} as Record<string, number>);
+    
+    const growth = Object.keys(METRICS_CONFIG).reduce((acc, metric) => {
+      const currentValue = currentTotals[metric] || 0;
+      const previousValue = previousTotals[metric] || 0;
+      acc[metric] = previousValue === 0 ? 0 : 
+        ((currentValue - previousValue) / previousValue) * 100;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    return { current: currentTotals, growth };
+  }, [aggregatedData]);
+
+  // Platform distribution data
+  const platformData = React.useMemo(() => {
+    const distribution = data.reduce((acc, item) => {
+      acc[item.platform] = (acc[item.platform] || 0) + item[selectedMetric];
+      return acc;
+    }, {} as Record<string, number>);
+    
+    return Object.entries(distribution).map(([platform, value]) => ({
+      name: platform.toUpperCase(),
+      value,
+      color: PLATFORM_COLORS[platform as keyof typeof PLATFORM_COLORS]
+    }));
+  }, [data, selectedMetric]);
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-background border rounded-lg shadow-lg p-3">
+          <p className="font-medium">{`Fecha: ${new Date(label).toLocaleDateString('es-AR')}`}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} style={{ color: entry.color }}>
+              {`${entry.name}: ${formatNumber(entry.value)}`}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const renderChart = () => {
+    const commonProps = {
+      data: aggregatedData,
+      margin: { top: 5, right: 30, left: 20, bottom: 5 }
+    };
+
+    switch (chartType) {
+      case 'area':
+        return (
+          <AreaChart {...commonProps}>
+            <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+            <XAxis 
+              dataKey="date" 
+              tickFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}
+              className="text-xs"
+            />
+            <YAxis tickFormatter={formatNumber} className="text-xs" />
+            <Tooltip content={<CustomTooltip />} />
+            <Area
+              type="monotone"
+              dataKey={selectedMetric}
+              stroke={METRICS_CONFIG[selectedMetric].color}
+              fill={METRICS_CONFIG[selectedMetric].color}
+              fillOpacity={0.3}
+              strokeWidth={2}
+            />
+          </AreaChart>
+        );
+      
+      case 'bar':
+        return (
+          <BarChart {...commonProps}>
+            <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+            <XAxis 
+              dataKey="date" 
+              tickFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}
+              className="text-xs"
+            />
+            <YAxis tickFormatter={formatNumber} className="text-xs" />
+            <Tooltip content={<CustomTooltip />} />
+            <Bar
+              dataKey={selectedMetric}
+              fill={METRICS_CONFIG[selectedMetric].color}
+              radius={[2, 2, 0, 0]}
+            />
+          </BarChart>
+        );
+      
+      default:
+        return (
+          <LineChart {...commonProps}>
+            <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+            <XAxis 
+              dataKey="date" 
+              tickFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}
+              className="text-xs"
+            />
+            <YAxis tickFormatter={formatNumber} className="text-xs" />
+            <Tooltip content={<CustomTooltip />} />
+            <Line
+              type="monotone"
+              dataKey={selectedMetric}
+              stroke={METRICS_CONFIG[selectedMetric].color}
+              strokeWidth={2}
+              dot={{ fill: METRICS_CONFIG[selectedMetric].color, strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: METRICS_CONFIG[selectedMetric].color, strokeWidth: 2 }}
+            />
+          </LineChart>
+        );
+    }
+  };
+
+  return (
+    <div className={`space-y-6 ${className}`}>
+      {/* Header with Controls */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+      >
+        <div>
+          <h2 className="text-2xl font-bold">Análisis de rendimiento</h2>
+          <p className="text-muted-foreground">Métricas de engagement y alcance</p>
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          <Select value={timeRange} onValueChange={onTimeRangeChange}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7d">7 días</SelectItem>
+              <SelectItem value="30d">30 días</SelectItem>
+              <SelectItem value="90d">90 días</SelectItem>
+              <SelectItem value="1y">1 año</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          {onPlatformChange && (
+            <Select value={platform} onValueChange={onPlatformChange}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="instagram">Instagram</SelectItem>
+                <SelectItem value="tiktok">TikTok</SelectItem>
+                <SelectItem value="youtube">YouTube</SelectItem>
+                <SelectItem value="twitter">Twitter</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+          
+          <Select value={chartType} onValueChange={(value: 'line' | 'area' | 'bar') => setChartType(value)}>
+            <SelectTrigger className="w-24">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="line">Línea</SelectItem>
+              <SelectItem value="area">Área</SelectItem>
+              <SelectItem value="bar">Barras</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </motion.div>
+
+      {/* Metrics Overview */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+      >
+        {Object.entries(METRICS_CONFIG).map(([key, config]) => {
+          const Icon = config.icon;
+          const currentValue = totals.current[key] || 0;
+          const growth = totals.growth[key] || 0;
+          const isPositive = growth >= 0;
+          
+          return (
+            <Card 
+              key={key} 
+              className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                selectedMetric === key ? 'ring-2 ring-primary' : ''
+              }`}
+              onClick={() => setSelectedMetric(key as keyof typeof METRICS_CONFIG)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <Icon className="h-4 w-4 text-muted-foreground" />
+                  <div className={`flex items-center text-xs ${
+                    isPositive ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+                    {Math.abs(growth).toFixed(1)}%
+                  </div>
+                </div>
+                <div className="text-2xl font-bold">{formatNumber(currentValue)}</div>
+                <div className="text-xs text-muted-foreground">{config.label}</div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </motion.div>
+
+      {/* Main Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {React.createElement(METRICS_CONFIG[selectedMetric].icon, { className: 'h-5 w-5' })}
+              {METRICS_CONFIG[selectedMetric].label} - Últimos {timeRange === '7d' ? '7 días' : timeRange === '30d' ? '30 días' : timeRange === '90d' ? '90 días' : 'año'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                {renderChart()}
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Additional Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Platform Distribution */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>Distribución por plataforma</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={platformData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {platformData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color || PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => formatNumber(value as number)} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Top Performing Content */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>Contenido con mejor rendimiento</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {data
+                  .sort((a, b) => b[selectedMetric] - a[selectedMetric])
+                  .slice(0, 5)
+                  .map((item, index) => (
+                    <div key={item.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm truncate">
+                          {item.contentTitle || `Contenido ${item.id}`}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Badge variant="outline" className="text-xs">
+                            {item.platform.toUpperCase()}
+                          </Badge>
+                          <span>{item.contentType}</span>
+                          <span>•</span>
+                          <span>{new Date(item.date).toLocaleDateString('es-AR')}</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold">{formatNumber(item[selectedMetric])}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {METRICS_CONFIG[selectedMetric].label}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default PerformanceChart;

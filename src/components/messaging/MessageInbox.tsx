@@ -1,0 +1,659 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Search, 
+  MoreVertical, 
+  Pin, 
+  Archive, 
+  Trash2, 
+  Star, 
+  Circle,
+  CheckCircle2,
+  Filter,
+  Inbox,
+  Send,
+  Users,
+  MessageSquare,
+  Clock
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { formatRelativeTime } from '@/lib/utils';
+import { ChatWindow } from './ChatWindow';
+
+export interface Conversation {
+  id: string;
+  participants: {
+    id: string;
+    name: string;
+    username: string;
+    avatar: string;
+    role: 'creator' | 'business';
+    isOnline: boolean;
+    lastSeen?: string;
+  }[];
+  lastMessage: {
+    id: string;
+    content: string;
+    senderId: string;
+    timestamp: string;
+    type: 'text' | 'image' | 'file' | 'collaboration_proposal' | 'payment';
+    isRead: boolean;
+  };
+  unreadCount: number;
+  isGroup: boolean;
+  isPinned: boolean;
+  isArchived: boolean;
+  isStarred: boolean;
+  project?: {
+    id: string;
+    title: string;
+    status: 'active' | 'completed' | 'cancelled';
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface MessageInboxProps {
+  conversations: Conversation[];
+  currentUserId: string;
+  selectedConversationId?: string;
+  onConversationSelect: (conversationId: string) => void;
+  onNewConversation: () => void;
+  onArchiveConversation: (conversationId: string) => void;
+  onDeleteConversation: (conversationId: string) => void;
+  onPinConversation: (conversationId: string) => void;
+  onStarConversation: (conversationId: string) => void;
+  className?: string;
+}
+
+type FilterTab = 'all' | 'unread' | 'starred' | 'archived';
+type SortBy = 'recent' | 'unread' | 'alphabetical';
+
+const MOCK_CONVERSATIONS: Conversation[] = [
+  {
+    id: '1',
+    participants: [
+      {
+        id: '2',
+        name: 'María González',
+        username: 'mariag_creates',
+        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b412?w=150&h=150&fit=crop&crop=face',
+        role: 'creator',
+        isOnline: true
+      }
+    ],
+    lastMessage: {
+      id: 'msg1',
+      content: 'Perfecto! Ya tengo las fotos listas para la campaña. ¿Te parece si las envío por aquí?',
+      senderId: '2',
+      timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 minutes ago
+      type: 'text',
+      isRead: false
+    },
+    unreadCount: 2,
+    isGroup: false,
+    isPinned: true,
+    isArchived: false,
+    isStarred: true,
+    project: {
+      id: 'proj1',
+      title: 'Campaña Skincare Verano',
+      status: 'active'
+    },
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 5).toISOString()
+  },
+  {
+    id: '2',
+    participants: [
+      {
+        id: '3',
+        name: 'Carlos Fitness',
+        username: 'carlosfit',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+        role: 'creator',
+        isOnline: false,
+        lastSeen: new Date(Date.now() - 1000 * 60 * 30).toISOString()
+      }
+    ],
+    lastMessage: {
+      id: 'msg2',
+      content: 'Gracias por la oportunidad! Acepto los términos de la colaboración.',
+      senderId: '3',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+      type: 'collaboration_proposal',
+      isRead: true
+    },
+    unreadCount: 0,
+    isGroup: false,
+    isPinned: false,
+    isArchived: false,
+    isStarred: false,
+    project: {
+      id: 'proj2',
+      title: 'Review Suplementos',
+      status: 'active'
+    },
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString()
+  },
+  {
+    id: '3',
+    participants: [
+      {
+        id: '4',
+        name: 'Ana Cocina',
+        username: 'anafood',
+        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+        role: 'creator',
+        isOnline: true
+      }
+    ],
+    lastMessage: {
+      id: 'msg3',
+      content: 'El pago se procesó correctamente. ¡Muchas gracias!',
+      senderId: '1',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(), // 6 hours ago
+      type: 'payment',
+      isRead: true
+    },
+    unreadCount: 0,
+    isGroup: false,
+    isPinned: false,
+    isArchived: false,
+    isStarred: true,
+    project: {
+      id: 'proj3',
+      title: 'Recetas Saludables',
+      status: 'completed'
+    },
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString()
+  }
+];
+
+export const MessageInbox: React.FC<MessageInboxProps> = ({
+  conversations = MOCK_CONVERSATIONS,
+  currentUserId,
+  selectedConversationId,
+  onConversationSelect,
+  onNewConversation,
+  onArchiveConversation,
+  onDeleteConversation,
+  onPinConversation,
+  onStarConversation,
+  className = ''
+}) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<FilterTab>('all');
+  const [sortBy, setSortBy] = useState<SortBy>('recent');
+  const [selectedConversations, setSelectedConversations] = useState<string[]>([]);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+
+  // Filter conversations based on active tab
+  const filteredConversations = React.useMemo(() => {
+    let filtered = conversations;
+
+    // Apply tab filter
+    switch (activeTab) {
+      case 'unread':
+        filtered = filtered.filter(conv => conv.unreadCount > 0);
+        break;
+      case 'starred':
+        filtered = filtered.filter(conv => conv.isStarred);
+        break;
+      case 'archived':
+        filtered = filtered.filter(conv => conv.isArchived);
+        break;
+      default:
+        filtered = filtered.filter(conv => !conv.isArchived);
+    }
+
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(conv => {
+        const participant = conv.participants.find(p => p.id !== currentUserId);
+        return (
+          participant?.name.toLowerCase().includes(query) ||
+          participant?.username.toLowerCase().includes(query) ||
+          conv.lastMessage.content.toLowerCase().includes(query) ||
+          conv.project?.title.toLowerCase().includes(query)
+        );
+      });
+    }
+
+    // Apply sorting
+    switch (sortBy) {
+      case 'unread':
+        filtered.sort((a, b) => b.unreadCount - a.unreadCount || new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+        break;
+      case 'alphabetical':
+        filtered.sort((a, b) => {
+          const nameA = a.participants.find(p => p.id !== currentUserId)?.name || '';
+          const nameB = b.participants.find(p => p.id !== currentUserId)?.name || '';
+          return nameA.localeCompare(nameB);
+        });
+        break;
+      default: // recent
+        filtered.sort((a, b) => {
+          // Pinned conversations first
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          // Then by last update
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        });
+    }
+
+    return filtered;
+  }, [conversations, activeTab, searchQuery, sortBy, currentUserId]);
+
+  const handleConversationSelect = (conversationId: string) => {
+    if (isSelectionMode) {
+      setSelectedConversations(prev => 
+        prev.includes(conversationId)
+          ? prev.filter(id => id !== conversationId)
+          : [...prev, conversationId]
+      );
+    } else {
+      onConversationSelect(conversationId);
+    }
+  };
+
+  const handleBulkAction = (action: 'archive' | 'delete' | 'pin' | 'star') => {
+    selectedConversations.forEach(id => {
+      switch (action) {
+        case 'archive':
+          onArchiveConversation(id);
+          break;
+        case 'delete':
+          onDeleteConversation(id);
+          break;
+        case 'pin':
+          onPinConversation(id);
+          break;
+        case 'star':
+          onStarConversation(id);
+          break;
+      }
+    });
+    setSelectedConversations([]);
+    setIsSelectionMode(false);
+  };
+
+  const totalUnread = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+  const starredCount = conversations.filter(conv => conv.isStarred).length;
+  const archivedCount = conversations.filter(conv => conv.isArchived).length;
+
+  const getMessageTypeIcon = (type: string) => {
+    switch (type) {
+      case 'collaboration_proposal':
+        return <Users className="h-3 w-3 text-blue-500" />;
+      case 'payment':
+        return <Circle className="h-3 w-3 text-green-500 fill-current" />;
+      case 'image':
+        return <span className="text-xs">📷</span>;
+      case 'file':
+        return <span className="text-xs">📎</span>;
+      default:
+        return null;
+    }
+  };
+
+  const ConversationItem = ({ conversation }: { conversation: Conversation }) => {
+    const participant = conversation.participants.find(p => p.id !== currentUserId);
+    const isSelected = selectedConversations.includes(conversation.id);
+    const isActive = selectedConversationId === conversation.id;
+    
+    if (!participant) return null;
+
+    return (
+      <motion.div
+        layout
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        className={`group relative p-3 cursor-pointer transition-all duration-200 border-b hover:bg-muted/50 ${
+          isActive ? 'bg-primary/10 border-r-2 border-r-primary' : ''
+        } ${
+          isSelected ? 'bg-blue-50 border-l-2 border-l-blue-500' : ''
+        }`}
+        onClick={() => handleConversationSelect(conversation.id)}
+      >
+        <div className="flex items-start gap-3">
+          {/* Selection checkbox */}
+          {isSelectionMode && (
+            <div className="mt-1">
+              {isSelected ? (
+                <CheckCircle2 className="h-4 w-4 text-blue-500" />
+              ) : (
+                <Circle className="h-4 w-4 text-muted-foreground" />
+              )}
+            </div>
+          )}
+
+          {/* Avatar */}
+          <div className="relative">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src={participant.avatar} alt={participant.name} />
+              <AvatarFallback>{participant.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            {participant.isOnline && (
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-background rounded-full" />
+            )}
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-sm truncate">
+                  {participant.name}
+                </h3>
+                {conversation.isPinned && (
+                  <Pin className="h-3 w-3 text-orange-500" />
+                )}
+                {conversation.isStarred && (
+                  <Star className="h-3 w-3 text-yellow-500 fill-current" />
+                )}
+                <Badge 
+                  variant={participant.role === 'creator' ? 'default' : 'secondary'}
+                  className="text-xs px-1.5 py-0.5"
+                >
+                  {participant.role === 'creator' ? 'Creator' : 'Business'}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-muted-foreground">
+                  {formatRelativeTime(conversation.lastMessage.timestamp)}
+                </span>
+                {conversation.unreadCount > 0 && (
+                  <Badge variant="destructive" className="text-xs min-w-5 h-5 flex items-center justify-center">
+                    {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {/* Project info */}
+            {conversation.project && (
+              <div className="flex items-center gap-1 mb-1">
+                <MessageSquare className="h-3 w-3 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground truncate">
+                  {conversation.project.title}
+                </span>
+                <Badge 
+                  variant={conversation.project.status === 'active' ? 'default' : 'secondary'}
+                  className="text-xs px-1.5 py-0.5"
+                >
+                  {conversation.project.status}
+                </Badge>
+              </div>
+            )}
+
+            {/* Last message */}
+            <div className="flex items-center gap-2">
+              {getMessageTypeIcon(conversation.lastMessage.type)}
+              <p className={`text-sm truncate flex-1 ${
+                conversation.unreadCount > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'
+              }`}>
+                {conversation.lastMessage.senderId === currentUserId && (
+                  <span className="text-muted-foreground mr-1">Tú:</span>
+                )}
+                {conversation.lastMessage.content}
+              </p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          {!isSelectionMode && (
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onPinConversation(conversation.id);
+                  }}>
+                    <Pin className="h-4 w-4 mr-2" />
+                    {conversation.isPinned ? 'Desanclar' : 'Anclar'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onStarConversation(conversation.id);
+                  }}>
+                    <Star className="h-4 w-4 mr-2" />
+                    {conversation.isStarred ? 'Quitar estrella' : 'Marcar con estrella'}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    onArchiveConversation(conversation.id);
+                  }}>
+                    <Archive className="h-4 w-4 mr-2" />
+                    Archivar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteConversation(conversation.id);
+                    }}
+                    className="text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Eliminar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    );
+  };
+
+  return (
+    <div className={`h-full flex flex-col ${className}`}>
+      {/* Header */}
+      <div className="p-4 border-b bg-background">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Inbox className="h-5 w-5" />
+            <h1 className="text-xl font-semibold">Mensajes</h1>
+            {totalUnread > 0 && (
+              <Badge variant="destructive" className="text-xs">
+                {totalUnread}
+              </Badge>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {isSelectionMode ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setIsSelectionMode(false);
+                    setSelectedConversations([]);
+                  }}
+                >
+                  Cancelar
+                </Button>
+                {selectedConversations.length > 0 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm">
+                        Acciones ({selectedConversations.length})
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => handleBulkAction('pin')}>
+                        <Pin className="h-4 w-4 mr-2" />
+                        Anclar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleBulkAction('star')}>
+                        <Star className="h-4 w-4 mr-2" />
+                        Marcar con estrella
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleBulkAction('archive')}>
+                        <Archive className="h-4 w-4 mr-2" />
+                        Archivar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleBulkAction('delete')}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Eliminar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsSelectionMode(true)}
+                >
+                  Seleccionar
+                </Button>
+                <Button size="sm" onClick={onNewConversation}>
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Nuevo
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar conversaciones..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        {/* Controls */}
+        <div className="flex items-center gap-2">
+          <Select value={sortBy} onValueChange={(value: SortBy) => setSortBy(value)}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Más recientes</SelectItem>
+              <SelectItem value="unread">No leídos</SelectItem>
+              <SelectItem value="alphabetical">Alfabético</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={(value: FilterTab) => setActiveTab(value)} className="flex-1 flex flex-col">
+        <TabsList className="w-full justify-start px-4 py-2 bg-background border-b rounded-none">
+          <TabsTrigger value="all" className="flex items-center gap-2">
+            <Inbox className="h-4 w-4" />
+            Todas
+            {conversations.filter(c => !c.isArchived).length > 0 && (
+              <Badge variant="secondary" className="text-xs">
+                {conversations.filter(c => !c.isArchived).length}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="unread" className="flex items-center gap-2">
+            <Circle className="h-4 w-4" />
+            No leídas
+            {totalUnread > 0 && (
+              <Badge variant="destructive" className="text-xs">
+                {totalUnread}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="starred" className="flex items-center gap-2">
+            <Star className="h-4 w-4" />
+            Destacadas
+            {starredCount > 0 && (
+              <Badge variant="secondary" className="text-xs">
+                {starredCount}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="archived" className="flex items-center gap-2">
+            <Archive className="h-4 w-4" />
+            Archivadas
+            {archivedCount > 0 && (
+              <Badge variant="secondary" className="text-xs">
+                {archivedCount}
+              </Badge>
+            )}
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Conversation List */}
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full">
+            <AnimatePresence>
+              {filteredConversations.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-col items-center justify-center h-64 text-center"
+                >
+                  <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No hay conversaciones</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchQuery 
+                      ? 'No se encontraron conversaciones que coincidan con tu búsqueda.' 
+                      : activeTab === 'archived'
+                      ? 'No tienes conversaciones archivadas.'
+                      : activeTab === 'starred'
+                      ? 'No tienes conversaciones destacadas.'
+                      : activeTab === 'unread'
+                      ? 'No tienes mensajes sin leer.'
+                      : 'Inicia una nueva conversación para comenzar.'
+                    }
+                  </p>
+                  {!searchQuery && activeTab === 'all' && (
+                    <Button onClick={onNewConversation}>
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Nueva conversación
+                    </Button>
+                  )}
+                </motion.div>
+              ) : (
+                <div>
+                  {filteredConversations.map((conversation) => (
+                    <ConversationItem key={conversation.id} conversation={conversation} />
+                  ))}
+                </div>
+              )}
+            </AnimatePresence>
+          </ScrollArea>
+        </div>
+      </Tabs>
+    </div>
+  );
+};
+
+export default MessageInbox;

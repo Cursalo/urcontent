@@ -1,0 +1,436 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Paperclip, Image, FileText, Download, X, Smile, MoreVertical } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { OptimizedImage } from '@/components/ui/optimized-image';
+import { formatRelativeTime } from '@/lib/utils';
+
+interface Message {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderAvatar: string;
+  message: string;
+  timestamp: string;
+  attachments?: {
+    id: string;
+    name: string;
+    url: string;
+    type: string;
+    size?: number;
+  }[];
+  isRead?: boolean;
+  reactions?: {
+    emoji: string;
+    users: string[];
+  }[];
+}
+
+interface CollaborationChatProps {
+  messages: Message[];
+  currentUserId: string;
+  onSendMessage: (message: string, attachments?: File[]) => void;
+  className?: string;
+}
+
+const EMOJI_OPTIONS = ['👍', '❤️', '😂', '😮', '😢', '👏', '🔥', '✅'];
+
+export const CollaborationChat: React.FC<CollaborationChatProps> = ({
+  messages,
+  currentUserId,
+  onSendMessage,
+  className = ''
+}) => {
+  const [newMessage, setNewMessage] = useState('');
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [showEmojiPicker, setShowEmojiPicker] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [newMessage]);
+
+  const handleSendMessage = () => {
+    if (newMessage.trim() || attachments.length > 0) {
+      onSendMessage(newMessage.trim(), attachments);
+      setNewMessage('');
+      setAttachments([]);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setAttachments(prev => [...prev, ...files].slice(0, 5)); // Max 5 files
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    setAttachments(prev => [...prev, ...files].slice(0, 5));
+  };
+
+  const getFileIcon = (type: string) => {
+    if (type.startsWith('image/')) return '🖼️';
+    if (type.startsWith('video/')) return '🎥';
+    if (type.includes('pdf')) return '📄';
+    return '📎';
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const groupedMessages = React.useMemo(() => {
+    const groups: { date: string; messages: Message[] }[] = [];
+    let currentDate = '';
+    let currentGroup: Message[] = [];
+
+    messages.forEach(message => {
+      const messageDate = new Date(message.timestamp).toDateString();
+      if (messageDate !== currentDate) {
+        if (currentGroup.length > 0) {
+          groups.push({ date: currentDate, messages: currentGroup });
+        }
+        currentDate = messageDate;
+        currentGroup = [message];
+      } else {
+        currentGroup.push(message);
+      }
+    });
+
+    if (currentGroup.length > 0) {
+      groups.push({ date: currentDate, messages: currentGroup });
+    }
+
+    return groups;
+  }, [messages]);
+
+  return (
+    <Card className={className}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          💬 Chat del proyecto
+          <div className="flex items-center gap-1 text-sm text-muted-foreground font-normal">
+            <div className="w-2 h-2 bg-green-500 rounded-full" />
+            En línea
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        {/* Messages Area */}
+        <div
+          className={`relative h-96 ${
+            isDragging ? 'border-2 border-dashed border-primary bg-primary/5' : ''
+          }`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <ScrollArea className="h-full px-4">
+            <div className="space-y-4 py-4">
+              {groupedMessages.map((group, groupIndex) => (
+                <div key={groupIndex}>
+                  {/* Date separator */}
+                  <div className="flex items-center justify-center my-4">
+                    <div className="px-3 py-1 bg-muted text-muted-foreground text-xs rounded-full">
+                      {new Date(group.date).toLocaleDateString('es-AR', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long'
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Messages */}
+                  {group.messages.map((message) => {
+                    const isOwn = message.senderId === currentUserId;
+                    const showAvatar = !isOwn;
+
+                    return (
+                      <motion.div
+                        key={message.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`flex items-end gap-2 ${
+                          isOwn ? 'justify-end' : 'justify-start'
+                        }`}
+                      >
+                        {showAvatar && (
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={message.senderAvatar} alt={message.senderName} />
+                            <AvatarFallback className="text-xs">
+                              {message.senderName.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+
+                        <div className={`max-w-xs lg:max-w-md space-y-1 ${
+                          isOwn ? 'order-1' : 'order-2'
+                        }`}>
+                          {!isOwn && (
+                            <div className="text-xs text-muted-foreground px-3">
+                              {message.senderName}
+                            </div>
+                          )}
+
+                          <div className="relative group">
+                            <div className={`rounded-2xl px-4 py-2 ${
+                              isOwn
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted text-foreground'
+                            }`}>
+                              {message.message && (
+                                <p className="text-sm whitespace-pre-wrap break-words">
+                                  {message.message}
+                                </p>
+                              )}
+
+                              {/* Attachments */}
+                              {message.attachments && message.attachments.length > 0 && (
+                                <div className="mt-2 space-y-2">
+                                  {message.attachments.map(attachment => (
+                                    <div key={attachment.id} className="space-y-2">
+                                      {attachment.type.startsWith('image/') ? (
+                                        <div className="rounded-lg overflow-hidden">
+                                          <OptimizedImage
+                                            src={attachment.url}
+                                            alt={attachment.name}
+                                            className="max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                                            onClick={() => window.open(attachment.url, '_blank')}
+                                          />
+                                        </div>
+                                      ) : (
+                                        <div className={`flex items-center gap-2 p-2 rounded-lg ${
+                                          isOwn ? 'bg-primary-foreground/10' : 'bg-background'
+                                        }`}>
+                                          <div className="text-lg">
+                                            {getFileIcon(attachment.type)}
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <div className="text-xs font-medium truncate">
+                                              {attachment.name}
+                                            </div>
+                                            {attachment.size && (
+                                              <div className="text-xs opacity-70">
+                                                {formatFileSize(attachment.size)}
+                                              </div>
+                                            )}
+                                          </div>
+                                          <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            className="h-6 w-6 p-0"
+                                            onClick={() => window.open(attachment.url, '_blank')}
+                                          >
+                                            <Download className="h-3 w-3" />
+                                          </Button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Message actions */}
+                            <div className="absolute top-0 right-0 -mt-2 -mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-background shadow-sm">
+                                    <MoreVertical className="h-3 w-3" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-32">
+                                  <DropdownMenuItem className="text-xs">
+                                    <Smile className="h-3 w-3 mr-2" />
+                                    Reaccionar
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem className="text-xs">
+                                    Responder
+                                  </DropdownMenuItem>
+                                  {isOwn && (
+                                    <DropdownMenuItem className="text-xs text-destructive">
+                                      Eliminar
+                                    </DropdownMenuItem>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </div>
+
+                          {/* Reactions */}
+                          {message.reactions && message.reactions.length > 0 && (
+                            <div className="flex flex-wrap gap-1 px-2">
+                              {message.reactions.map((reaction, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center gap-1 px-2 py-1 bg-background rounded-full text-xs border cursor-pointer hover:bg-muted transition-colors"
+                                >
+                                  <span>{reaction.emoji}</span>
+                                  <span>{reaction.users.length}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className={`text-xs text-muted-foreground px-3 ${
+                            isOwn ? 'text-right' : 'text-left'
+                          }`}>
+                            {formatRelativeTime(message.timestamp)}
+                            {isOwn && message.isRead && (
+                              <span className="ml-1">• Leído</span>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
+
+          {/* Drag overlay */}
+          {isDragging && (
+            <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary rounded-lg flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-4xl mb-2">📎</div>
+                <div className="font-medium">Suelta los archivos aquí</div>
+                <div className="text-sm text-muted-foreground">Máximo 5 archivos</div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Input Area */}
+        <div className="border-t bg-background p-4">
+          {/* Attachments preview */}
+          <AnimatePresence>
+            {attachments.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-3"
+              >
+                <div className="flex flex-wrap gap-2">
+                  {attachments.map((file, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="relative group"
+                    >
+                      <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 pr-8">
+                        <div className="text-sm">{getFileIcon(file.type)}</div>
+                        <div className="text-xs">
+                          <div className="font-medium truncate max-w-24">{file.name}</div>
+                          <div className="text-muted-foreground">{formatFileSize(file.size)}</div>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="absolute top-1 right-1 h-5 w-5 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeAttachment(index)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Input */}
+          <div className="flex items-end gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-shrink-0"
+            >
+              <Paperclip className="h-4 w-4" />
+            </Button>
+
+            <div className="flex-1 relative">
+              <textarea
+                ref={textareaRef}
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={handleKeyPress}
+                placeholder="Escribir un mensaje..."
+                className="w-full resize-none border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary min-h-10 max-h-32 bg-background"
+                rows={1}
+              />
+            </div>
+
+            <Button
+              size="sm"
+              onClick={handleSendMessage}
+              disabled={!newMessage.trim() && attachments.length === 0}
+              className="flex-shrink-0"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*,video/*,.pdf,.doc,.docx"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default CollaborationChat;

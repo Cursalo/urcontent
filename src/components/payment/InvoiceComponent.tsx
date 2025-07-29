@@ -1,0 +1,428 @@
+import React, { useRef } from 'react';
+import { motion } from 'framer-motion';
+import { Download, Printer, Mail, Copy, Calendar, Building, User, CreditCard } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { formatCurrency, formatDate } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+
+export interface InvoiceData {
+  id: string;
+  number: string;
+  date: string;
+  dueDate: string;
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  
+  // Business/Issuer info
+  issuer: {
+    name: string;
+    logo?: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    taxId: string;
+    email: string;
+    phone: string;
+    website?: string;
+  };
+  
+  // Client info
+  client: {
+    name: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    taxId?: string;
+    email: string;
+  };
+  
+  // Invoice items
+  items: {
+    id: string;
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+    taxRate?: number;
+  }[];
+  
+  // Totals
+  subtotal: number;
+  taxAmount: number;
+  total: number;
+  
+  // Payment info
+  paymentMethod?: string;
+  paymentDate?: string;
+  paymentReference?: string;
+  
+  // Additional info
+  notes?: string;
+  terms?: string;
+  collaboration?: {
+    id: string;
+    title: string;
+  };
+}
+
+interface InvoiceComponentProps {
+  invoice: InvoiceData;
+  onDownload?: () => void;
+  onPrint?: () => void;
+  onSendEmail?: () => void;
+  onCopyLink?: () => void;
+  showActions?: boolean;
+  className?: string;
+}
+
+const getStatusConfig = (status: InvoiceData['status']) => {
+  switch (status) {
+    case 'draft':
+      return { color: 'bg-gray-100 text-gray-800', label: 'Borrador' };
+    case 'sent':
+      return { color: 'bg-blue-100 text-blue-800', label: 'Enviada' };
+    case 'paid':
+      return { color: 'bg-green-100 text-green-800', label: 'Pagada' };
+    case 'overdue':
+      return { color: 'bg-red-100 text-red-800', label: 'Vencida' };
+    case 'cancelled':
+      return { color: 'bg-gray-100 text-gray-800', label: 'Cancelada' };
+    default:
+      return { color: 'bg-gray-100 text-gray-800', label: 'Desconocido' };
+  }
+};
+
+export const InvoiceComponent: React.FC<InvoiceComponentProps> = ({
+  invoice,
+  onDownload,
+  onPrint,
+  onSendEmail,
+  onCopyLink,
+  showActions = true,
+  className = ''
+}) => {
+  const invoiceRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+  const statusConfig = getStatusConfig(invoice.status);
+
+  const handlePrint = () => {
+    if (onPrint) {
+      onPrint();
+    } else {
+      window.print();
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (onCopyLink) {
+      onCopyLink();
+    } else {
+      const invoiceUrl = `${window.location.origin}/invoice/${invoice.id}`;
+      try {
+        await navigator.clipboard.writeText(invoiceUrl);
+        toast({
+          title: 'Enlace copiado',
+          description: 'El enlace de la factura se copió al portapapeles',
+        });
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'No se pudo copiar el enlace',
+          variant: 'destructive'
+        });
+      }
+    }
+  };
+
+  return (
+    <div className={`max-w-4xl mx-auto ${className}`}>
+      {/* Actions Header */}
+      {showActions && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex justify-between items-center mb-6 print:hidden"
+        >
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">Factura #{invoice.number}</h1>
+            <Badge className={statusConfig.color}>
+              {statusConfig.label}
+            </Badge>
+          </div>
+          
+          <div className="flex gap-2">
+            {onDownload && (
+              <Button variant="outline" size="sm" onClick={onDownload}>
+                <Download className="h-4 w-4 mr-2" />
+                Descargar PDF
+              </Button>
+            )}
+            
+            <Button variant="outline" size="sm" onClick={handlePrint}>
+              <Printer className="h-4 w-4 mr-2" />
+              Imprimir
+            </Button>
+            
+            {onSendEmail && (
+              <Button variant="outline" size="sm" onClick={onSendEmail}>
+                <Mail className="h-4 w-4 mr-2" />
+                Enviar por email
+              </Button>
+            )}
+            
+            <Button variant="outline" size="sm" onClick={handleCopyLink}>
+              <Copy className="h-4 w-4 mr-2" />
+              Copiar enlace
+            </Button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Invoice */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        ref={invoiceRef}
+        className="bg-white text-black shadow-lg print:shadow-none"
+      >
+        <Card className="border-0 shadow-none">
+          <CardHeader className="space-y-6">
+            {/* Header */}
+            <div className="flex justify-between items-start">
+              <div className="space-y-2">
+                {invoice.issuer.logo ? (
+                  <img 
+                    src={invoice.issuer.logo} 
+                    alt={invoice.issuer.name}
+                    className="h-12 w-auto"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Building className="h-8 w-8 text-primary" />
+                    <span className="text-2xl font-bold text-primary">
+                      {invoice.issuer.name}
+                    </span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="text-right space-y-1">
+                <div className="text-3xl font-bold text-primary">FACTURA</div>
+                <div className="text-sm text-gray-600">#{invoice.number}</div>
+              </div>
+            </div>
+
+            {/* Invoice Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* From */}
+              <div>
+                <h3 className="font-semibold text-sm uppercase tracking-wide text-gray-600 mb-3">
+                  De:
+                </h3>
+                <div className="space-y-1 text-sm">
+                  <div className="font-semibold">{invoice.issuer.name}</div>
+                  <div>{invoice.issuer.address}</div>
+                  <div>{invoice.issuer.city}, {invoice.issuer.postalCode}</div>
+                  <div>{invoice.issuer.country}</div>
+                  <div>CUIT: {invoice.issuer.taxId}</div>
+                  <div>{invoice.issuer.email}</div>
+                  <div>{invoice.issuer.phone}</div>
+                  {invoice.issuer.website && (
+                    <div>{invoice.issuer.website}</div>
+                  )}
+                </div>
+              </div>
+
+              {/* To */}
+              <div>
+                <h3 className="font-semibold text-sm uppercase tracking-wide text-gray-600 mb-3">
+                  Para:
+                </h3>
+                <div className="space-y-1 text-sm">
+                  <div className="font-semibold">{invoice.client.name}</div>
+                  <div>{invoice.client.address}</div>
+                  <div>{invoice.client.city}, {invoice.client.postalCode}</div>
+                  <div>{invoice.client.country}</div>
+                  {invoice.client.taxId && (
+                    <div>CUIT: {invoice.client.taxId}</div>
+                  )}
+                  <div>{invoice.client.email}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Invoice Info */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-lg">
+              <div>
+                <div className="text-xs text-gray-600 uppercase tracking-wide mb-1">
+                  Fecha de emisión
+                </div>
+                <div className="font-semibold">{formatDate(invoice.date)}</div>
+              </div>
+              
+              <div>
+                <div className="text-xs text-gray-600 uppercase tracking-wide mb-1">
+                  Fecha de vencimiento
+                </div>
+                <div className="font-semibold">{formatDate(invoice.dueDate)}</div>
+              </div>
+              
+              {invoice.paymentDate && (
+                <div>
+                  <div className="text-xs text-gray-600 uppercase tracking-wide mb-1">
+                    Fecha de pago
+                  </div>
+                  <div className="font-semibold">{formatDate(invoice.paymentDate)}</div>
+                </div>
+              )}
+              
+              {invoice.collaboration && (
+                <div>
+                  <div className="text-xs text-gray-600 uppercase tracking-wide mb-1">
+                    Proyecto
+                  </div>
+                  <div className="font-semibold text-sm">
+                    {invoice.collaboration.title}
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {/* Items Table */}
+            <div>
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-gray-200">
+                    <TableHead className="font-semibold text-gray-900">Descripción</TableHead>
+                    <TableHead className="font-semibold text-gray-900 text-center">Cantidad</TableHead>
+                    <TableHead className="font-semibold text-gray-900 text-right">Precio unitario</TableHead>
+                    <TableHead className="font-semibold text-gray-900 text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {invoice.items.map((item) => (
+                    <TableRow key={item.id} className="border-gray-200">
+                      <TableCell className="py-4">
+                        <div className="font-medium">{item.description}</div>
+                        {item.taxRate && (
+                          <div className="text-xs text-gray-500">
+                            IVA {item.taxRate}%
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center py-4">
+                        {item.quantity}
+                      </TableCell>
+                      <TableCell className="text-right py-4">
+                        {formatCurrency(item.unitPrice)}
+                      </TableCell>
+                      <TableCell className="text-right py-4 font-medium">
+                        {formatCurrency(item.total)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Totals */}
+            <div className="flex justify-end">
+              <div className="w-80 space-y-2">
+                <div className="flex justify-between py-2">
+                  <span>Subtotal:</span>
+                  <span>{formatCurrency(invoice.subtotal)}</span>
+                </div>
+                
+                {invoice.taxAmount > 0 && (
+                  <div className="flex justify-between py-2">
+                    <span>IVA:</span>
+                    <span>{formatCurrency(invoice.taxAmount)}</span>
+                  </div>
+                )}
+                
+                <Separator />
+                
+                <div className="flex justify-between py-2 text-lg font-bold">
+                  <span>Total:</span>
+                  <span>{formatCurrency(invoice.total)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Info */}
+            {invoice.status === 'paid' && invoice.paymentMethod && (
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div className="flex items-center gap-2 text-green-800 font-medium mb-2">
+                  <CreditCard className="h-4 w-4" />
+                  Pago recibido
+                </div>
+                <div className="text-sm text-green-700 space-y-1">
+                  <div>Método: {invoice.paymentMethod}</div>
+                  {invoice.paymentDate && (
+                    <div>Fecha: {formatDate(invoice.paymentDate)}</div>
+                  )}
+                  {invoice.paymentReference && (
+                    <div>Referencia: {invoice.paymentReference}</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Notes */}
+            {invoice.notes && (
+              <div>
+                <h3 className="font-semibold text-sm uppercase tracking-wide text-gray-600 mb-2">
+                  Notas:
+                </h3>
+                <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                  {invoice.notes}
+                </div>
+              </div>
+            )}
+
+            {/* Terms */}
+            {invoice.terms && (
+              <div>
+                <h3 className="font-semibold text-sm uppercase tracking-wide text-gray-600 mb-2">
+                  Términos y condiciones:
+                </h3>
+                <div className="text-xs text-gray-600 whitespace-pre-wrap">
+                  {invoice.terms}
+                </div>
+              </div>
+            )}
+
+            {/* Footer */}
+            <div className="border-t pt-6 mt-8">
+              <div className="text-center text-xs text-gray-500">
+                <div>Esta es una factura válida generada electrónicamente</div>
+                <div>URContent - Plataforma de marketing de influencers</div>
+                {invoice.issuer.website && (
+                  <div>{invoice.issuer.website}</div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Print Styles */}
+      <style jsx>{`
+        @media print {
+          body { print-color-adjust: exact; }
+          .print\:hidden { display: none !important; }
+          .print\:shadow-none { box-shadow: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default InvoiceComponent;

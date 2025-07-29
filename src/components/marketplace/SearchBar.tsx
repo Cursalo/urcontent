@@ -1,0 +1,342 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, X, TrendingUp, Clock, User } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { useDebounce } from '@/hooks/use-debounce';
+
+interface SearchSuggestion {
+  id: string;
+  type: 'creator' | 'category' | 'specialty' | 'trending';
+  text: string;
+  subtitle?: string;
+  count?: number;
+  avatar?: string;
+}
+
+interface SearchBarProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  showSuggestions?: boolean;
+  className?: string;
+  onSelect?: (suggestion: SearchSuggestion) => void;
+}
+
+// Mock data for suggestions
+const MOCK_SUGGESTIONS: SearchSuggestion[] = [
+  {
+    id: '1',
+    type: 'creator',
+    text: 'María González',
+    subtitle: 'Beauty & Lifestyle Creator',
+    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b412?w=50&h=50&fit=crop&crop=face'
+  },
+  {
+    id: '2',
+    type: 'creator',
+    text: 'Carlos Fitness',
+    subtitle: 'Fitness & Health Creator',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+  },
+  {
+    id: '3',
+    type: 'category',
+    text: 'Beauty',
+    count: 156
+  },
+  {
+    id: '4',
+    type: 'category',
+    text: 'Fitness',
+    count: 89
+  },
+  {
+    id: '5',
+    type: 'specialty',
+    text: 'Product Reviews',
+    count: 203
+  },
+  {
+    id: '6',
+    type: 'specialty',
+    text: 'Makeup Tutorials',
+    count: 127
+  },
+  {
+    id: '7',
+    type: 'trending',
+    text: 'Skincare routine',
+    count: 45
+  },
+  {
+    id: '8',
+    type: 'trending',
+    text: 'Home workout',
+    count: 38
+  }
+];
+
+const RECENT_SEARCHES = [
+  'beauty creators',
+  'fitness influencers',
+  'food bloggers',
+  'skincare routine',
+  'workout videos'
+];
+
+const TRENDING_SEARCHES = [
+  'sustainable fashion',
+  'home workouts',
+  'plant-based recipes',
+  'minimalist lifestyle',
+  'productivity tips'
+];
+
+export const SearchBar: React.FC<SearchBarProps> = ({
+  value,
+  onChange,
+  placeholder = 'Buscar creators, categorías o especialidades...',
+  showSuggestions = true,
+  className = '',
+  onSelect
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [recentSearches, setRecentSearches] = useState<string[]>(RECENT_SEARCHES);
+  const debouncedValue = useDebounce(value, 300);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Filter suggestions based on search value
+  useEffect(() => {
+    if (debouncedValue.length > 0) {
+      const filtered = MOCK_SUGGESTIONS.filter(suggestion =>
+        suggestion.text.toLowerCase().includes(debouncedValue.toLowerCase()) ||
+        suggestion.subtitle?.toLowerCase().includes(debouncedValue.toLowerCase())
+      ).slice(0, 8);
+      setSuggestions(filtered);
+    } else {
+      setSuggestions([]);
+    }
+  }, [debouncedValue]);
+
+  const handleInputChange = (newValue: string) => {
+    onChange(newValue);
+    if (newValue.length > 0) {
+      setIsOpen(true);
+    }
+  };
+
+  const handleSuggestionSelect = (suggestion: SearchSuggestion) => {
+    onChange(suggestion.text);
+    setIsOpen(false);
+    
+    // Add to recent searches
+    setRecentSearches(prev => {
+      const updated = [suggestion.text, ...prev.filter(s => s !== suggestion.text)].slice(0, 5);
+      return updated;
+    });
+    
+    onSelect?.(suggestion);
+  };
+
+  const handleRecentSearchSelect = (search: string) => {
+    onChange(search);
+    setIsOpen(false);
+  };
+
+  const clearSearch = () => {
+    onChange('');
+    inputRef.current?.focus();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setIsOpen(false);
+      inputRef.current?.blur();
+    }
+  };
+
+  const getSuggestionIcon = (type: SearchSuggestion['type']) => {
+    switch (type) {
+      case 'creator':
+        return <User className="h-4 w-4 text-blue-500" />;
+      case 'category':
+        return <div className="w-4 h-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded" />;
+      case 'specialty':
+        return <div className="w-4 h-4 bg-gradient-to-br from-green-500 to-teal-500 rounded" />;
+      case 'trending':
+        return <TrendingUp className="h-4 w-4 text-orange-500" />;
+      default:
+        return <Search className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+
+  return (
+    <div className={`relative w-full ${className}`}>
+      <Popover open={isOpen && showSuggestions} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              ref={inputRef}
+              value={value}
+              onChange={(e) => handleInputChange(e.target.value)}
+              onFocus={() => setIsOpen(true)}
+              onKeyDown={handleKeyDown}
+              placeholder={placeholder}
+              className="pl-10 pr-10 h-12 text-base bg-background border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
+            />
+            {value && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearSearch}
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </PopoverTrigger>
+        
+        <PopoverContent 
+          className="w-full p-0 border-2" 
+          align="start"
+          sideOffset={4}
+          style={{ width: 'var(--radix-popover-trigger-width)' }}
+        >
+          <Card className="border-0 shadow-lg">
+            <div className="max-h-96 overflow-y-auto">
+              {/* Search Results */}
+              {suggestions.length > 0 && (
+                <div className="p-2">
+                  <div className="px-2 py-1 text-xs font-medium text-muted-foreground mb-2">
+                    Resultados de búsqueda
+                  </div>
+                  <div className="space-y-1">
+                    {suggestions.map((suggestion) => (
+                      <motion.div
+                        key={suggestion.id}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-3 p-2 rounded-md hover:bg-muted cursor-pointer transition-colors"
+                        onClick={() => handleSuggestionSelect(suggestion)}
+                      >
+                        {suggestion.avatar ? (
+                          <img 
+                            src={suggestion.avatar} 
+                            alt={suggestion.text}
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          getSuggestionIcon(suggestion.type)
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm truncate">
+                            {suggestion.text}
+                          </div>
+                          {suggestion.subtitle && (
+                            <div className="text-xs text-muted-foreground truncate">
+                              {suggestion.subtitle}
+                            </div>
+                          )}
+                        </div>
+                        {suggestion.count && (
+                          <Badge variant="secondary" className="text-xs">
+                            {suggestion.count}
+                          </Badge>
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Recent Searches */}
+              {value.length === 0 && recentSearches.length > 0 && (
+                <div className="p-2">
+                  <div className="px-2 py-1 text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                    <Clock className="h-3 w-3" />
+                    Búsquedas recientes
+                  </div>
+                  <div className="space-y-1">
+                    {recentSearches.map((search, index) => (
+                      <motion.div
+                        key={search}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="flex items-center gap-3 p-2 rounded-md hover:bg-muted cursor-pointer transition-colors group"
+                        onClick={() => handleRecentSearchSelect(search)}
+                      >
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="flex-1 text-sm">{search}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRecentSearches(prev => prev.filter(s => s !== search));
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Trending Searches */}
+              {value.length === 0 && (
+                <div className="p-2 border-t">
+                  <div className="px-2 py-1 text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                    <TrendingUp className="h-3 w-3" />
+                    Tendencias
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {TRENDING_SEARCHES.map((search, index) => (
+                      <motion.div
+                        key={search}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.05 }}
+                      >
+                        <Badge
+                          variant="outline"
+                          className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs"
+                          onClick={() => handleRecentSearchSelect(search)}
+                        >
+                          {search}
+                        </Badge>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* No Results */}
+              {value.length > 0 && suggestions.length === 0 && (
+                <div className="p-4 text-center">
+                  <div className="text-4xl mb-2">🔍</div>
+                  <div className="text-sm font-medium mb-1">No se encontraron resultados</div>
+                  <div className="text-xs text-muted-foreground">
+                    Intenta con otros términos de búsqueda
+                  </div>
+                </div>
+              )}
+            </div>
+          </Card>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
+
+export default SearchBar;

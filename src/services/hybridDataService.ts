@@ -3,6 +3,7 @@
 // Seamlessly switches between mock data and Supabase based on user type
 
 import { mockDataService, CreatorDashboardData, BusinessDashboardData } from './mockDataService';
+import businessMockDataService from './businessMockData';
 import { creatorService } from './creators';
 import { collaborationService } from './collaborations';
 import { detectUserAuthType } from './mockAuth';
@@ -68,13 +69,13 @@ class HybridDataService {
     const authType = detectUserAuthType(userEmail);
     
     if (authType === 'mock') {
-      const data = await mockDataService.getBusinessDashboardData(userId);
+      const data = await businessMockDataService.getBusinessDashboardData(userId);
       return data?.profile || null;
     } else {
       // For real users, we'd implement business profile service here
       // For now, fallback to mock if real user has no business profile
       console.log('Real business profiles not implemented yet, using mock fallback');
-      const data = await mockDataService.getBusinessDashboardData(userId);
+      const data = await businessMockDataService.getBusinessDashboardData(userId);
       return data?.profile || null;
     }
   }
@@ -178,7 +179,27 @@ class HybridDataService {
   // Private methods for specific auth types
   private async getMockDashboardData(userId: string): Promise<HybridDashboardData | null> {
     try {
-      // For real users, create temporary creator data
+      // Try to get actual mock data first
+      const creatorData = await mockDataService.getCreatorDashboardData(userId);
+      if (creatorData) {
+        console.log('✅ MOCK DATA: Found creator dashboard data');
+        return {
+          authType: 'mock',
+          creator: creatorData
+        };
+      }
+
+      // Try to get business mock data
+      const businessData = await businessMockDataService.getBusinessDashboardData(userId);
+      if (businessData) {
+        console.log('✅ MOCK DATA: Found business dashboard data');
+        return {
+          authType: 'mock',
+          business: businessData
+        };
+      }
+
+      // For users without mock data, create temporary creator data
       const tempCreatorData = {
         profile: {
           id: userId,

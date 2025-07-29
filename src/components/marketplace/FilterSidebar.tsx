@@ -1,0 +1,396 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { X, ChevronDown, ChevronUp, MapPin, Star, DollarSign, Globe, Filter, Zap } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { MarketplaceFilters } from './CreatorMarketplace';
+
+interface FilterSidebarProps {
+  filters: MarketplaceFilters;
+  onFilterChange: (filters: Partial<MarketplaceFilters>) => void;
+  onClearFilters: () => void;
+  categories: string[];
+  specialties: string[];
+  languages: string[];
+  locations: string[];
+  className?: string;
+}
+
+interface FilterSectionProps {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}
+
+const FilterSection: React.FC<FilterSectionProps> = ({ 
+  title, 
+  icon, 
+  children, 
+  defaultOpen = true 
+}) => {
+  const [isOpen, setIsOpen] = React.useState(defaultOpen);
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger asChild>
+        <Button 
+          variant="ghost" 
+          className="w-full justify-between p-3 h-auto font-medium"
+        >
+          <div className="flex items-center gap-2">
+            {icon}
+            <span>{title}</span>
+          </div>
+          {isOpen ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="px-3 pb-3">
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {children}
+        </motion.div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};
+
+export const FilterSidebar: React.FC<FilterSidebarProps> = ({
+  filters,
+  onFilterChange,
+  onClearFilters,
+  categories,
+  specialties,
+  languages,
+  locations,
+  className = ''
+}) => {
+  const hasActiveFilters = 
+    filters.categories.length > 0 ||
+    filters.specialties.length > 0 ||
+    filters.languages.length > 0 ||
+    filters.location !== '' ||
+    filters.rating > 0 ||
+    filters.priceRange[0] > 0 ||
+    filters.priceRange[1] < 5000 ||
+    filters.availability !== 'all';
+
+  const handleCategoryChange = (category: string, checked: boolean) => {
+    const newCategories = checked
+      ? [...filters.categories, category]
+      : filters.categories.filter(c => c !== category);
+    onFilterChange({ categories: newCategories });
+  };
+
+  const handleSpecialtyChange = (specialty: string, checked: boolean) => {
+    const newSpecialties = checked
+      ? [...filters.specialties, specialty]
+      : filters.specialties.filter(s => s !== specialty);
+    onFilterChange({ specialties: newSpecialties });
+  };
+
+  const handleLanguageChange = (language: string, checked: boolean) => {
+    const newLanguages = checked
+      ? [...filters.languages, language]
+      : filters.languages.filter(l => l !== language);
+    onFilterChange({ languages: newLanguages });
+  };
+
+  const handlePriceRangeChange = (value: number[]) => {
+    onFilterChange({ priceRange: [value[0], value[1]] });
+  };
+
+  const handleRatingChange = (rating: number) => {
+    onFilterChange({ rating });
+  };
+
+  const handleLocationChange = (location: string) => {
+    onFilterChange({ location });
+  };
+
+  const handleAvailabilityChange = (availability: MarketplaceFilters['availability']) => {
+    onFilterChange({ availability });
+  };
+
+  return (
+    <div className={`space-y-6 ${className}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Filter className="h-5 w-5 text-primary" />
+          <h2 className="text-lg font-semibold">Filtros</h2>
+        </div>
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClearFilters}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4 mr-1" />
+            Limpiar
+          </Button>
+        )}
+      </div>
+
+      <Card>
+        <CardContent className="p-0">
+          {/* Categories */}
+          <FilterSection
+            title="Categorías"
+            icon={<div className="w-4 h-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded" />}
+          >
+            <div className="space-y-3">
+              {categories.map(category => (
+                <div key={category} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`category-${category}`}
+                    checked={filters.categories.includes(category)}
+                    onCheckedChange={(checked) => 
+                      handleCategoryChange(category, checked as boolean)
+                    }
+                  />
+                  <Label 
+                    htmlFor={`category-${category}`} 
+                    className="text-sm font-normal cursor-pointer flex-1"
+                  >
+                    {category}
+                  </Label>
+                  {filters.categories.includes(category) && (
+                    <Badge variant="secondary" className="text-xs">
+                      ✓
+                    </Badge>
+                  )}
+                </div>
+              ))}
+            </div>
+          </FilterSection>
+
+          <Separator />
+
+          {/* Location */}
+          <FilterSection
+            title="Ubicación"
+            icon={<MapPin className="h-4 w-4 text-green-500" />}
+          >
+            <Select value={filters.location} onValueChange={handleLocationChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar ubicación" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Todas las ubicaciones</SelectItem>
+                {locations.map(location => (
+                  <SelectItem key={location} value={location}>
+                    {location}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FilterSection>
+
+          <Separator />
+
+          {/* Price Range */}
+          <FilterSection
+            title="Rango de precios"
+            icon={<DollarSign className="h-4 w-4 text-green-500" />}
+          >
+            <div className="space-y-4">
+              <div className="px-2">
+                <Slider
+                  value={filters.priceRange}
+                  onValueChange={handlePriceRangeChange}
+                  max={5000}
+                  min={0}
+                  step={100}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>${filters.priceRange[0].toLocaleString()}</span>
+                <span>${filters.priceRange[1].toLocaleString()}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="text-center p-2 bg-muted rounded">
+                  <div className="font-medium">${filters.priceRange[0].toLocaleString()}</div>
+                  <div className="text-muted-foreground">Mínimo</div>
+                </div>
+                <div className="text-center p-2 bg-muted rounded">
+                  <div className="font-medium">${filters.priceRange[1].toLocaleString()}</div>
+                  <div className="text-muted-foreground">Máximo</div>
+                </div>
+              </div>
+            </div>
+          </FilterSection>
+
+          <Separator />
+
+          {/* Rating */}
+          <FilterSection
+            title="Calificación mínima"
+            icon={<Star className="h-4 w-4 text-yellow-500" />}
+          >
+            <div className="space-y-3">
+              {[4.5, 4.0, 3.5, 3.0, 0].map(rating => (
+                <div key={rating} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`rating-${rating}`}
+                    checked={filters.rating === rating}
+                    onCheckedChange={(checked) => 
+                      handleRatingChange(checked ? rating : 0)
+                    }
+                  />
+                  <Label 
+                    htmlFor={`rating-${rating}`} 
+                    className="text-sm font-normal cursor-pointer flex items-center gap-1"
+                  >
+                    {rating === 0 ? (
+                      'Todas las calificaciones'
+                    ) : (
+                      <>
+                        <div className="flex items-center">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-3 w-3 ${
+                                i < Math.floor(rating)
+                                  ? 'fill-current text-yellow-400'
+                                  : i < rating
+                                  ? 'fill-current text-yellow-400 opacity-50'
+                                  : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span>{rating}+ estrellas</span>
+                      </>
+                    )}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </FilterSection>
+
+          <Separator />
+
+          {/* Specialties */}
+          <FilterSection
+            title="Especialidades"
+            icon={<Zap className="h-4 w-4 text-orange-500" />}
+            defaultOpen={false}
+          >
+            <div className="space-y-3">
+              {specialties.map(specialty => (
+                <div key={specialty} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`specialty-${specialty}`}
+                    checked={filters.specialties.includes(specialty)}
+                    onCheckedChange={(checked) => 
+                      handleSpecialtyChange(specialty, checked as boolean)
+                    }
+                  />
+                  <Label 
+                    htmlFor={`specialty-${specialty}`} 
+                    className="text-sm font-normal cursor-pointer flex-1"
+                  >
+                    {specialty}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </FilterSection>
+
+          <Separator />
+
+          {/* Languages */}
+          <FilterSection
+            title="Idiomas"
+            icon={<Globe className="h-4 w-4 text-blue-500" />}
+            defaultOpen={false}
+          >
+            <div className="space-y-3">
+              {languages.map(language => (
+                <div key={language} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`language-${language}`}
+                    checked={filters.languages.includes(language)}
+                    onCheckedChange={(checked) => 
+                      handleLanguageChange(language, checked as boolean)
+                    }
+                  />
+                  <Label 
+                    htmlFor={`language-${language}`} 
+                    className="text-sm font-normal cursor-pointer flex-1"
+                  >
+                    {language}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </FilterSection>
+
+          <Separator />
+
+          {/* Availability */}
+          <FilterSection
+            title="Disponibilidad"
+            icon={<div className="w-3 h-3 bg-green-500 rounded-full" />}
+            defaultOpen={false}
+          >
+            <RadioGroup 
+              value={filters.availability} 
+              onValueChange={handleAvailabilityChange}
+              className="space-y-3"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="all" id="availability-all" />
+                <Label htmlFor="availability-all" className="text-sm font-normal cursor-pointer">
+                  Todos los creators
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="available" id="availability-available" />
+                <Label htmlFor="availability-available" className="text-sm font-normal cursor-pointer flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  Solo disponibles
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="busy" id="availability-busy" />
+                <Label htmlFor="availability-busy" className="text-sm font-normal cursor-pointer flex items-center gap-2">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                  Solo ocupados
+                </Label>
+              </div>
+            </RadioGroup>
+          </FilterSection>
+        </CardContent>
+      </Card>
+
+      {/* Apply Filters Button - Mobile */}
+      <div className="lg:hidden">
+        <Button className="w-full" size="lg">
+          Aplicar filtros
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default FilterSidebar;
