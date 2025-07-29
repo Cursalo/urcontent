@@ -6,6 +6,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { hybridDataService } from '@/services/hybridDataService';
 import { detectUserAuthType } from '@/services/mockAuth';
+import { getCreatorDemoData, getBusinessDemoData, getAdminDemoData, generateDynamicMetrics } from '@/services/guestDemoData';
 
 export interface DashboardMetrics {
   totalEarnings: number;
@@ -53,8 +54,113 @@ export function useHybridDashboard(userRole?: string) {
   // Fetch dashboard data
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!user) {
-        console.log('🔄 No user found, skipping dashboard data fetch');
+      if (!user || !user.id) {
+        console.log('🔄 No user found, creating anonymous access with demo data');
+        
+        // Get role-specific demo data
+        let demoData;
+        let demoMetrics;
+        
+        switch (userRole) {
+          case 'business':
+            const businessDemo = getBusinessDemoData();
+            demoMetrics = generateDynamicMetrics(businessDemo.metrics);
+            demoData = {
+              metrics: {
+                ...demoMetrics,
+                totalEarnings: demoMetrics.monthlyBudget,
+                monthlyEarnings: demoMetrics.monthlyBudget,
+                activeCollaborations: demoMetrics.activeCampaigns,
+                completedCollaborations: demoMetrics.completedCampaigns,
+                portfolioItems: 0,
+                avgRating: 4.8,
+                urScore: 0,
+                totalFollowers: 0,
+                totalSpent: demoMetrics.monthlyBudget,
+                totalReach: demoMetrics.totalReach,
+                avgCampaignROI: demoMetrics.avgROI
+              },
+              activeCampaigns: businessDemo.activeCampaigns,
+              topCreators: businessDemo.topCreators
+            };
+            break;
+          case 'admin':
+            const adminDemo = getAdminDemoData();
+            demoMetrics = generateDynamicMetrics(adminDemo.metrics);
+            demoData = {
+              metrics: {
+                ...demoMetrics,
+                totalEarnings: 0,
+                monthlyEarnings: 0,
+                activeCollaborations: demoMetrics.activeCollaborations,
+                completedCollaborations: 0,
+                portfolioItems: 0,
+                avgRating: 0,
+                urScore: 0,
+                totalFollowers: 0
+              },
+              recentActivity: adminDemo.recentActivity
+            };
+            break;
+          default: // creator
+            const creatorDemo = getCreatorDemoData();
+            demoMetrics = generateDynamicMetrics(creatorDemo.metrics);
+            demoData = {
+              metrics: {
+                ...demoMetrics,
+                totalEarnings: demoMetrics.monthlyEarnings * 12,
+                portfolioItems: creatorDemo.portfolioSamples.length
+              },
+              recentCollaborations: creatorDemo.recentCollaborations,
+              portfolioSamples: creatorDemo.portfolioSamples
+            };
+            break;
+        }
+        
+        // Create anonymous user data for dashboard access
+        const anonymousData = {
+          profile: {
+            id: 'anonymous-user',
+            display_name: 'Usuario Invitado',
+            bio: '¡Bienvenido! Inicia sesión para acceder a tu panel completo.',
+            specialties: ['Demo'],
+            rate_per_hour: 0,
+            location: 'Ciudad de México',
+            avatar_url: null,
+            full_name: 'Usuario Invitado',
+            email: 'invitado@ejemplo.com',
+            role: userRole || 'creator',
+            is_verified: false,
+            user: {
+              id: 'anonymous-user',
+              email: 'invitado@ejemplo.com',
+              full_name: 'Usuario Invitado'
+            }
+          },
+          user: {
+            id: 'anonymous-user',
+            email: 'invitado@ejemplo.com',
+            full_name: 'Usuario Invitado',
+            role: userRole || 'creator'
+          },
+          collaborations: demoData.recentCollaborations || [],
+          portfolio: demoData.portfolioSamples || [],
+          analytics: { 
+            monthly: [],
+            weekly: [], 
+            daily: [],
+            summary: {
+              totalViews: demoMetrics.totalFollowers || 0,
+              totalEngagement: 8.5,
+              averageRating: demoMetrics.avgRating || 0
+            }
+          },
+          metrics: demoData.metrics,
+          authType: 'mock' as const,
+          demoData: demoData // Include the full demo data
+        };
+        
+        setDashboardData(anonymousData);
         setLoading(false);
         return;
       }
@@ -69,7 +175,7 @@ export function useHybridDashboard(userRole?: string) {
           role: profile?.role || userRole
         });
 
-        const data = await hybridDataService.getDashboardData(user.id, user.email);
+        const data = await hybridDataService.getDashboardData(user.id, user.email || '');
 
         if (!data) {
           console.log('⚠️ No dashboard data found, creating robust emergency fallback');
@@ -364,10 +470,10 @@ export function useHybridDashboard(userRole?: string) {
 
   // Helper functions for specific data types
   const getCollaborations = async (filters?: any) => {
-    if (!user) return [];
+    if (!user || !user.id) return [];
     
     try {
-      return await hybridDataService.getCollaborations(user.id, user.email, filters);
+      return await hybridDataService.getCollaborations(user.id, user.email || '', filters);
     } catch (error) {
       console.error('Error fetching collaborations:', error);
       return [];
@@ -375,10 +481,10 @@ export function useHybridDashboard(userRole?: string) {
   };
 
   const getPortfolio = async () => {
-    if (!user || !dashboardData?.profile?.id) return [];
+    if (!user || !user.id || !dashboardData?.profile?.id) return [];
     
     try {
-      return await hybridDataService.getPortfolioItems(dashboardData.profile.id, user.email);
+      return await hybridDataService.getPortfolioItems(dashboardData.profile.id, user.email || '');
     } catch (error) {
       console.error('Error fetching portfolio:', error);
       return [];
@@ -386,10 +492,10 @@ export function useHybridDashboard(userRole?: string) {
   };
 
   const getAnalytics = async (period?: 'daily' | 'weekly' | 'monthly') => {
-    if (!user) return [];
+    if (!user || !user.id) return [];
     
     try {
-      return await hybridDataService.getAnalytics(user.id, user.email, period);
+      return await hybridDataService.getAnalytics(user.id, user.email || '', period);
     } catch (error) {
       console.error('Error fetching analytics:', error);
       return [];
@@ -397,10 +503,10 @@ export function useHybridDashboard(userRole?: string) {
   };
 
   const createCollaboration = async (data: any) => {
-    if (!user) throw new Error('User not authenticated');
+    if (!user || !user.id) throw new Error('User not authenticated');
     
     try {
-      return await hybridDataService.createCollaboration(data, user.email);
+      return await hybridDataService.createCollaboration(data, user.email || '');
     } catch (error) {
       console.error('Error creating collaboration:', error);
       throw error;
@@ -408,10 +514,10 @@ export function useHybridDashboard(userRole?: string) {
   };
 
   const updateCollaboration = async (id: string, updates: any) => {
-    if (!user) throw new Error('User not authenticated');
+    if (!user || !user.id) throw new Error('User not authenticated');
     
     try {
-      return await hybridDataService.updateCollaboration(id, updates, user.email);
+      return await hybridDataService.updateCollaboration(id, updates, user.email || '');
     } catch (error) {
       console.error('Error updating collaboration:', error);
       throw error;
@@ -420,11 +526,11 @@ export function useHybridDashboard(userRole?: string) {
 
   // Refresh dashboard data
   const refresh = async () => {
-    if (!user) return;
+    if (!user || !user.id) return;
     
     setLoading(true);
     try {
-      const data = await hybridDataService.getDashboardData(user.id, user.email);
+      const data = await hybridDataService.getDashboardData(user.id, user.email || '');
       if (data) {
         // Re-format data using the same logic as above
         const finalRole = profile?.role || userRole || 'creator';

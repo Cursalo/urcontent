@@ -81,7 +81,7 @@ export const Hero = () => {
           </div>
 
           {/* Marketplace Access Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-16">
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <Link to="/marketplace">
               <Button 
                 size="lg" 
@@ -101,6 +101,21 @@ export const Hero = () => {
               >
                 <Star className="mr-2 h-4 w-4" />
                 Ver Experiencias
+              </Button>
+            </Link>
+          </div>
+
+          {/* Try as Guest */}
+          <div className="mb-16">
+            <Link to="/dashboard/creator">
+              <Button 
+                size="md" 
+                variant="ghost" 
+                className="text-gray-600 hover:text-black px-6 py-2 h-auto text-sm font-medium rounded-full transform hover:scale-105 transition-all duration-300"
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                Explorar como Invitado
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>

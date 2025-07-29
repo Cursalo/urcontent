@@ -1,0 +1,222 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Lock, 
+  Users, 
+  Sparkles, 
+  TrendingUp, 
+  Camera,
+  Building2,
+  ShieldCheck,
+  ArrowRight,
+  Info,
+  Star,
+  Heart,
+  MessageCircle
+} from 'lucide-react';
+
+interface AnonymousAccessBannerProps {
+  userType?: 'creator' | 'business' | 'admin';
+  showFeatures?: boolean;
+  compact?: boolean;
+}
+
+export const AnonymousAccessBanner: React.FC<AnonymousAccessBannerProps> = ({ 
+  userType = 'creator',
+  showFeatures = true,
+  compact = false 
+}) => {
+  const roleInfo = {
+    creator: {
+      title: 'Panel de Creador',
+      description: 'Accede a todas las herramientas para gestionar tu contenido y colaboraciones',
+      icon: Camera,
+      benefits: [
+        'Gestiona tu contenido y portfolio',
+        'Conecta con marcas y negocios',
+        'Analiza tu rendimiento y métricas',
+        'Herramientas de productividad integradas'
+      ],
+      cta: 'Regístrate como Creador',
+      color: 'bg-purple-500'
+    },
+    business: {
+      title: 'Panel de Negocio',
+      description: 'Encuentra creadores de contenido y gestiona tus campañas de marketing',
+      icon: Building2,
+      benefits: [
+        'Busca y conecta con creadores',
+        'Gestiona campañas de marketing',
+        'Analiza el rendimiento de tus colaboraciones',
+        'Herramientas de comunicación integradas'
+      ],
+      cta: 'Regístrate como Negocio',
+      color: 'bg-blue-500'
+    },
+    admin: {
+      title: 'Panel de Administración',
+      description: 'Gestiona y supervisa toda la plataforma',
+      icon: ShieldCheck,
+      benefits: [
+        'Gestión completa de usuarios',
+        'Supervisión de colaboraciones',
+        'Analytics de la plataforma',
+        'Configuración del sistema'
+      ],
+      cta: 'Acceso Administrativo',
+      color: 'bg-gray-700'
+    }
+  };
+
+  const info = roleInfo[userType];
+  const Icon = info.icon;
+
+  if (compact) {
+    return (
+      <Alert className="mb-6 border-yellow-200 bg-yellow-50">
+        <Info className="h-4 w-4 text-yellow-600" />
+        <AlertDescription className="text-yellow-800">
+          <span className="font-medium">Modo Invitado:</span> Estás explorando URContent sin cuenta. 
+          Algunas funciones están limitadas. {' '}
+          <Link to="/login" className="underline font-medium hover:text-yellow-900">
+            Inicia sesión
+          </Link> o {' '}
+          <Link to="/registro" className="underline font-medium hover:text-yellow-900">
+            regístrate gratis
+          </Link> para acceder a todas las funciones.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <Card className="border-2 border-gray-200 shadow-xl overflow-hidden">
+        {/* Header with gradient */}
+        <div className={`${info.color} bg-gradient-to-r from-opacity-90 to-opacity-100 text-white p-8`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                <Icon className="h-8 w-8" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">{info.title}</h2>
+                <p className="text-white/90 mt-1">{info.description}</p>
+              </div>
+            </div>
+            <Lock className="h-12 w-12 opacity-50" />
+          </div>
+        </div>
+
+        <CardContent className="p-8">
+          {/* Guest Mode Notice */}
+          <Alert className="mb-6 border-blue-200 bg-blue-50">
+            <Sparkles className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-800">
+              <span className="font-semibold">¡Bienvenido a URContent!</span> Estás explorando en modo invitado. 
+              Puedes ver cómo funciona la plataforma, pero necesitas una cuenta para interactuar y crear contenido.
+            </AlertDescription>
+          </Alert>
+
+          {showFeatures && (
+            <>
+              {/* Benefits */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-500" />
+                  ¿Qué puedes hacer con una cuenta?
+                </h3>
+                <div className="grid md:grid-cols-2 gap-3">
+                  {info.benefits.map((benefit, index) => (
+                    <div key={index} className="flex items-start space-x-3">
+                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center mt-0.5">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                      </div>
+                      <p className="text-gray-700">{benefit}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Statistics */}
+              <div className="grid grid-cols-3 gap-4 mb-8 p-6 bg-gray-50 rounded-lg">
+                <div className="text-center">
+                  <div className="flex justify-center mb-2">
+                    <Users className="h-8 w-8 text-purple-500" />
+                  </div>
+                  <p className="text-2xl font-bold text-gray-900">10K+</p>
+                  <p className="text-sm text-gray-600">Creadores Activos</p>
+                </div>
+                <div className="text-center">
+                  <div className="flex justify-center mb-2">
+                    <Heart className="h-8 w-8 text-red-500" />
+                  </div>
+                  <p className="text-2xl font-bold text-gray-900">50K+</p>
+                  <p className="text-sm text-gray-600">Colaboraciones</p>
+                </div>
+                <div className="text-center">
+                  <div className="flex justify-center mb-2">
+                    <TrendingUp className="h-8 w-8 text-green-500" />
+                  </div>
+                  <p className="text-2xl font-bold text-gray-900">95%</p>
+                  <p className="text-sm text-gray-600">Satisfacción</p>
+                </div>
+              </div>
+
+              {/* Testimonial */}
+              <div className="mb-8 p-6 bg-purple-50 rounded-lg border border-purple-100">
+                <div className="flex items-start space-x-3">
+                  <MessageCircle className="h-5 w-5 text-purple-600 mt-1" />
+                  <div>
+                    <p className="text-gray-700 italic">
+                      "URContent me ha ayudado a profesionalizar mi trabajo como creador de contenido. 
+                      Las herramientas son increíbles y las colaboraciones son muy bien pagadas."
+                    </p>
+                    <p className="text-sm text-gray-600 mt-2">- María G., Creadora de Contenido</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Call to Action */}
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+            <Link to="/registro" className="w-full sm:w-auto">
+              <Button 
+                size="lg" 
+                className="w-full bg-black hover:bg-gray-800 text-white font-medium rounded-full"
+              >
+                {info.cta}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link to="/login" className="w-full sm:w-auto">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="w-full rounded-full border-gray-300 hover:bg-gray-50"
+              >
+                Ya tengo cuenta
+              </Button>
+            </Link>
+          </div>
+
+          {/* Additional Info */}
+          <p className="text-center text-sm text-gray-500 mt-6">
+            ¿Tienes preguntas? Visita nuestro{' '}
+            <Link to="/help" className="text-black underline">
+              centro de ayuda
+            </Link>{' '}
+            o{' '}
+            <Link to="/contact" className="text-black underline">
+              contáctanos
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};

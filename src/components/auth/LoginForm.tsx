@@ -249,6 +249,28 @@ export const LoginForm: React.FC<LoginFormProps> = memo(({ onSuccess }) => {
               Iniciar Sesión
             </Button>
             
+            {/* Try as Guest Button */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-gray-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-gray-500">o</span>
+              </div>
+            </div>
+            
+            <Button 
+              type="button"
+              variant="outline" 
+              className="w-full h-12 border-gray-300 hover:bg-gray-50 rounded-2xl font-medium text-base transition-all duration-300" 
+              onClick={() => {
+                console.log('👤 GUEST MODE: Exploring without authentication');
+                window.location.href = '/dashboard/creator';
+              }}
+            >
+              Explorar como Invitado
+            </Button>
+            
             <div className="text-center text-sm text-gray-600">
               ¿No tienes cuenta?{' '}
               <Link to="/registro" className="text-black font-medium hover:underline transition-colors">

@@ -3,6 +3,7 @@ import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { DashboardLoadingSkeleton } from "@/components/dashboard/LoadingSkeleton";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import {
   Camera,
   DollarSign,
@@ -21,13 +22,17 @@ import {
   Sun,
   Bell,
   Settings,
-  LogOut
+  LogOut,
+  Lock
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHybridDashboard } from "@/hooks/useHybridDashboard";
 import { toast } from "sonner";
 import { DashboardErrorBoundary, CardErrorFallback } from "@/components/dashboard/DashboardErrorBoundary";
 import { cn } from "@/lib/utils";
+import { AnonymousAccessBanner } from "@/components/auth/AnonymousAccessBanner";
+import { GuestModeInfo, creatorFeatures } from "@/components/auth/GuestModeInfo";
+import { GuestModeBanner } from "@/components/auth/GuestModeBanner";
 
 // Importar nuevos componentes
 import { PanelPrincipal } from "@/components/creator/PanelPrincipal";
@@ -44,6 +49,8 @@ const CreatorDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [activeTab, setActiveTab] = useState('panel');
+  const [showGuestInfo, setShowGuestInfo] = useState(false);
+  const [showGuestBanner, setShowGuestBanner] = useState(true);
   const { user, profile } = useAuth();
   const {
     loading,
@@ -626,6 +633,71 @@ const CreatorDashboard = () => {
     );
   }
 
+  // Check if user is not authenticated - show anonymous access banner
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <DashboardNav />
+        
+        {/* Anonymous Access Banner */}
+        <AnonymousAccessBanner 
+          userType="creator" 
+          showFeatures={!showGuestInfo}
+        />
+        
+        {/* Toggle Guest Info Button */}
+        <div className="text-center mb-8">
+          <Button
+            variant="outline"
+            onClick={() => setShowGuestInfo(!showGuestInfo)}
+            className="rounded-full"
+          >
+            {showGuestInfo ? 'Ver Beneficios' : 'Ver Comparación de Funciones'}
+          </Button>
+        </div>
+        
+        {/* Guest Mode Feature Comparison */}
+        {showGuestInfo && (
+          <div className="max-w-4xl mx-auto px-4 mb-8">
+            <GuestModeInfo features={creatorFeatures} />
+          </div>
+        )}
+        
+        {/* Limited Dashboard Preview */}
+        <div className="max-w-7xl mx-auto px-4 pb-8">
+          <div className="bg-white rounded-2xl shadow-sm p-8">
+            <h3 className="text-xl font-semibold mb-4">Vista Previa del Dashboard de Creador</h3>
+            <p className="text-gray-600 mb-6">
+              Explora cómo se ve el panel de control para creadores. Regístrate para acceder a todas las funciones.
+            </p>
+            
+            {/* Mock Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              {metricasPrincipales.map((metrica, index) => (
+                <div key={index} className="bg-gray-50 rounded-lg p-4 opacity-75">
+                  <div className={`${metrica.color} rounded-lg p-3 w-fit mb-3`}>
+                    {metrica.icono}
+                  </div>
+                  <p className="text-sm text-gray-600">{metrica.titulo}</p>
+                  <p className="text-2xl font-bold text-gray-900">{metrica.valor}</p>
+                  <p className="text-xs text-gray-500 mt-1">Datos de ejemplo</p>
+                </div>
+              ))}
+            </div>
+            
+            {/* Sample Content */}
+            <div className="text-center py-8 bg-gray-50 rounded-lg">
+              <Lock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">
+                Crea una cuenta para empezar a gestionar tu contenido y colaboraciones
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const menuItems = [
     { id: 'panel', label: 'Panel Principal', icon: LayoutDashboard },
     { id: 'contenido', label: 'Gestión de Contenido', icon: FileImage },
@@ -707,6 +779,14 @@ const CreatorDashboard = () => {
           "flex-1 transition-all duration-300",
           sidebarOpen ? "ml-64" : "ml-20"
         )}>
+          {/* Guest Mode Banner for anonymous users */}
+          {!user && showGuestBanner && (
+            <GuestModeBanner 
+              compact={true} 
+              onDismiss={() => setShowGuestBanner(false)} 
+            />
+          )}
+          
           <div className="p-8">
             {/* Header */}
             <div className="mb-8">

@@ -6,10 +6,19 @@ import { GestionColaboracionesAdmin } from "@/components/admin/GestionColaboraci
 import { AnalyticsPlataforma } from "@/components/admin/AnalyticsPlataforma";
 import { ConfiguracionSistema } from "@/components/admin/ConfiguracionSistema";
 import { CentroSoporteAdmin } from "@/components/admin/CentroSoporteAdmin";
+import { useAuth } from "@/contexts/AuthContext";
+import { AnonymousAccessBanner } from "@/components/auth/AnonymousAccessBanner";
+import { GuestModeInfo, adminFeatures } from "@/components/auth/GuestModeInfo";
+import { Button } from "@/components/ui/button";
+import { Lock } from "lucide-react";
+import { GuestModeBanner } from "@/components/auth/GuestModeBanner";
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
   const [seccionActiva, setSeccionActiva] = useState('panel');
   const [modoOscuro, setModoOscuro] = useState(false);
+  const [showGuestInfo, setShowGuestInfo] = useState(false);
+  const [showGuestBanner, setShowGuestBanner] = useState(true);
 
   const toggleModoOscuro = () => {
     setModoOscuro(!modoOscuro);
@@ -34,6 +43,79 @@ const AdminDashboard = () => {
     }
   };
 
+  // Check if user is not authenticated - show anonymous access banner
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Anonymous Access Banner */}
+        <AnonymousAccessBanner 
+          userType="admin" 
+          showFeatures={!showGuestInfo}
+        />
+        
+        {/* Toggle Guest Info Button */}
+        <div className="text-center mb-8">
+          <Button
+            variant="outline"
+            onClick={() => setShowGuestInfo(!showGuestInfo)}
+            className="rounded-full"
+          >
+            {showGuestInfo ? 'Ver Beneficios' : 'Ver Comparación de Funciones'}
+          </Button>
+        </div>
+        
+        {/* Guest Mode Feature Comparison */}
+        {showGuestInfo && (
+          <div className="max-w-4xl mx-auto px-4 mb-8">
+            <GuestModeInfo features={adminFeatures} />
+          </div>
+        )}
+        
+        {/* Limited Dashboard Preview */}
+        <div className="max-w-7xl mx-auto px-4 pb-8">
+          <div className="bg-white rounded-2xl shadow-sm p-8">
+            <h3 className="text-xl font-semibold mb-4">Vista Previa del Panel de Administración</h3>
+            <p className="text-gray-600 mb-6">
+              Este es el panel de control administrativo. Solo usuarios autorizados pueden acceder.
+            </p>
+            
+            {/* Mock Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-gray-50 rounded-lg p-4 opacity-75">
+                <p className="text-sm text-gray-600">Usuarios Totales</p>
+                <p className="text-2xl font-bold text-gray-900">12,543</p>
+                <p className="text-xs text-gray-500 mt-1">Datos de ejemplo</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4 opacity-75">
+                <p className="text-sm text-gray-600">Colaboraciones Activas</p>
+                <p className="text-2xl font-bold text-gray-900">856</p>
+                <p className="text-xs text-gray-500 mt-1">Datos de ejemplo</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4 opacity-75">
+                <p className="text-sm text-gray-600">Ingresos del Mes</p>
+                <p className="text-2xl font-bold text-gray-900">$2.4M</p>
+                <p className="text-xs text-gray-500 mt-1">Datos de ejemplo</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4 opacity-75">
+                <p className="text-sm text-gray-600">Tickets de Soporte</p>
+                <p className="text-2xl font-bold text-gray-900">23</p>
+                <p className="text-xs text-gray-500 mt-1">Datos de ejemplo</p>
+              </div>
+            </div>
+            
+            {/* Sample Content */}
+            <div className="text-center py-8 bg-gray-50 rounded-lg">
+              <Lock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">
+                Acceso restringido. Contacta al administrador del sistema para obtener permisos.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen ${modoOscuro ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <AdminDashboardNav 
@@ -45,6 +127,14 @@ const AdminDashboard = () => {
       
       {/* Main Content Area */}
       <div className="lg:ml-64 pt-[65px]">
+        {/* Guest Mode Banner for anonymous users */}
+        {!user && showGuestBanner && (
+          <GuestModeBanner 
+            compact={true} 
+            onDismiss={() => setShowGuestBanner(false)} 
+          />
+        )}
+        
         <div className="p-6">
           {renderSeccion()}
         </div>

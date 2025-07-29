@@ -147,7 +147,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    if (!user) return;
+    if (!user || !user.id) {
+      throw new Error('User not authenticated');
+    }
 
     const result = await hybridAuthService.updateProfile(user.id, updates, authType);
     

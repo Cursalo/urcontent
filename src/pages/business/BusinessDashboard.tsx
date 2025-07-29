@@ -12,10 +12,17 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useHybridDashboard } from "@/hooks/useHybridDashboard";
 import { toast } from "sonner";
 import { DashboardErrorBoundary } from "@/components/dashboard/DashboardErrorBoundary";
+import { AnonymousAccessBanner } from "@/components/auth/AnonymousAccessBanner";
+import { GuestModeInfo, businessFeatures } from "@/components/auth/GuestModeInfo";
+import { Button } from "@/components/ui/button";
+import { Lock } from "lucide-react";
+import { GuestModeBanner } from "@/components/auth/GuestModeBanner";
 
 const BusinessDashboard = () => {
   const { user, profile } = useAuth();
   const [tabActiva, setTabActiva] = useState("panel-principal");
+  const [showGuestInfo, setShowGuestInfo] = useState(false);
+  const [showGuestBanner, setShowGuestBanner] = useState(true);
   const {
     loading,
     error,
@@ -80,6 +87,79 @@ const BusinessDashboard = () => {
     );
   }
 
+  // Check if user is not authenticated - show anonymous access banner
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Anonymous Access Banner */}
+        <AnonymousAccessBanner 
+          userType="business" 
+          showFeatures={!showGuestInfo}
+        />
+        
+        {/* Toggle Guest Info Button */}
+        <div className="text-center mb-8">
+          <Button
+            variant="outline"
+            onClick={() => setShowGuestInfo(!showGuestInfo)}
+            className="rounded-full"
+          >
+            {showGuestInfo ? 'Ver Beneficios' : 'Ver Comparación de Funciones'}
+          </Button>
+        </div>
+        
+        {/* Guest Mode Feature Comparison */}
+        {showGuestInfo && (
+          <div className="max-w-4xl mx-auto px-4 mb-8">
+            <GuestModeInfo features={businessFeatures} />
+          </div>
+        )}
+        
+        {/* Limited Dashboard Preview */}
+        <div className="max-w-7xl mx-auto px-4 pb-8">
+          <div className="bg-white rounded-2xl shadow-sm p-8">
+            <h3 className="text-xl font-semibold mb-4">Vista Previa del Dashboard de Negocio</h3>
+            <p className="text-gray-600 mb-6">
+              Explora cómo se ve el panel de control para negocios. Regístrate para empezar a colaborar con creadores.
+            </p>
+            
+            {/* Mock Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-gray-50 rounded-lg p-4 opacity-75">
+                <p className="text-sm text-gray-600">Campañas Activas</p>
+                <p className="text-2xl font-bold text-gray-900">12</p>
+                <p className="text-xs text-gray-500 mt-1">Datos de ejemplo</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4 opacity-75">
+                <p className="text-sm text-gray-600">Creadores Colaborando</p>
+                <p className="text-2xl font-bold text-gray-900">45</p>
+                <p className="text-xs text-gray-500 mt-1">Datos de ejemplo</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4 opacity-75">
+                <p className="text-sm text-gray-600">Alcance Total</p>
+                <p className="text-2xl font-bold text-gray-900">2.5M</p>
+                <p className="text-xs text-gray-500 mt-1">Datos de ejemplo</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4 opacity-75">
+                <p className="text-sm text-gray-600">ROI Promedio</p>
+                <p className="text-2xl font-bold text-gray-900">285%</p>
+                <p className="text-xs text-gray-500 mt-1">Datos de ejemplo</p>
+              </div>
+            </div>
+            
+            {/* Sample Content */}
+            <div className="text-center py-8 bg-gray-50 rounded-lg">
+              <Lock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">
+                Crea una cuenta de negocio para empezar a colaborar con creadores de contenido
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Renderizar contenido según la tab activa
   const renderContenido = () => {
     switch (tabActiva) {
@@ -129,6 +209,14 @@ const BusinessDashboard = () => {
       
       {/* Contenido principal */}
       <div className="flex-1 overflow-y-auto">
+        {/* Guest Mode Banner for anonymous users */}
+        {!user && showGuestBanner && (
+          <GuestModeBanner 
+            compact={true} 
+            onDismiss={() => setShowGuestBanner(false)} 
+          />
+        )}
+        
         <div className="p-8">
           <DashboardErrorBoundary componentName={`BusinessDashboard-${tabActiva}`}>
             {renderContenido()}

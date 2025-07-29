@@ -6,6 +6,25 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { vi } from 'vitest'
 
+// Mock navigate function globally
+const mockNavigate = vi.fn()
+
+// Mock react-router-dom
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+    useLocation: () => ({
+      pathname: '/',
+      search: '',
+      hash: '',
+      state: null,
+    }),
+    useParams: () => ({}),
+  }
+})
+
 // Mock AuthContext for testing
 const MockAuthProvider = ({ children }: { children: React.ReactNode }) => {
   const mockAuthContext = {
@@ -292,4 +311,4 @@ export const mockMediaQuery = (matches: boolean) => {
 // Re-export everything from React Testing Library
 export * from '@testing-library/react'
 export { customRender as render, renderWithAuth, renderWithoutAuth }
-export { createTestQueryClient }
+export { createTestQueryClient, mockNavigate }

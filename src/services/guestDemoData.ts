@@ -1,0 +1,269 @@
+// Demo data for guest/anonymous users exploring the platform
+
+export interface GuestDemoData {
+  creator: {
+    metrics: {
+      monthlyEarnings: number;
+      activeCollaborations: number;
+      urScore: number;
+      totalFollowers: number;
+      completedCollaborations: number;
+      avgRating: number;
+    };
+    recentCollaborations: Array<{
+      id: string;
+      brand: string;
+      status: string;
+      value: string;
+      date: string;
+      type: string;
+      engagement: string;
+    }>;
+    portfolioSamples: Array<{
+      id: string;
+      title: string;
+      platform: string;
+      views: number;
+      engagement: number;
+      thumbnail: string;
+    }>;
+  };
+  business: {
+    metrics: {
+      activeCampaigns: number;
+      totalCreators: number;
+      totalReach: string;
+      avgROI: string;
+      monthlyBudget: number;
+      completedCampaigns: number;
+    };
+    activeCampaigns: Array<{
+      id: string;
+      name: string;
+      status: string;
+      creators: number;
+      budget: number;
+      reach: string;
+      endDate: string;
+    }>;
+    topCreators: Array<{
+      id: string;
+      name: string;
+      followers: string;
+      engagement: string;
+      rating: number;
+      specialties: string[];
+    }>;
+  };
+  admin: {
+    metrics: {
+      totalUsers: number;
+      activeCollaborations: number;
+      monthlyRevenue: string;
+      supportTickets: number;
+      platformGrowth: string;
+      avgResponseTime: string;
+    };
+    recentActivity: Array<{
+      id: string;
+      type: string;
+      description: string;
+      timestamp: string;
+      status: string;
+    }>;
+  };
+}
+
+export const guestDemoData: GuestDemoData = {
+  creator: {
+    metrics: {
+      monthlyEarnings: 45000,
+      activeCollaborations: 5,
+      urScore: 92,
+      totalFollowers: 125000,
+      completedCollaborations: 28,
+      avgRating: 4.8
+    },
+    recentCollaborations: [
+      {
+        id: '1',
+        brand: 'Nike México',
+        status: 'active',
+        value: '$15,000 MXN',
+        date: '2024-01-15',
+        type: 'Campaña de Redes Sociales',
+        engagement: '125K alcance, 8.5% engagement'
+      },
+      {
+        id: '2',
+        brand: 'Starbucks',
+        status: 'completed',
+        value: '$8,500 MXN',
+        date: '2024-01-10',
+        type: 'Reels de Instagram',
+        engagement: '98K vistas, 12% engagement'
+      },
+      {
+        id: '3',
+        brand: 'Samsung',
+        status: 'pending',
+        value: '$20,000 MXN',
+        date: '2024-01-20',
+        type: 'Unboxing Video',
+        engagement: 'Por comenzar'
+      }
+    ],
+    portfolioSamples: [
+      {
+        id: '1',
+        title: 'Morning Routine 2024',
+        platform: 'Instagram',
+        views: 125000,
+        engagement: 8.5,
+        thumbnail: '/api/placeholder/400/400'
+      },
+      {
+        id: '2',
+        title: 'Fashion Haul Primavera',
+        platform: 'TikTok',
+        views: 250000,
+        engagement: 12.3,
+        thumbnail: '/api/placeholder/400/400'
+      },
+      {
+        id: '3',
+        title: 'Fitness Challenge',
+        platform: 'YouTube',
+        views: 45000,
+        engagement: 6.7,
+        thumbnail: '/api/placeholder/400/400'
+      }
+    ]
+  },
+  business: {
+    metrics: {
+      activeCampaigns: 12,
+      totalCreators: 45,
+      totalReach: '2.5M',
+      avgROI: '285%',
+      monthlyBudget: 250000,
+      completedCampaigns: 67
+    },
+    activeCampaigns: [
+      {
+        id: '1',
+        name: 'Lanzamiento Producto Verano',
+        status: 'active',
+        creators: 8,
+        budget: 50000,
+        reach: '450K',
+        endDate: '2024-02-15'
+      },
+      {
+        id: '2',
+        name: 'Campaña San Valentín',
+        status: 'planning',
+        creators: 12,
+        budget: 75000,
+        reach: '800K est.',
+        endDate: '2024-02-14'
+      },
+      {
+        id: '3',
+        name: 'Brand Awareness Q1',
+        status: 'active',
+        creators: 5,
+        budget: 30000,
+        reach: '250K',
+        endDate: '2024-03-31'
+      }
+    ],
+    topCreators: [
+      {
+        id: '1',
+        name: 'María González',
+        followers: '250K',
+        engagement: '8.5%',
+        rating: 4.9,
+        specialties: ['Fashion', 'Lifestyle']
+      },
+      {
+        id: '2',
+        name: 'Carlos Ruiz',
+        followers: '180K',
+        engagement: '12.3%',
+        rating: 4.8,
+        specialties: ['Tech', 'Gaming']
+      },
+      {
+        id: '3',
+        name: 'Ana Martínez',
+        followers: '320K',
+        engagement: '7.2%',
+        rating: 4.7,
+        specialties: ['Food', 'Travel']
+      }
+    ]
+  },
+  admin: {
+    metrics: {
+      totalUsers: 12543,
+      activeCollaborations: 856,
+      monthlyRevenue: '$2.4M MXN',
+      supportTickets: 23,
+      platformGrowth: '+18.5%',
+      avgResponseTime: '2.3 hrs'
+    },
+    recentActivity: [
+      {
+        id: '1',
+        type: 'new_user',
+        description: 'Nuevo creador registrado: @fashionista_mx',
+        timestamp: 'Hace 5 minutos',
+        status: 'completed'
+      },
+      {
+        id: '2',
+        type: 'payment',
+        description: 'Pago procesado: Nike → María G. ($15,000)',
+        timestamp: 'Hace 15 minutos',
+        status: 'completed'
+      },
+      {
+        id: '3',
+        type: 'support',
+        description: 'Ticket de soporte: Error al subir contenido',
+        timestamp: 'Hace 1 hora',
+        status: 'pending'
+      },
+      {
+        id: '4',
+        type: 'collaboration',
+        description: 'Nueva colaboración: Starbucks + 5 creadores',
+        timestamp: 'Hace 2 horas',
+        status: 'active'
+      }
+    ]
+  }
+};
+
+// Helper functions to get demo data
+export const getCreatorDemoData = () => guestDemoData.creator;
+export const getBusinessDemoData = () => guestDemoData.business;
+export const getAdminDemoData = () => guestDemoData.admin;
+
+// Generate random variations for more dynamic feel
+export const generateDynamicMetrics = (baseMetrics: any) => {
+  const variance = 0.1; // 10% variance
+  
+  return Object.entries(baseMetrics).reduce((acc, [key, value]) => {
+    if (typeof value === 'number') {
+      const min = value * (1 - variance);
+      const max = value * (1 + variance);
+      acc[key] = Math.floor(Math.random() * (max - min) + min);
+    } else {
+      acc[key] = value;
+    }
+    return acc;
+  }, {} as any);
+};

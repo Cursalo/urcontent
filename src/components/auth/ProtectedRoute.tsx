@@ -7,12 +7,14 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: 'creator' | 'business' | 'admin';
   requiresVerification?: boolean;
+  allowAnonymous?: boolean;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
   requiredRole,
-  requiresVerification = false 
+  requiresVerification = false,
+  allowAnonymous = false 
 }) => {
   const { user, profile, loading } = useAuth();
   const location = useLocation();
@@ -45,8 +47,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // Always allow access - no authentication required
-  if (!user && !emergencyAccess) {
+  // Handle anonymous access if allowed
+  if (!user && allowAnonymous) {
+    console.log('👤 ANONYMOUS ACCESS: Allowing guest access to', location.pathname);
+    return <>{children}</>;
+  }
+
+  // Always allow access - no authentication required (for backwards compatibility)
+  if (!user && !emergencyAccess && !allowAnonymous) {
     console.log('⚡ INSTANT ACCESS: No user found, allowing anonymous access to', location.pathname);
     setEmergencyAccess(true);
   }
@@ -57,8 +65,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     // Show warning banner but allow access
     return (
       <div>
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 text-center text-sm">
-          🚨 Emergency Access Mode: Authentication bypassed. Some features may not work properly.
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 text-center text-sm">
+          👤 Modo Invitado: Estás explorando sin autenticación. Algunas funciones pueden estar limitadas.
         </div>
         {children}
       </div>

@@ -26,8 +26,33 @@ const Dashboard = () => {
     );
   }
 
+  // Allow anonymous access - dashboards will handle guest mode
   if (!user) {
-    return <Navigate to="/login" replace />;
+    console.log('👤 GUEST MODE: Allowing anonymous dashboard access');
+    // Default to creator dashboard for guests
+    const guestRole = routeRole || 'creator';
+    
+    switch (guestRole) {
+      case 'admin':
+        return (
+          <ErrorBoundary fallback={<DashboardErrorFallback role="admin" />}>
+            <AdminDashboard />
+          </ErrorBoundary>
+        );
+      case 'business':
+        return (
+          <ErrorBoundary fallback={<DashboardErrorFallback role="business" />}>
+            <BusinessDashboard />
+          </ErrorBoundary>
+        );
+      case 'creator':
+      default:
+        return (
+          <ErrorBoundary fallback={<DashboardErrorFallback role="creator" />}>
+            <CreatorDashboard />
+          </ErrorBoundary>
+        );
+    }
   }
 
   // BULLETPROOF ROLE DETECTION: Multiple fallback layers for any user type
