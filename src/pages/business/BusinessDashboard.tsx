@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
-import { StatsCard } from "@/components/dashboard/StatsCard";
+import { StatsCard } from "@/components/dashboard/StatsCard"; 
+import { UserInfoCard } from "@/components/dashboard/UserInfoCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -356,6 +357,11 @@ const BusinessDashboard = () => {
               </Button>
             </div>
           </div>
+        </div>
+
+        {/* User Info Card */}
+        <div className="mb-8">
+          <UserInfoCard />
         </div>
 
         {/* Stats Cards */}

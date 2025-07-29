@@ -1,0 +1,147 @@
+// User information card component for dashboards
+// Shows mock user data when using mock authentication
+
+import React from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { MockUser } from '@/data/mockUsers';
+import { User, Crown, Building, UserCheck } from 'lucide-react';
+
+export const UserInfoCard: React.FC = () => {
+  const { user, profile } = useAuth();
+
+  if (!user || !profile) {
+    return null;
+  }
+
+  // Check if we're using mock data
+  const isMockUser = profile && 'metadata' in profile;
+  const mockProfile = isMockUser ? (profile as MockUser) : null;
+
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return <Crown className="w-4 h-4" />;
+      case 'business':
+        return <Building className="w-4 h-4" />;
+      case 'creator':
+        return <User className="w-4 h-4" />;
+      default:
+        return <UserCheck className="w-4 h-4" />;
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'business':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'creator':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'Administrador';
+      case 'business':
+        return 'Negocio/Venue';
+      case 'creator':
+        return 'Creador de Contenido';
+      default:
+        return role;
+    }
+  };
+
+  return (
+    <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-semibold text-gray-800">
+          Información del Usuario
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center space-x-4">
+          <Avatar className="w-16 h-16">
+            <AvatarImage 
+              src={profile.avatar_url || undefined} 
+              alt={profile.full_name || 'User'} 
+            />
+            <AvatarFallback className="text-lg font-semibold">
+              {profile.full_name?.charAt(0) || 'U'}
+            </AvatarFallback>
+          </Avatar>
+          
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-gray-900">
+              {profile.full_name || 'Usuario'}
+            </h3>
+            <p className="text-gray-600">{profile.email}</p>
+            
+            <div className="flex items-center space-x-2 mt-2">
+              <Badge className={`${getRoleColor(profile.role)} border`}>
+                <div className="flex items-center space-x-1">
+                  {getRoleIcon(profile.role)}
+                  <span>{getRoleLabel(profile.role)}</span>
+                </div>
+              </Badge>
+              
+              {profile.is_verified && (
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  <UserCheck className="w-3 h-3 mr-1" />
+                  Verificado
+                </Badge>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Show additional info for mock users */}
+        {isMockUser && mockProfile && (
+          <div className="mt-4 p-3 bg-white/60 rounded-lg border border-blue-200">
+            <h4 className="font-semibold text-sm text-gray-700 mb-2">
+              🧪 Datos de Prueba
+            </h4>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {mockProfile.location && (
+                <div>
+                  <span className="font-medium">Ubicación:</span>
+                  <br />
+                  <span className="text-gray-600">{mockProfile.location}</span>
+                </div>
+              )}
+              {mockProfile.phone && (
+                <div>
+                  <span className="font-medium">Teléfono:</span>
+                  <br />
+                  <span className="text-gray-600">{mockProfile.phone}</span>
+                </div>
+              )}
+              {mockProfile.metadata && (
+                <div className="col-span-2 mt-2">
+                  <span className="font-medium">Especialidades/Tipo:</span>
+                  <br />
+                  <span className="text-gray-600">
+                    {mockProfile.role === 'creator' && mockProfile.metadata.specialties?.join(', ')}
+                    {mockProfile.role === 'business' && mockProfile.metadata.business_type}
+                    {mockProfile.role === 'admin' && mockProfile.metadata.department}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="text-xs text-gray-500 mt-3 p-2 bg-amber-50 rounded border border-amber-200">
+          🔐 Usando sistema de autenticación de prueba. Todos los datos son ficticios.
+        </div>
+      </CardContent>
+    </Card>
+  );
+};

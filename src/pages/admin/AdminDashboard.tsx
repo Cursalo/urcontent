@@ -1,5 +1,6 @@
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { StatsCard } from "@/components/dashboard/StatsCard";
+import { UserInfoCard } from "@/components/dashboard/UserInfoCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -122,6 +123,11 @@ const AdminDashboard = () => {
             <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
           </div>
           <p className="text-gray-600">Platform overview and management tools</p>
+        </div>
+
+        {/* User Info Card */}
+        <div className="mb-8">
+          <UserInfoCard />
         </div>
 
         {/* Stats Cards */}

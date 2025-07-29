@@ -1,3 +1,4 @@
+import React from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,15 @@ export const LoadingSpinner = ({
     lg: "h-12 w-12"
   };
 
+  // Add timeout for debugging infinite loading
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      console.warn('LoadingSpinner has been visible for over 15 seconds. This might indicate an infinite loading state.');
+    }, 15000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
   return (
     <div className={cn(
       "min-h-screen bg-gray-50 flex flex-col items-center justify-center",
@@ -31,6 +41,13 @@ export const LoadingSpinner = ({
       </div>
       {text && (
         <p className="mt-4 text-lg text-gray-600 animate-pulse">{text}</p>
+      )}
+      {/* Debug info in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="mt-4 text-xs text-gray-400 text-center">
+          <p>Loading timeout: 15s warning, Auth timeout: 10s</p>
+          <p>Check browser console for auth errors</p>
+        </div>
       )}
     </div>
   );

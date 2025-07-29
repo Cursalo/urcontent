@@ -2,13 +2,26 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables } from '@/integrations/supabase/types';
+import { mockAuthService, shouldUseMockAuth } from '@/services/mockAuth';
+import { MockUser } from '@/data/mockUsers';
 
 type UserProfile = Tables<'users'>;
 type UserRole = 'creator' | 'business' | 'admin';
 
+// Extended user type that works with both Supabase User and MockUser
+interface ExtendedUser extends Partial<User> {
+  id: string;
+  email?: string;
+  user_metadata?: {
+    full_name?: string;
+    role?: string;
+  };
+  created_at?: string;
+}
+
 interface AuthContextType {
-  user: User | null;
-  profile: UserProfile | null;
+  user: ExtendedUser | null;
+  profile: UserProfile | MockUser | null;
   session: Session | null;
   loading: boolean;
   signUp: (email: string, password: string, userData: { full_name: string; role: UserRole }) => Promise<{ error: AuthError | null }>;
@@ -29,42 +42,111 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<ExtendedUser | null>(null);
+  const [profile, setProfile] = useState<UserProfile | MockUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [useMockAuth] = useState(shouldUseMockAuth());
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserProfile(session.user.id);
-      } else {
+    const initializeAuth = async () => {
+      try {
+        // Set a timeout for the entire initialization process
+        const initTimeout = setTimeout(() => {
+          console.warn('Auth initialization timeout - setting loading to false');
+          setLoading(false);
+        }, 10000); // 10 second timeout
+
+        if (useMockAuth) {
+          // Use mock authentication
+          console.log('Using mock authentication system');
+          const { session: mockSession } = await mockAuthService.getSession();
+          const { user: mockUser } = await mockAuthService.getUser();
+          
+          if (mockSession && mockUser) {
+            // Convert mock session to Session-like object
+            const sessionLike = {
+              ...mockSession,
+              token_type: 'bearer',
+              user: {
+                id: mockUser.id,
+                email: mockUser.email,
+                user_metadata: {
+                  full_name: mockUser.full_name,
+                  role: mockUser.role
+                },
+                created_at: mockUser.created_at
+              }
+            } as Session;
+            
+            setSession(sessionLike);
+            setUser(mockUser as ExtendedUser);
+            setProfile(mockUser);
+          }
+          
+          setLoading(false);
+          clearTimeout(initTimeout);
+          return;
+        }
+
+        // Original Supabase authentication
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setLoading(false);
+          return;
+        }
+
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchUserProfile(session.user.id);
+        } else {
+          setLoading(false);
+        }
+
+        clearTimeout(initTimeout);
+      } catch (error) {
+        console.error('Auth initialization failed:', error);
         setLoading(false);
       }
-    });
+    };
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchUserProfile(session.user.id);
-      } else {
-        setProfile(null);
-        setLoading(false);
-      }
-    });
+    initializeAuth();
 
-    return () => subscription.unsubscribe();
-  }, []);
+    if (!useMockAuth) {
+      // Listen for auth changes (Supabase only)
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(async (event, session) => {
+        try {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            await fetchUserProfile(session.user.id);
+          } else {
+            setProfile(null);
+            setLoading(false);
+          }
+        } catch (error) {
+          console.error('Auth state change error:', error);
+          setLoading(false);
+        }
+      });
+
+      return () => subscription.unsubscribe();
+    }
+  }, [useMockAuth]);
 
   const fetchUserProfile = async (userId: string) => {
+    const fetchTimeout = setTimeout(() => {
+      console.warn('Profile fetch timeout - setting loading to false');
+      setLoading(false);
+    }, 8000); // 8 second timeout for profile fetch
+
     try {
       setLoading(true);
       
@@ -123,6 +205,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Unexpected error fetching user profile:', error);
       setProfile(null);
     } finally {
+      clearTimeout(fetchTimeout);
       setLoading(false);
     }
   };
@@ -169,6 +252,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
+    if (useMockAuth) {
+      const result = await mockAuthService.signIn(email, password);
+      
+      if (result.error) {
+        return { error: { message: result.error.message } as AuthError };
+      }
+      
+      if (result.user && result.session) {
+        // Convert mock session to Session-like object
+        const sessionLike = {
+          ...result.session,
+          token_type: 'bearer',
+          user: {
+            id: result.user.id,
+            email: result.user.email,
+            user_metadata: {
+              full_name: result.user.full_name,
+              role: result.user.role
+            },
+            created_at: result.user.created_at
+          }
+        } as Session;
+        
+        setSession(sessionLike);
+        setUser(result.user as ExtendedUser);
+        setProfile(result.user);
+      }
+      
+      return { error: null };
+    }
+    
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -177,10 +291,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    if (useMockAuth) {
+      await mockAuthService.signOut();
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+      return;
+    }
+    
     await supabase.auth.signOut();
   };
 
   const resetPassword = async (email: string) => {
+    if (useMockAuth) {
+      const result = await mockAuthService.resetPassword(email);
+      return { error: result.error ? { message: result.error.message } as AuthError : null };
+    }
+    
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
@@ -189,6 +316,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user) return;
+
+    if (useMockAuth) {
+      const result = await mockAuthService.updateProfile(user.id, updates);
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+      if (result.user) {
+        setProfile(result.user);
+      }
+      return;
+    }
 
     const { error } = await supabase
       .from('users')

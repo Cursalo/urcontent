@@ -24,18 +24,31 @@ const Dashboard = () => {
     return <Navigate to="/login" replace />;
   }
 
-  // Get user role from profile or user metadata
+  // Get user role from profile or user metadata with better fallback handling
   const userRole = profile?.role || user.user_metadata?.role || 'creator';
+
+  // Log role detection for debugging
+  console.log('Dashboard role detection:', {
+    profileRole: profile?.role,
+    userMetadataRole: user.user_metadata?.role,
+    finalRole: userRole,
+    userId: user.id,
+    userEmail: user.email
+  });
 
   // Route to appropriate dashboard based on role
   switch (userRole) {
     case 'admin':
+      console.log('Routing to AdminDashboard');
       return <AdminDashboard />;
     case 'creator':
+      console.log('Routing to CreatorDashboard');
       return <CreatorDashboard />;
     case 'business':
+      console.log('Routing to BusinessDashboard');
       return <BusinessDashboard />;
     default:
+      console.warn(`Unknown role "${userRole}", defaulting to CreatorDashboard`);
       return <CreatorDashboard />;
   }
 };

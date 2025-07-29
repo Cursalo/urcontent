@@ -32,6 +32,7 @@ export const LoginForm: React.FC<LoginFormProps> = memo(({ onSuccess }) => {
   const { signIn } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [showTestAccounts, setShowTestAccounts] = useState(false);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -63,9 +64,79 @@ export const LoginForm: React.FC<LoginFormProps> = memo(({ onSuccess }) => {
     setShowPassword(prev => !prev);
   }, []);
 
+  const testAccounts = [
+    {
+      email: 'creator@urcontent.com',
+      password: 'creator123',
+      role: 'Content Creator',
+      description: 'Access creator dashboard, marketplace, profile management'
+    },
+    {
+      email: 'venue@urcontent.com', 
+      password: 'venue123',
+      role: 'Venue/Business',
+      description: 'Access business dashboard, venue management, offer creation'
+    },
+    {
+      email: 'admin@urcontent.com',
+      password: 'admin123', 
+      role: 'Admin',
+      description: 'Access admin dashboard, user management, platform oversight'
+    }
+  ];
+
+  const fillTestAccount = (email: string, password: string) => {
+    form.setValue('email', email);
+    form.setValue('password', password);
+  };
+
   return (
     <Card className="w-full max-w-md mx-auto bg-white border border-gray-100 rounded-3xl shadow-xl shadow-black/5">
       <CardHeader className="space-y-6 pt-12 pb-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900">Iniciar Sesión</h2>
+          <p className="text-gray-600 mt-2">Accede a tu cuenta</p>
+          
+          {/* Test Accounts Toggle */}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-4 text-xs"
+            onClick={() => setShowTestAccounts(!showTestAccounts)}
+          >
+            {showTestAccounts ? 'Ocultar' : 'Mostrar'} Cuentas de Prueba
+          </Button>
+          
+          {/* Test Accounts List */}
+          {showTestAccounts && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-left">
+              <h4 className="font-semibold text-sm mb-3 text-center">Cuentas de Prueba Disponibles</h4>
+              <div className="space-y-3">
+                {testAccounts.map((account, index) => (
+                  <div key={index} className="border-b border-gray-200 pb-2 last:border-b-0">
+                    <div className="flex justify-between items-start mb-1">
+                      <div>
+                        <p className="font-medium text-xs text-gray-900">{account.role}</p>
+                        <p className="text-xs text-gray-600">{account.email}</p>
+                        <p className="text-xs text-gray-500 mt-1">{account.description}</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs px-2 py-1 h-auto"
+                        onClick={() => fillTestAccount(account.email, account.password)}
+                      >
+                        Usar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </CardHeader>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -157,6 +228,11 @@ export const LoginForm: React.FC<LoginFormProps> = memo(({ onSuccess }) => {
               <Link to="/registro" className="text-black font-medium hover:underline transition-colors">
                 Regístrate aquí
               </Link>
+            </div>
+            
+            {/* Mock Auth Notice */}
+            <div className="text-center text-xs text-gray-500 mt-2 p-2 bg-blue-50 rounded-lg">
+              🧪 Sistema de autenticación de prueba activo. Usa las cuentas de prueba de arriba.
             </div>
           </CardFooter>
         </form>

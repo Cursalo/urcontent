@@ -1,6 +1,7 @@
 import { useState, useEffect, memo, useMemo, useCallback } from "react";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { StatsCard } from "@/components/dashboard/StatsCard";
+import { UserInfoCard } from "@/components/dashboard/UserInfoCard";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 import { performanceMonitor } from "@/lib/performance";
@@ -374,6 +375,11 @@ const CreatorDashboard = () => {
               </Button>
             </div>
           </div>
+        </div>
+
+        {/* User Info Card */}
+        <div className="mb-8">
+          <UserInfoCard />
         </div>
 
         {/* Stats Cards */}

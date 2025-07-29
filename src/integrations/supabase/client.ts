@@ -14,3 +14,26 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
   }
 });
+
+// Test connection on client creation
+const testConnection = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('count')
+      .limit(1);
+    
+    if (error && error.code === '42P01') {
+      console.warn('Database setup required: users table does not exist');
+    } else if (error) {
+      console.warn('Database connection issue:', error.message);
+    } else {
+      console.log('Database connection successful');
+    }
+  } catch (err) {
+    console.warn('Unable to test database connection:', err);
+  }
+};
+
+// Run connection test (non-blocking)
+testConnection();
