@@ -154,12 +154,6 @@ export const DashboardNav = () => {
               </Link>
             )}
             
-            {userRole === 'creator' && (
-              <Button size="sm" className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700">
-                <Plus className="w-4 h-4 mr-2" />
-                Agregar Contenido
-              </Button>
-            )}
             
             {userRole === 'admin' && (
               <Button size="sm" className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700">
