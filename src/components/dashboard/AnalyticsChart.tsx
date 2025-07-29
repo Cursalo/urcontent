@@ -38,7 +38,7 @@ import {
 import { MockAnalyticsData } from '@/data/mockUsers';
 
 interface AnalyticsChartProps {
-  data: MockAnalyticsData[];
+  data: MockAnalyticsData[] | null | undefined;
   title?: string;
   description?: string;
   type?: 'area' | 'line' | 'bar' | 'pie' | 'radar';
@@ -48,7 +48,7 @@ interface AnalyticsChartProps {
 }
 
 export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
-  data,
+  data: rawData,
   title = "Analytics Overview",
   description = "Performance metrics over time",
   type = 'area',
@@ -58,6 +58,16 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
 }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
   const [selectedMetric, setSelectedMetric] = useState(metric);
+  
+  // Safely handle data with null/undefined checks
+  const data = React.useMemo(() => {
+    if (!rawData) return [];
+    if (!Array.isArray(rawData)) {
+      console.warn('AnalyticsChart: data prop is not an array, received:', typeof rawData);
+      return [];
+    }
+    return rawData.filter(item => item && typeof item === 'object');
+  }, [rawData]);
 
   // Sample data for different chart types
   const sampleEarningsData = [
@@ -90,141 +100,192 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
     { subject: 'Creativity', A: 95, fullMark: 100 }
   ];
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      minimumFractionDigits: 0
-    }).format(value);
+  const formatCurrency = (value: any) => {
+    // Safe currency formatting with fallbacks
+    try {
+      const numValue = Number(value);
+      if (isNaN(numValue)) {
+        console.warn('formatCurrency: Invalid value:', value);
+        return '$0';
+      }
+      return new Intl.NumberFormat('es-MX', {
+        style: 'currency',
+        currency: 'MXN',
+        minimumFractionDigits: 0
+      }).format(numValue);
+    } catch (error) {
+      console.warn('formatCurrency: Error formatting currency:', value, error);
+      return '$0';
+    }
   };
 
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-    return num.toString();
+  const formatNumber = (num: any) => {
+    // Safe number formatting with fallbacks
+    try {
+      const numValue = Number(num);
+      if (isNaN(numValue)) {
+        console.warn('formatNumber: Invalid number:', num);
+        return '0';
+      }
+      if (numValue >= 1000000) return `${(numValue / 1000000).toFixed(1)}M`;
+      if (numValue >= 1000) return `${(numValue / 1000).toFixed(1)}K`;
+      return numValue.toString();
+    } catch (error) {
+      console.warn('formatNumber: Error formatting number:', num, error);
+      return '0';
+    }
   };
 
-  const getTrendIcon = (value: number) => {
-    return value > 0 ? (
-      <TrendingUp className="w-4 h-4 text-green-600" />
-    ) : (
-      <TrendingDown className="w-4 h-4 text-red-600" />
-    );
+  const getTrendIcon = (value: any) => {
+    // Safe trend icon with fallbacks
+    try {
+      const numValue = Number(value);
+      if (isNaN(numValue)) {
+        console.warn('getTrendIcon: Invalid value:', value);
+        return <TrendingUp className="w-4 h-4 text-gray-400" />;
+      }
+      return numValue > 0 ? (
+        <TrendingUp className="w-4 h-4 text-green-600" />
+      ) : (
+        <TrendingDown className="w-4 h-4 text-red-600" />
+      );
+    } catch (error) {
+      console.warn('getTrendIcon: Error processing value:', value, error);
+      return <TrendingUp className="w-4 h-4 text-gray-400" />;
+    }
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-4 border border-gray-200 rounded-xl shadow-lg">
-          <p className="font-semibold text-black mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: {
-                entry.name === 'earnings' 
-                  ? formatCurrency(entry.value)
-                  : entry.name === 'reach'
-                  ? formatNumber(entry.value)
-                  : entry.value
+    // Safe tooltip with error handling
+    try {
+      if (active && payload && Array.isArray(payload) && payload.length) {
+        return (
+          <div className="bg-white p-4 border border-gray-200 rounded-xl shadow-lg">
+            <p className="font-semibold text-black mb-2">{label || 'Data Point'}</p>
+            {payload.map((entry: any, index: number) => {
+              if (!entry) return null;
+              const name = entry.name || 'Value';
+              const value = entry.value !== undefined ? entry.value : 'N/A';
+              
+              let formattedValue;
+              if (name === 'earnings') {
+                formattedValue = formatCurrency(value);
+              } else if (name === 'reach') {
+                formattedValue = formatNumber(value);
+              } else {
+                formattedValue = value;
               }
-            </p>
-          ))}
-        </div>
-      );
+              
+              return (
+                <p key={index} className="text-sm" style={{ color: entry.color || '#000' }}>
+                  {name}: {formattedValue}
+                </p>
+              );
+            })}
+          </div>
+        );
+      }
+    } catch (error) {
+      console.warn('CustomTooltip: Error rendering tooltip:', error);
     }
     return null;
   };
 
   const renderChart = () => {
-    switch (type) {
-      case 'area':
-        return (
-          <ResponsiveContainer width="100%" height={height}>
-            <AreaChart data={sampleEarningsData}>
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis 
-                dataKey="month" 
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 12, fill: '#6b7280' }}
-              />
-              <YAxis 
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 12, fill: '#6b7280' }}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Area 
-                type="monotone" 
-                dataKey="earnings" 
-                stroke="#000000" 
-                fill="#000000" 
-                fillOpacity={0.1}
-                strokeWidth={2}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        );
+    // Use provided data if available, otherwise fall back to sample data
+    const chartData = data.length > 0 ? data : sampleEarningsData;
+    
+    try {
+      switch (type) {
+        case 'area':
+          return (
+            <ResponsiveContainer width="100%" height={height}>
+              <AreaChart data={chartData}>
+                <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
+                <XAxis 
+                  dataKey="month" 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                />
+                <YAxis 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Area 
+                  type="monotone" 
+                  dataKey="earnings" 
+                  stroke="#000000" 
+                  fill="#000000" 
+                  fillOpacity={0.1}
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          );
 
-      case 'line':
-        return (
-          <ResponsiveContainer width="100%" height={height}>
-            <LineChart data={sampleEarningsData}>
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis 
-                dataKey="month" 
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 12, fill: '#6b7280' }}
-              />
-              <YAxis 
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 12, fill: '#6b7280' }}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Line 
-                type="monotone" 
-                dataKey="collaborations" 
-                stroke="#3b82f6" 
-                strokeWidth={3}
-                dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="earnings" 
-                stroke="#000000" 
-                strokeWidth={3}
-                dot={{ fill: '#000000', strokeWidth: 2, r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        );
+        case 'line':
+          return (
+            <ResponsiveContainer width="100%" height={height}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
+                <XAxis 
+                  dataKey="month" 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                />
+                <YAxis 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Line 
+                  type="monotone" 
+                  dataKey="collaborations" 
+                  stroke="#3b82f6" 
+                  strokeWidth={3}
+                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="earnings" 
+                  stroke="#000000" 
+                  strokeWidth={3}
+                  dot={{ fill: '#000000', strokeWidth: 2, r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          );
 
-      case 'bar':
-        return (
-          <ResponsiveContainer width="100%" height={height}>
-            <BarChart data={engagementData}>
-              <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-              <XAxis 
-                dataKey="platform" 
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 12, fill: '#6b7280' }}
-              />
-              <YAxis 
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 12, fill: '#6b7280' }}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar 
-                dataKey="engagement" 
-                fill="#000000" 
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        );
+        case 'bar':
+          return (
+            <ResponsiveContainer width="100%" height={height}>
+              <BarChart data={engagementData}>
+                <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
+                <XAxis 
+                  dataKey="platform" 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                />
+                <YAxis 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar 
+                  dataKey="engagement" 
+                  fill="#000000" 
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          );
 
       case 'pie':
         return (
@@ -271,8 +332,26 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
           </ResponsiveContainer>
         );
 
-      default:
-        return null;
+        default:
+          return (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              <div className="text-center">
+                <TrendingUp className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">Chart type not supported</p>
+              </div>
+            </div>
+          );
+      }
+    } catch (error) {
+      console.error('AnalyticsChart: Error rendering chart:', error);
+      return (
+        <div className="flex items-center justify-center h-full text-red-500">
+          <div className="text-center">
+            <TrendingUp className="w-12 h-12 mx-auto mb-2 opacity-30" />
+            <p className="text-sm">Error loading chart</p>
+          </div>
+        </div>
+      );
     }
   };
 

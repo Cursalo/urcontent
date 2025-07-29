@@ -1,11 +1,43 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { render, renderWithoutAuth } from '@/__tests__/test-utils'
+import { render } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { TooltipProvider } from '@/components/ui/tooltip'
+import { AuthProvider } from '@/contexts/AuthContext'
 import App from '@/App'
 import { server } from '@/__mocks__/server'
 import { http, HttpResponse } from 'msw'
+
+// Create a test query client
+const createTestQueryClient = () => new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      cacheTime: 0,
+    },
+    mutations: {
+      retry: false,
+    },
+  },
+})
+
+const renderWithRouter = (ui: React.ReactElement, initialEntries = ['/']) => {
+  const testQueryClient = createTestQueryClient()
+  
+  return render(
+    <QueryClientProvider client={testQueryClient}>
+      <MemoryRouter initialEntries={initialEntries}>
+        <AuthProvider>
+          <TooltipProvider>
+            {ui}
+          </TooltipProvider>
+        </AuthProvider>
+      </MemoryRouter>
+    </QueryClientProvider>
+  )
+}
 
 describe('Authentication Flow Integration', () => {
   const user = userEvent.setup()
@@ -47,11 +79,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Navigate to login page
       const loginLink = screen.getByText(/iniciar sesión/i)
@@ -83,11 +111,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Navigate to login page
       const loginLink = screen.getByText(/iniciar sesión/i)
@@ -119,11 +143,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Navigate to login page
       const loginLink = screen.getByText(/iniciar sesión/i)
@@ -174,11 +194,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Navigate to registration page
       const registerLink = screen.getByText(/regístrate/i)
@@ -209,11 +225,7 @@ describe('Authentication Flow Integration', () => {
     })
 
     it('displays validation errors for invalid form data', async () => {
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Navigate to registration page
       const registerLink = screen.getByText(/regístrate/i)
@@ -232,11 +244,7 @@ describe('Authentication Flow Integration', () => {
     })
 
     it('validates password confirmation match', async () => {
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Navigate to registration page
       const registerLink = screen.getByText(/regístrate/i)
@@ -284,11 +292,7 @@ describe('Authentication Flow Integration', () => {
       )
 
       // Render app with authenticated user
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Wait for authentication to load
       await waitFor(() => {
@@ -316,11 +320,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Navigate to login page and then to forgot password
       const loginLink = screen.getByText(/iniciar sesión/i)
@@ -346,11 +346,7 @@ describe('Authentication Flow Integration', () => {
     })
 
     it('handles invalid email for password reset', async () => {
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Navigate to forgot password page
       const loginLink = screen.getByText(/iniciar sesión/i)
@@ -375,11 +371,7 @@ describe('Authentication Flow Integration', () => {
 
   describe('Protected Routes', () => {
     it('redirects unauthenticated users to login', async () => {
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Try to navigate to protected route
       window.history.pushState({}, '', '/dashboard')
@@ -416,11 +408,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Navigate to protected route
       window.history.pushState({}, '', '/dashboard')
@@ -456,11 +444,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Try to navigate to business-only route
       window.history.pushState({}, '', '/content-review')
@@ -488,11 +472,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Should redirect to login when session expires
       await waitFor(() => {
@@ -527,11 +507,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      renderWithoutAuth(
-        <MemoryRouter initialEntries={['/']}>
-          <App />
-        </MemoryRouter>
-      )
+      renderWithRouter(<App />, ['/'])
 
       // Simulate token refresh trigger
       // This would normally happen automatically via Supabase auth

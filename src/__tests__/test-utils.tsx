@@ -32,7 +32,7 @@ const createTestQueryClient = () => new QueryClient({
   defaultOptions: {
     queries: {
       retry: false,
-      cacheTime: 0,
+      gcTime: 0,
     },
     mutations: {
       retry: false,
@@ -151,7 +151,7 @@ export const waitForLoadingToFinish = () =>
   new Promise(resolve => setTimeout(resolve, 0))
 
 // Helper to mock router params
-export const mockRouter = (overrides = {}) => {
+export const mockRouter = (overrides: any = {}) => {
   const mockNavigate = vi.fn()
   const mockLocation = {
     pathname: '/',

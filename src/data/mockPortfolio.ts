@@ -385,7 +385,7 @@ export const getPortfolioItemsByPlatform = (platform: string): MockPortfolioItem
 
 export const getPortfolioItemsByTag = (tag: string): MockPortfolioItem[] => {
   return mockPortfolioItems.filter(item => 
-    item.tags.some(t => t.toLowerCase().includes(tag.toLowerCase()))
+    item.tags.some(t => t && typeof t === 'string' && t.toLowerCase().includes(tag.toLowerCase()))
   );
 };
 

@@ -4,6 +4,16 @@ import userEvent from '@testing-library/user-event'
 import { render } from '@/__tests__/test-utils'
 import { LoginForm } from '../LoginForm'
 
+// Mock react-router-dom
+const mockNavigate = vi.fn()
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  }
+})
+
 // Mock the auth context
 const mockSignIn = vi.fn()
 vi.mock('@/contexts/AuthContext', () => ({
@@ -26,6 +36,7 @@ describe('LoginForm', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockNavigate.mockClear()
   })
 
   describe('Rendering', () => {

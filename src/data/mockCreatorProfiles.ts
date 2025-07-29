@@ -105,7 +105,7 @@ export const getCreatorProfileByUserId = (userId: string): MockCreatorProfile | 
 
 export const getCreatorProfilesBySpecialty = (specialty: string): MockCreatorProfile[] => {
   return mockCreatorProfiles.filter(profile => 
-    profile.specialties.some(s => s.toLowerCase().includes(specialty.toLowerCase()))
+    profile.specialties.some(s => s && typeof s === 'string' && s.toLowerCase().includes(specialty.toLowerCase()))
   );
 };
 

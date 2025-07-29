@@ -18,7 +18,7 @@ import {
 import { MockPortfolioItem } from '@/data/mockUsers';
 
 interface PortfolioShowcaseProps {
-  portfolioItems: MockPortfolioItem[];
+  portfolioItems: MockPortfolioItem[] | null | undefined;
   title?: string;
   description?: string;
   showAll?: boolean;
@@ -26,7 +26,7 @@ interface PortfolioShowcaseProps {
 }
 
 export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
-  portfolioItems,
+  portfolioItems: rawPortfolioItems,
   title = "Portfolio Showcase",
   description = "Your best recent work",
   showAll = false,
@@ -34,44 +34,98 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
 }) => {
   const [selectedItem, setSelectedItem] = useState<MockPortfolioItem | null>(null);
   
+  // Safely handle portfolio items with null/undefined checks
+  const portfolioItems = React.useMemo(() => {
+    if (!rawPortfolioItems) return [];
+    if (!Array.isArray(rawPortfolioItems)) {
+      console.warn('PortfolioShowcase: portfolioItems prop is not an array, received:', typeof rawPortfolioItems);
+      return [];
+    }
+    return rawPortfolioItems.filter(item => item && typeof item === 'object');
+  }, [rawPortfolioItems]);
+  
   const displayItems = showAll ? portfolioItems : portfolioItems.slice(0, maxItems);
 
-  const getPlatformIcon = (platform: string) => {
-    switch (platform.toLowerCase()) {
-      case 'instagram':
-        return <Instagram className="w-4 h-4" />;
-      case 'youtube':
-        return <Youtube className="w-4 h-4" />;
-      case 'tiktok':
-        return <span className="text-sm font-bold">TT</span>;
-      default:
-        return <Eye className="w-4 h-4" />;
+  const getPlatformIcon = (platform: any) => {
+    // Robust platform icon handling
+    if (!platform) return <Eye className="w-4 h-4" />;
+    if (typeof platform !== 'string') {
+      console.warn('getPlatformIcon: platform is not a string:', platform);
+      return <Eye className="w-4 h-4" />;
+    }
+    try {
+      switch (platform.toLowerCase().trim()) {
+        case 'instagram':
+          return <Instagram className="w-4 h-4" />;
+        case 'youtube':
+          return <Youtube className="w-4 h-4" />;
+        case 'tiktok':
+          return <span className="text-sm font-bold">TT</span>;
+        default:
+          return <Eye className="w-4 h-4" />;
+      }
+    } catch (error) {
+      console.warn('getPlatformIcon: Error processing platform:', platform, error);
+      return <Eye className="w-4 h-4" />;
     }
   };
 
-  const getPlatformColor = (platform: string) => {
-    switch (platform.toLowerCase()) {
-      case 'instagram':
-        return 'bg-gradient-to-r from-purple-500 to-pink-500';
-      case 'youtube':
-        return 'bg-red-500';
-      case 'tiktok':
-        return 'bg-black';
-      default:
-        return 'bg-gray-500';
+  const getPlatformColor = (platform: any) => {
+    // Safe platform color handling
+    if (!platform) return 'bg-gray-500';
+    if (typeof platform !== 'string') {
+      console.warn('getPlatformColor: platform is not a string:', platform);
+      return 'bg-gray-500';
+    }
+    try {
+      switch (platform.toLowerCase().trim()) {
+        case 'instagram':
+          return 'bg-gradient-to-r from-purple-500 to-pink-500';
+        case 'youtube':
+          return 'bg-red-500';
+        case 'tiktok':
+          return 'bg-black';
+        default:
+          return 'bg-gray-500';
+      }
+    } catch (error) {
+      console.warn('getPlatformColor: Error processing platform:', platform, error);
+      return 'bg-gray-500';
     }
   };
 
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-    return num.toString();
+  const formatNumber = (num: any) => {
+    // Safe number formatting with fallbacks
+    try {
+      const numValue = Number(num);
+      if (isNaN(numValue)) {
+        console.warn('formatNumber: Invalid number:', num);
+        return '0';
+      }
+      if (numValue >= 1000000) return `${(numValue / 1000000).toFixed(1)}M`;
+      if (numValue >= 1000) return `${(numValue / 1000).toFixed(1)}K`;
+      return numValue.toString();
+    } catch (error) {
+      console.warn('formatNumber: Error formatting number:', num, error);
+      return '0';
+    }
   };
 
-  const getEngagementColor = (rate: number) => {
-    if (rate >= 5) return 'text-green-600';
-    if (rate >= 3) return 'text-yellow-600';
-    return 'text-red-600';
+  const getEngagementColor = (rate: any) => {
+    // Safe engagement color with fallbacks
+    try {
+      const numRate = Number(rate);
+      if (isNaN(numRate)) {
+        console.warn('getEngagementColor: Invalid rate:', rate);
+        return 'text-gray-600';
+      }
+      if (numRate >= 5) return 'text-green-600';
+      if (numRate >= 3) return 'text-yellow-600';
+      return 'text-red-600';
+    } catch (error) {
+      console.warn('getEngagementColor: Error processing rate:', rate, error);
+      return 'text-gray-600';
+    }
   };
 
   return (
@@ -114,54 +168,78 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayItems.map((item) => (
-              <div 
-                key={item.id} 
-                className="group relative bg-gray-50 rounded-2xl overflow-hidden hover:bg-gray-100 transition-all duration-300 cursor-pointer"
-                onClick={() => setSelectedItem(item)}
-              >
-                {/* Media Container */}
-                <div className="relative aspect-square bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
-                  {item.media_url ? (
-                    <img 
-                      src={item.media_url} 
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="text-center text-gray-500">
-                        <Eye className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">Media Preview</p>
+            {displayItems.map((item, index) => {
+              // Safe item data extraction with fallbacks
+              const safeItem = {
+                id: item?.id || `portfolio-${index}`,
+                title: item?.title || 'Untitled Portfolio Item',
+                description: item?.description || 'No description available',
+                media_url: item?.media_url || null,
+                media_type: item?.media_type || 'image',
+                platform: item?.platform || 'unknown',
+                is_featured: item?.is_featured || false,
+                created_at: item?.created_at || new Date().toISOString(),
+                engagement_stats: {
+                  likes: Number(item?.engagement_stats?.likes) || 0,
+                  comments: Number(item?.engagement_stats?.comments) || 0,
+                  engagement_rate: Number(item?.engagement_stats?.engagement_rate) || 0
+                },
+                tags: Array.isArray(item?.tags) ? item.tags.filter(tag => tag && typeof tag === 'string') : [],
+                brand_mention: item?.brand_mention || null
+              };
+              
+              return (
+                <div 
+                  key={safeItem.id} 
+                  className="group relative bg-gray-50 rounded-2xl overflow-hidden hover:bg-gray-100 transition-all duration-300 cursor-pointer"
+                  onClick={() => setSelectedItem(item)}
+                >
+                  {/* Media Container */}
+                  <div className="relative aspect-square bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
+                    {safeItem.media_url ? (
+                      <img 
+                        src={safeItem.media_url} 
+                        alt={safeItem.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          console.warn('Portfolio image failed to load:', safeItem.media_url);
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <div className="text-center text-gray-500">
+                          <Eye className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">Media Preview</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Media Type Indicator */}
+                    {safeItem.media_type === 'video' && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
+                          <Play className="w-8 h-8 text-white ml-1" />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Platform Badge */}
+                    <div className="absolute top-3 left-3">
+                      <div className={`${getPlatformColor(safeItem.platform)} text-white px-2 py-1 rounded-full flex items-center space-x-1 text-xs font-medium`}>
+                        {getPlatformIcon(safeItem.platform)}
+                        <span className="capitalize">{safeItem.platform}</span>
                       </div>
                     </div>
-                  )}
-                  
-                  {/* Media Type Indicator */}
-                  {item.media_type === 'video' && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
-                        <Play className="w-8 h-8 text-white ml-1" />
+
+                    {/* Featured Badge */}
+                    {safeItem.is_featured && (
+                      <div className="absolute top-3 right-3">
+                        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                          ⭐ Featured
+                        </Badge>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Platform Badge */}
-                  <div className="absolute top-3 left-3">
-                    <div className={`${getPlatformColor(item.platform)} text-white px-2 py-1 rounded-full flex items-center space-x-1 text-xs font-medium`}>
-                      {getPlatformIcon(item.platform)}
-                      <span className="capitalize">{item.platform}</span>
-                    </div>
-                  </div>
-
-                  {/* Featured Badge */}
-                  {item.is_featured && (
-                    <div className="absolute top-3 right-3">
-                      <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-                        ⭐ Featured
-                      </Badge>
-                    </div>
-                  )}
+                    )}
 
                   {/* Hover Overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -171,99 +249,100 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
                   </div>
                 </div>
 
-                {/* Content */}
-                <div className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-black text-sm mb-1 line-clamp-1">
-                        {item.title}
-                      </h3>
-                      <p className="text-xs text-gray-600 line-clamp-2">
-                        {item.description}
-                      </p>
+                  {/* Content */}
+                  <div className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-black text-sm mb-1 line-clamp-1">
+                          {safeItem.title}
+                        </h3>
+                        <p className="text-xs text-gray-600 line-clamp-2">
+                          {safeItem.description}
+                        </p>
+                      </div>
+                      <Button size="sm" variant="ghost" className="p-1 h-auto">
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
                     </div>
-                    <Button size="sm" variant="ghost" className="p-1 h-auto">
-                      <MoreVertical className="w-4 h-4" />
-                    </Button>
-                  </div>
 
-                  {/* Engagement Stats */}
-                  <div className="grid grid-cols-3 gap-2 mb-3">
-                    <div className="text-center">
-                      <div className="flex items-center justify-center space-x-1 text-xs text-gray-600">
-                        <Heart className="w-3 h-3" />
-                        <span>{formatNumber(item.engagement_stats.likes)}</span>
+                    {/* Engagement Stats */}
+                    <div className="grid grid-cols-3 gap-2 mb-3">
+                      <div className="text-center">
+                        <div className="flex items-center justify-center space-x-1 text-xs text-gray-600">
+                          <Heart className="w-3 h-3" />
+                          <span>{formatNumber(safeItem.engagement_stats.likes)}</span>
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="flex items-center justify-center space-x-1 text-xs text-gray-600">
+                          <MessageCircle className="w-3 h-3" />
+                          <span>{formatNumber(safeItem.engagement_stats.comments)}</span>
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="flex items-center justify-center space-x-1 text-xs text-gray-600">
+                          <TrendingUp className="w-3 h-3" />
+                          <span className={getEngagementColor(safeItem.engagement_stats.engagement_rate)}>
+                            {Number(safeItem.engagement_stats.engagement_rate).toFixed(1)}%
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-center">
-                      <div className="flex items-center justify-center space-x-1 text-xs text-gray-600">
-                        <MessageCircle className="w-3 h-3" />
-                        <span>{formatNumber(item.engagement_stats.comments)}</span>
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="flex items-center justify-center space-x-1 text-xs text-gray-600">
-                        <TrendingUp className="w-3 h-3" />
-                        <span className={getEngagementColor(item.engagement_stats.engagement_rate)}>
-                          {item.engagement_stats.engagement_rate.toFixed(1)}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Tags */}
-                  {item.tags && item.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {item.tags.slice(0, 3).map((tag, index) => (
-                        <Badge 
-                          key={index} 
-                          variant="outline" 
-                          className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 border-gray-200"
-                        >
-                          #{tag}
+                    {/* Tags */}
+                    {safeItem.tags && safeItem.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {safeItem.tags.slice(0, 3).map((tag, tagIndex) => (
+                          <Badge 
+                            key={tagIndex} 
+                            variant="outline" 
+                            className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 border-gray-200"
+                          >
+                            #{tag}
+                          </Badge>
+                        ))}
+                        {safeItem.tags.length > 3 && (
+                          <Badge 
+                            variant="outline" 
+                            className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 border-gray-200"
+                          >
+                            +{safeItem.tags.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Brand Mention */}
+                    {safeItem.brand_mention && (
+                      <div className="flex items-center space-x-2 text-xs text-gray-500">
+                        <span>Brand:</span>
+                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                          {safeItem.brand_mention}
                         </Badge>
-                      ))}
-                      {item.tags.length > 3 && (
-                        <Badge 
-                          variant="outline" 
-                          className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 border-gray-200"
-                        >
-                          +{item.tags.length - 3}
-                        </Badge>
-                      )}
-                    </div>
-                  )}
+                      </div>
+                    )}
 
-                  {/* Brand Mention */}
-                  {item.brand_mention && (
-                    <div className="flex items-center space-x-2 text-xs text-gray-500">
-                      <span>Brand:</span>
-                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                        {item.brand_mention}
-                      </Badge>
-                    </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
-                    <div className="flex items-center space-x-2">
-                      <Button size="sm" variant="ghost" className="p-1 h-auto text-gray-500 hover:text-black">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" className="p-1 h-auto text-gray-500 hover:text-black">
-                        <Share2 className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" className="p-1 h-auto text-gray-500 hover:text-black">
-                        <ExternalLink className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {new Date(item.created_at).toLocaleDateString()}
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
+                      <div className="flex items-center space-x-2">
+                        <Button size="sm" variant="ghost" className="p-1 h-auto text-gray-500 hover:text-black">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="p-1 h-auto text-gray-500 hover:text-black">
+                          <Share2 className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="p-1 h-auto text-gray-500 hover:text-black">
+                          <ExternalLink className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(safeItem.created_at).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -281,22 +360,28 @@ export const PortfolioShowcase: React.FC<PortfolioShowcaseProps> = ({
               <div className="text-center">
                 <div className="text-2xl font-bold text-black">
                   {formatNumber(
-                    displayItems.reduce((sum, item) => sum + item.engagement_stats.likes, 0)
+                    displayItems.reduce((sum, item) => {
+                      const likes = Number(item?.engagement_stats?.likes) || 0;
+                      return sum + likes;
+                    }, 0)
                   )}
                 </div>
                 <div className="text-xs text-gray-500">Total Likes</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-black">
-                  {(
-                    displayItems.reduce((sum, item) => sum + item.engagement_stats.engagement_rate, 0) / displayItems.length
-                  ).toFixed(1)}%
+                  {displayItems.length > 0 ? (
+                    displayItems.reduce((sum, item) => {
+                      const rate = Number(item?.engagement_stats?.engagement_rate) || 0;
+                      return sum + rate;
+                    }, 0) / displayItems.length
+                  ).toFixed(1) : '0.0'}%
                 </div>
                 <div className="text-xs text-gray-500">Avg Engagement</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-black">
-                  {displayItems.filter(item => item.is_featured).length}
+                  {displayItems.filter(item => item?.is_featured).length}
                 </div>
                 <div className="text-xs text-gray-500">Featured</div>
               </div>

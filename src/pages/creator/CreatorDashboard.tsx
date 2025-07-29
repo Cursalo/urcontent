@@ -1,4 +1,4 @@
-import { useState, useEffect, memo, useMemo, useCallback } from "react";
+import React, { useState, useEffect, memo, useMemo, useCallback } from "react";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { UserInfoCard } from "@/components/dashboard/UserInfoCard";
@@ -71,6 +71,7 @@ import { toast } from "sonner";
 import socialMediaCreators from "@/assets/social-media-creators.jpg";
 import fitnessCreators from "@/assets/fitness-creators.jpg";
 import restaurantFood from "@/assets/restaurant-food-ugc.jpg";
+import { DashboardErrorBoundary, CardErrorFallback } from "@/components/dashboard/DashboardErrorBoundary";
 
 const CreatorDashboard = () => {
   const { user, profile } = useAuth();
@@ -205,54 +206,123 @@ const CreatorDashboard = () => {
     { platform: 'YouTube', followers: 26000, engagement: 4.9, posts: 12 }
   ];
 
-  // Use real collaborations data
-  const recentCollaborations = collaborations.slice(0, 4).map(collab => {
-    let deliverableTypes = "Collaboration";
-    
+  // Safely process collaborations data with comprehensive error handling
+  const recentCollaborations = React.useMemo(() => {
     try {
-      if (collab.deliverables) {
-        const parsed = JSON.parse(collab.deliverables);
-        if (Array.isArray(parsed)) {
-          deliverableTypes = parsed.map((d: any) => d.type).join(', ');
-        }
+      if (!Array.isArray(collaborations)) {
+        console.warn('CreatorDashboard: collaborations is not an array:', collaborations);
+        return [];
       }
-    } catch (e) {
-      console.warn('Failed to parse deliverables:', collab.deliverables);
-      deliverableTypes = collab.title || "Collaboration";
+      
+      return collaborations.slice(0, 4).map((collab, index) => {
+        // Safe collaboration processing with fallbacks
+        if (!collab || typeof collab !== 'object') {
+          console.warn(`CreatorDashboard: Invalid collaboration at index ${index}:`, collab);
+          return {
+            id: `invalid-collab-${index}`,
+            brand: "Unknown Business",
+            status: "unknown",
+            value: formatCurrency(0),
+            date: "Unknown",
+            type: "Collaboration",
+            engagement: "No data"
+          };
+        }
+        
+        let deliverableTypes = "Collaboration";
+        
+        try {
+          if (collab.deliverables && typeof collab.deliverables === 'string') {
+            const parsed = JSON.parse(collab.deliverables);
+            if (Array.isArray(parsed)) {
+              deliverableTypes = parsed
+                .map((d: any) => d?.type || 'Unknown')
+                .filter(Boolean)
+                .join(', ') || "Collaboration";
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to parse deliverables:', collab.deliverables, e);
+          deliverableTypes = collab.title || "Collaboration";
+        }
+
+        return {
+          id: collab.id || `collab-${index}`,
+          brand: collab.business_profile?.company_name || 
+                 collab.business_profile?.user?.full_name || 
+                 "Unknown Business",
+          status: collab.status || "unknown",
+          value: formatCurrency(collab.compensation_amount || 0),
+          date: collab.created_at ? 
+                new Date(collab.created_at).toLocaleDateString() : 
+                "Unknown",
+          type: deliverableTypes,
+          engagement: collab.status === 'completed' 
+            ? `${collab.reach || 0} reach, ${collab.clicks || 0} clicks` 
+            : collab.status === 'in_progress' 
+              ? "In progress" 
+              : "Pending"
+        };
+      });
+    } catch (error) {
+      console.error('CreatorDashboard: Error processing collaborations:', error);
+      return [];
     }
+  }, [collaborations]);
 
-    return {
-      id: collab.id,
-      brand: collab.business_profile?.company_name || collab.business_profile?.user?.full_name || "Unknown Business",
-      status: collab.status,
-      value: formatCurrency(collab.compensation_amount || 0),
-      date: collab.created_at ? new Date(collab.created_at).toLocaleDateString() : "Unknown",
-      type: deliverableTypes,
-      engagement: collab.status === 'completed' 
-        ? `${collab.reach || 0} reach, ${collab.clicks || 0} clicks` 
-        : collab.status === 'in_progress' 
-          ? "In progress" 
-          : "Pending"
-    };
-  });
-
-  // Use real upcoming deadlines from active collaborations
-  const upcomingDeadlines = collaborations
-    .filter(collab => ['accepted', 'in_progress'].includes(collab.status) && collab.end_date)
-    .sort((a, b) => new Date(a.end_date!).getTime() - new Date(b.end_date!).getTime())
-    .slice(0, 3)
-    .map(collab => {
-      const daysUntilDeadline = Math.ceil(
-        (new Date(collab.end_date!).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-      );
-      return {
-        id: collab.id,
-        brand: collab.business_profile?.company_name || "Unknown Business",
-        task: collab.status === 'in_progress' ? "Final content delivery" : "Project start",
-        date: new Date(collab.end_date!).toLocaleDateString(),
-        priority: daysUntilDeadline <= 3 ? "high" : daysUntilDeadline <= 7 ? "medium" : "low"
-      };
-    });
+  // Safely process upcoming deadlines with comprehensive error handling
+  const upcomingDeadlines = React.useMemo(() => {
+    try {
+      if (!Array.isArray(collaborations)) {
+        console.warn('CreatorDashboard: collaborations is not an array for deadlines');
+        return [];
+      }
+      
+      return collaborations
+        .filter(collab => {
+          if (!collab || typeof collab !== 'object') return false;
+          return ['accepted', 'in_progress'].includes(collab.status) && 
+                 collab.end_date &&
+                 !isNaN(new Date(collab.end_date).getTime());
+        })
+        .sort((a, b) => {
+          try {
+            return new Date(a.end_date!).getTime() - new Date(b.end_date!).getTime();
+          } catch (error) {
+            console.warn('Error sorting deadlines:', error);
+            return 0;
+          }
+        })
+        .slice(0, 3)
+        .map((collab, index) => {
+          try {
+            const daysUntilDeadline = Math.ceil(
+              (new Date(collab.end_date!).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+            );
+            
+            return {
+              id: collab.id || `deadline-${index}`,
+              brand: collab.business_profile?.company_name || "Unknown Business",
+              task: collab.status === 'in_progress' ? "Final content delivery" : "Project start",
+              date: new Date(collab.end_date!).toLocaleDateString(),
+              priority: daysUntilDeadline <= 3 ? "high" : daysUntilDeadline <= 7 ? "medium" : "low"
+            };
+          } catch (error) {
+            console.warn('Error processing deadline:', collab, error);
+            return {
+              id: `error-deadline-${index}`,
+              brand: "Unknown Business",
+              task: "Unknown task",
+              date: "Unknown date",
+              priority: "low" as const
+            };
+          }
+        });
+    } catch (error) {
+      console.error('CreatorDashboard: Error processing deadlines:', error);
+      return [];
+    }
+  }, [collaborations]);
 
   const portfolioImages = [
     {
@@ -385,24 +455,27 @@ const CreatorDashboard = () => {
 
         {/* User Info Card */}
         <div className="mb-8">
-          <UserInfoCard />
+          <DashboardErrorBoundary componentName="UserInfoCard" fallback={CardErrorFallback}>
+            <UserInfoCard />
+          </DashboardErrorBoundary>
         </div>
 
         {/* Enhanced Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           {creatorStats.map((stat, index) => (
-            <StatsCard
-              key={index}
-              title={stat.title}
-              value={stat.value}
-              description={stat.description}
-              icon={stat.icon}
-              trend={stat.trend}
-              progress={stat.progress}
-              variant="default"
-              color={stat.color}
-              className="p-8"
-            />
+            <DashboardErrorBoundary key={index} componentName={`StatsCard-${stat.title}`} fallback={CardErrorFallback}>
+              <StatsCard
+                title={stat.title}
+                value={stat.value}
+                description={stat.description}
+                icon={stat.icon}
+                trend={stat.trend}
+                progress={stat.progress}
+                variant="default"
+                color={stat.color}
+                className="p-8"
+              />
+            </DashboardErrorBoundary>
           ))}
         </div>
 
@@ -450,82 +523,98 @@ const CreatorDashboard = () => {
 
           {/* Enhanced Portfolio Showcase */}
           <div className="lg:col-span-2">
-            <PortfolioShowcase 
-              portfolioItems={portfolio || []}
-              maxItems={6}
-            />
+            <DashboardErrorBoundary componentName="PortfolioShowcase" fallback={CardErrorFallback}>
+              <PortfolioShowcase 
+                portfolioItems={portfolio || []}
+                maxItems={6}
+              />
+            </DashboardErrorBoundary>
           </div>
         </div>
 
         {/* Enhanced Analytics Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
           {/* Earnings Chart */}
-          <AnalyticsChart 
-            data={analytics.monthly || []}
-            title="Earnings Overview"
-            description="Monthly revenue growth"
-            type="area"
-            metric="earnings"
-            height={300}
-          />
+          <DashboardErrorBoundary componentName="EarningsChart" fallback={CardErrorFallback}>
+            <AnalyticsChart 
+              data={analytics.monthly || []}
+              title="Earnings Overview"
+              description="Monthly revenue growth"
+              type="area"
+              metric="earnings"
+              height={300}
+            />
+          </DashboardErrorBoundary>
 
           {/* Platform Performance */}
-          <AnalyticsChart 
-            data={analytics.weekly || []}
-            title="Platform Performance"
-            description="Engagement by platform"
-            type="bar"
-            metric="engagement"
-            height={300}
-          />
+          <DashboardErrorBoundary componentName="PlatformPerformanceChart" fallback={CardErrorFallback}>
+            <AnalyticsChart 
+              data={analytics.weekly || []}
+              title="Platform Performance"
+              description="Engagement by platform"
+              type="bar"
+              metric="engagement"
+              height={300}
+            />
+          </DashboardErrorBoundary>
         </div>
 
         {/* Additional Analytics Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           {/* Follower Growth */}
-          <AnalyticsChart 
-            data={analytics.daily || []}
-            title="Follower Growth"
-            description="Daily follower trends"
-            type="line"
-            metric="followers"
-            height={250}
-          />
+          <DashboardErrorBoundary componentName="FollowerGrowthChart" fallback={CardErrorFallback}>
+            <AnalyticsChart 
+              data={analytics.daily || []}
+              title="Follower Growth"
+              description="Daily follower trends"
+              type="line"
+              metric="followers"
+              height={250}
+            />
+          </DashboardErrorBoundary>
 
           {/* Platform Distribution */}
-          <AnalyticsChart 
-            data={[]}
-            title="Platform Distribution"
-            description="Audience by platform"
-            type="pie"
-            metric="distribution"
-            height={250}
-          />
+          <DashboardErrorBoundary componentName="PlatformDistributionChart" fallback={CardErrorFallback}>
+            <AnalyticsChart 
+              data={[]}
+              title="Platform Distribution"
+              description="Audience by platform"
+              type="pie"
+              metric="distribution"
+              height={250}
+            />
+          </DashboardErrorBoundary>
 
           {/* Performance Radar */}
-          <AnalyticsChart 
-            data={[]}
-            title="Performance Metrics"
-            description="Overall performance score"
-            type="radar"
-            metric="performance"
-            height={250}
-          />
+          <DashboardErrorBoundary componentName="PerformanceRadarChart" fallback={CardErrorFallback}>
+            <AnalyticsChart 
+              data={[]}
+              title="Performance Metrics"
+              description="Overall performance score"
+              type="radar"
+              metric="performance"
+              height={250}
+            />
+          </DashboardErrorBoundary>
         </div>
 
         {/* Enhanced Collaborations and Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           {/* Recent Collaborations */}
           <div className="lg:col-span-2">
-            <CollaborationsTable 
-              collaborations={collaborations}
-              maxItems={4}
-            />
+            <DashboardErrorBoundary componentName="CollaborationsTable" fallback={CardErrorFallback}>
+              <CollaborationsTable 
+                collaborations={collaborations}
+                maxItems={4}
+              />
+            </DashboardErrorBoundary>
           </div>
 
           {/* Activity Feed */}
           <div>
-            <ActivityFeed maxItems={6} />
+            <DashboardErrorBoundary componentName="ActivityFeed" fallback={CardErrorFallback}>
+              <ActivityFeed maxItems={6} />
+            </DashboardErrorBoundary>
           </div>
         </div>
 

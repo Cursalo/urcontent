@@ -17,6 +17,16 @@ import {
   MockSession
 } from '../data/mockUsers';
 
+// Utility function to safely check string arrays for search operations
+const safeStringIncludes = (str: any, searchTerm: string): boolean => {
+  return str && typeof str === 'string' && str.toLowerCase().includes(searchTerm);
+};
+
+// Utility function to safely filter string arrays
+const filterValidStrings = (arr: any[]): string[] => {
+  return arr.filter(item => item && typeof item === 'string');
+};
+
 import { 
   mockBusinessProfiles,
   getBusinessProfileById,
@@ -216,14 +226,14 @@ class MockDataService {
       const searchLower = filters.search.toLowerCase();
       profiles = profiles.filter(p => 
         p.bio.toLowerCase().includes(searchLower) ||
-        p.specialties.some(s => s.toLowerCase().includes(searchLower))
+        p.specialties.some(s => safeStringIncludes(s, searchLower))
       );
     }
 
     if (filters.specialties && filters.specialties.length > 0) {
       profiles = profiles.filter(p => 
         filters.specialties!.some(specialty => 
-          p.specialties.some(s => s.toLowerCase().includes(specialty.toLowerCase()))
+          p.specialties.some(s => safeStringIncludes(s, specialty.toLowerCase()))
         )
       );
     }
@@ -491,7 +501,7 @@ class MockDataService {
     return mockCreatorProfiles
       .filter(profile => 
         profile.bio.toLowerCase().includes(searchLower) ||
-        profile.specialties.some(s => s.toLowerCase().includes(searchLower))
+        profile.specialties.some(s => safeStringIncludes(s, searchLower))
       )
       .slice(0, limit);
   }
