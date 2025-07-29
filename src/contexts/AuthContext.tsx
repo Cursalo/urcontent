@@ -68,6 +68,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       
+      // First, get user data from auth.users metadata as fallback
+      const { data: authUser } = await supabase.auth.getUser();
+      const userMetadata = authUser?.user?.user_metadata;
+      
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -86,8 +90,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.warn('User profile not found in users table.');
         }
         
-        // Set profile to null instead of undefined to prevent infinite loops
-        setProfile(null);
+        // If we can't get profile from database but have auth metadata, create a fallback profile
+        if (userMetadata && authUser?.user) {
+          const fallbackProfile = {
+            id: authUser.user.id,
+            email: authUser.user.email!,
+            full_name: userMetadata.full_name || 'User',
+            role: (userMetadata.role as UserRole) || 'creator',
+            username: null,
+            avatar_url: null,
+            phone: null,
+            location: null,
+            timezone: null,
+            language: null,
+            is_verified: false,
+            verification_status: 'pending' as const,
+            created_at: authUser.user.created_at,
+            updated_at: null,
+            last_seen_at: null,
+          };
+          
+          console.warn('Using fallback profile from auth metadata:', fallbackProfile);
+          setProfile(fallbackProfile);
+        } else {
+          // Set profile to null instead of undefined to prevent infinite loops
+          setProfile(null);
+        }
       } else {
         setProfile(data);
       }
@@ -112,18 +140,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     if (!error && data.user) {
-      // Create user profile in our users table
-      const { error: profileError } = await supabase
-        .from('users')
-        .insert({
-          id: data.user.id,
-          email: data.user.email!,
-          full_name: userData.full_name,
-          role: userData.role,
-        });
+      // Try to create user profile in our users table
+      // If this fails due to RLS policy issues, we'll handle it gracefully
+      try {
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert({
+            id: data.user.id,
+            email: data.user.email!,
+            full_name: userData.full_name,
+            role: userData.role,
+          });
 
-      if (profileError) {
-        console.error('Error creating user profile:', profileError);
+        if (profileError) {
+          console.warn('User profile creation failed (RLS policy issue):', profileError);
+          // Don't block signup for RLS issues - user can still authenticate
+          if (profileError.code === '42P17') {
+            console.warn('RLS policy recursion detected. User authenticated but profile creation failed.');
+            console.warn('Please run the database setup script to fix RLS policies.');
+          }
+        }
+      } catch (profileError) {
+        console.warn('Failed to create user profile, but authentication succeeded:', profileError);
       }
     }
 
