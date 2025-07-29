@@ -3,17 +3,19 @@ import { useEffect, useState } from "react";
 interface StatsCounterProps {
   endValue: number;
   duration?: number;
-  label: string;
+  label?: string;
   prefix?: string;
   suffix?: string;
+  className?: string;
 }
 
 export const StatsCounter = ({ 
   endValue, 
   duration = 2000, 
-  label, 
+  label = "", 
   prefix = "", 
-  suffix = "" 
+  suffix = "",
+  className = ""
 }: StatsCounterProps) => {
   const [currentValue, setCurrentValue] = useState(0);
 
@@ -41,13 +43,15 @@ export const StatsCounter = ({
   }, [endValue, duration]);
 
   return (
-    <div className="text-center">
+    <div className={`text-center ${className}`}>
       <div className="text-3xl md:text-4xl font-poppins font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
         {prefix}{currentValue.toLocaleString()}{suffix}
       </div>
-      <div className="text-sm text-muted-foreground mt-1">
-        {label}
-      </div>
+      {label && (
+        <div className="text-sm text-muted-foreground mt-1">
+          {label}
+        </div>
+      )}
     </div>
   );
 };
