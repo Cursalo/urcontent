@@ -1,0 +1,540 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import {
+  MessageCircle,
+  Send,
+  Paperclip,
+  Search,
+  Filter,
+  Star,
+  Archive,
+  Trash2,
+  MoreVertical,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  FileText,
+  Image,
+  Calendar,
+  DollarSign,
+  Users,
+  Phone,
+  Video,
+  Mail,
+  Flag
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+
+// Datos mock de mensajes
+const mensajesMock = [
+  {
+    id: '1',
+    tipo: 'propuesta',
+    creator: {
+      id: 'c1',
+      nombre: 'María García',
+      avatar: '/api/placeholder/40/40',
+      verificado: true,
+      plataforma: 'Instagram'
+    },
+    asunto: 'Propuesta para campaña de verano',
+    ultimoMensaje: 'Hola! Me encantaría colaborar con su marca en la campaña de verano. Tengo ideas increíbles...',
+    fecha: '2024-06-15T10:30:00',
+    leido: false,
+    importante: true,
+    mensajes: [
+      {
+        id: 'm1',
+        remitente: 'creator',
+        contenido: 'Hola! Me encantaría colaborar con su marca en la campaña de verano. Tengo ideas increíbles que creo que resonarán perfectamente con su audiencia objetivo.',
+        fecha: '2024-06-15T10:30:00',
+        adjuntos: []
+      }
+    ],
+    propuesta: {
+      tarifa: 8500,
+      entregables: ['3 posts', '5 stories', '1 reel'],
+      fechaEntrega: '2024-07-15'
+    }
+  },
+  {
+    id: '2',
+    tipo: 'conversacion',
+    creator: {
+      id: 'c2',
+      nombre: 'Carlos López',
+      avatar: '/api/placeholder/40/40',
+      verificado: true,
+      plataforma: 'TikTok'
+    },
+    asunto: 'Re: Campaña Día del Padre',
+    ultimoMensaje: 'Perfecto! Ya tengo listo el contenido para revisión...',
+    fecha: '2024-06-14T15:45:00',
+    leido: true,
+    importante: false,
+    mensajes: [
+      {
+        id: 'm2',
+        remitente: 'business',
+        contenido: 'Hola Carlos, nos gustó mucho tu propuesta. ¿Podrías enviarnos el contenido para revisión?',
+        fecha: '2024-06-14T14:00:00',
+        adjuntos: []
+      },
+      {
+        id: 'm3',
+        remitente: 'creator',
+        contenido: 'Perfecto! Ya tengo listo el contenido para revisión. Les adjunto los videos y las capturas.',
+        fecha: '2024-06-14T15:45:00',
+        adjuntos: [
+          { tipo: 'video', nombre: 'contenido_dia_padre.mp4', tamaño: '25MB' },
+          { tipo: 'imagen', nombre: 'preview_posts.jpg', tamaño: '2MB' }
+        ]
+      }
+    ]
+  },
+  {
+    id: '3',
+    tipo: 'negociacion',
+    creator: {
+      id: 'c3',
+      nombre: 'Ana Martínez',
+      avatar: '/api/placeholder/40/40',
+      verificado: false,
+      plataforma: 'Instagram'
+    },
+    asunto: 'Negociación - Campaña Back to School',
+    ultimoMensaje: '¿Podríamos ajustar la tarifa a $7,000 por los 5 entregables?',
+    fecha: '2024-06-13T09:15:00',
+    leido: true,
+    importante: false,
+    mensajes: [
+      {
+        id: 'm4',
+        remitente: 'creator',
+        contenido: 'Gracias por considerar mi perfil. Mi tarifa estándar es de $8,000 por campaña.',
+        fecha: '2024-06-13T08:00:00',
+        adjuntos: []
+      },
+      {
+        id: 'm5',
+        remitente: 'business',
+        contenido: '¿Podríamos ajustar la tarifa a $7,000 por los 5 entregables?',
+        fecha: '2024-06-13T09:15:00',
+        adjuntos: []
+      }
+    ]
+  }
+];
+
+const CentroMensajes: React.FC = () => {
+  const [conversacionActiva, setConversacionActiva] = useState<any>(mensajesMock[0]);
+  const [tabActiva, setTabActiva] = useState('todos');
+  const [busqueda, setBusqueda] = useState('');
+  const [nuevoMensaje, setNuevoMensaje] = useState('');
+  const [filtroAbierto, setFiltroAbierto] = useState(false);
+
+  // Enviar mensaje
+  const enviarMensaje = () => {
+    if (!nuevoMensaje.trim()) return;
+    
+    toast.success('Mensaje enviado');
+    setNuevoMensaje('');
+  };
+
+  // Marcar como leído
+  const marcarComoLeido = (mensajeId: string) => {
+    // Lógica para marcar como leído
+  };
+
+  // Formatear fecha
+  const formatearFecha = (fecha: string) => {
+    const date = new Date(fecha);
+    const ahora = new Date();
+    const diffHoras = Math.floor((ahora.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffHoras < 1) return 'Hace unos minutos';
+    if (diffHoras < 24) return `Hace ${diffHoras} horas`;
+    if (diffHoras < 48) return 'Ayer';
+    
+    return date.toLocaleDateString('es-MX', { 
+      day: 'numeric', 
+      month: 'short',
+      year: date.getFullYear() !== ahora.getFullYear() ? 'numeric' : undefined
+    });
+  };
+
+  // Obtener icono de tipo
+  const obtenerIconoTipo = (tipo: string) => {
+    switch (tipo) {
+      case 'propuesta':
+        return <FileText className="w-4 h-4 text-blue-500" />;
+      case 'negociacion':
+        return <DollarSign className="w-4 h-4 text-yellow-500" />;
+      case 'conversacion':
+        return <MessageCircle className="w-4 h-4 text-green-500" />;
+      default:
+        return <MessageCircle className="w-4 h-4 text-gray-500" />;
+    }
+  };
+
+  // Filtrar mensajes
+  const mensajesFiltrados = mensajesMock.filter(mensaje => {
+    if (busqueda) {
+      const busquedaLower = busqueda.toLowerCase();
+      return (
+        mensaje.creator.nombre.toLowerCase().includes(busquedaLower) ||
+        mensaje.asunto.toLowerCase().includes(busquedaLower) ||
+        mensaje.ultimoMensaje.toLowerCase().includes(busquedaLower)
+      );
+    }
+    
+    if (tabActiva === 'propuestas') return mensaje.tipo === 'propuesta';
+    if (tabActiva === 'importantes') return mensaje.importante;
+    if (tabActiva === 'no_leidos') return !mensaje.leido;
+    
+    return true;
+  });
+
+  return (
+    <div className="h-[calc(100vh-200px)] flex">
+      {/* Sidebar de conversaciones */}
+      <div className="w-96 border-r border-gray-200 flex flex-col bg-white">
+        {/* Header del sidebar */}
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium">Mensajes</h3>
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Filter className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Archive className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          
+          {/* Búsqueda */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Buscar conversaciones..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <Tabs value={tabActiva} onValueChange={setTabActiva}>
+          <TabsList className="w-full justify-start px-4 bg-transparent border-b">
+            <TabsTrigger value="todos" className="data-[state=active]:bg-transparent">
+              Todos
+            </TabsTrigger>
+            <TabsTrigger value="propuestas" className="data-[state=active]:bg-transparent">
+              Propuestas
+              <Badge variant="secondary" className="ml-2 h-5">
+                {mensajesMock.filter(m => m.tipo === 'propuesta').length}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="importantes" className="data-[state=active]:bg-transparent">
+              Importantes
+            </TabsTrigger>
+            <TabsTrigger value="no_leidos" className="data-[state=active]:bg-transparent">
+              No leídos
+              <Badge variant="destructive" className="ml-2 h-5">
+                {mensajesMock.filter(m => !m.leido).length}
+              </Badge>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {/* Lista de conversaciones */}
+        <ScrollArea className="flex-1">
+          <div className="p-2">
+            {mensajesFiltrados.map((mensaje) => (
+              <div
+                key={mensaje.id}
+                onClick={() => {
+                  setConversacionActiva(mensaje);
+                  marcarComoLeido(mensaje.id);
+                }}
+                className={cn(
+                  "p-3 rounded-lg cursor-pointer transition-colors mb-2",
+                  conversacionActiva?.id === mensaje.id ? "bg-gray-100" : "hover:bg-gray-50",
+                  !mensaje.leido && "bg-blue-50 hover:bg-blue-100"
+                )}
+              >
+                <div className="flex items-start space-x-3">
+                  <div className="relative">
+                    <Avatar className="w-10 h-10">
+                      <AvatarImage src={mensaje.creator.avatar} />
+                      <AvatarFallback>{mensaje.creator.nombre.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    {!mensaje.leido && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full" />
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center space-x-2">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {mensaje.creator.nombre}
+                        </p>
+                        {mensaje.creator.verificado && (
+                          <CheckCircle className="w-3 h-3 text-blue-500" />
+                        )}
+                        {obtenerIconoTipo(mensaje.tipo)}
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {formatearFecha(mensaje.fecha)}
+                      </span>
+                    </div>
+                    
+                    <p className="text-sm font-medium text-gray-700 truncate mb-1">
+                      {mensaje.asunto}
+                    </p>
+                    
+                    <p className="text-xs text-gray-500 truncate">
+                      {mensaje.ultimoMensaje}
+                    </p>
+                    
+                    <div className="flex items-center space-x-2 mt-2">
+                      {mensaje.importante && (
+                        <Flag className="w-3 h-3 text-red-500" />
+                      )}
+                      <Badge variant="outline" className="text-xs">
+                        {mensaje.creator.plataforma}
+                      </Badge>
+                      {mensaje.tipo === 'propuesta' && mensaje.propuesta && (
+                        <Badge variant="secondary" className="text-xs">
+                          {new Intl.NumberFormat('es-MX', {
+                            style: 'currency',
+                            currency: 'MXN',
+                            minimumFractionDigits: 0
+                          }).format(mensaje.propuesta.tarifa)}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+
+      {/* Área de conversación */}
+      <div className="flex-1 flex flex-col bg-gray-50">
+        {conversacionActiva ? (
+          <>
+            {/* Header de la conversación */}
+            <div className="bg-white border-b border-gray-200 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src={conversacionActiva.creator.avatar} />
+                    <AvatarFallback>{conversacionActiva.creator.nombre.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <h3 className="font-medium text-gray-900">{conversacionActiva.creator.nombre}</h3>
+                      {conversacionActiva.creator.verificado && (
+                        <CheckCircle className="w-4 h-4 text-blue-500" />
+                      )}
+                      <Badge variant="outline">{conversacionActiva.creator.plataforma}</Badge>
+                    </div>
+                    <p className="text-sm text-gray-500">{conversacionActiva.asunto}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Button variant="ghost" size="icon">
+                    <Phone className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon">
+                    <Video className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon">
+                    <Mail className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Información de propuesta si existe */}
+              {conversacionActiva.tipo === 'propuesta' && conversacionActiva.propuesta && (
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-6">
+                      <div>
+                        <p className="text-xs text-gray-500">Tarifa propuesta</p>
+                        <p className="text-sm font-medium">
+                          {new Intl.NumberFormat('es-MX', {
+                            style: 'currency',
+                            currency: 'MXN',
+                            minimumFractionDigits: 0
+                          }).format(conversacionActiva.propuesta.tarifa)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Entregables</p>
+                        <p className="text-sm font-medium">
+                          {conversacionActiva.propuesta.entregables.join(', ')}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Fecha entrega</p>
+                        <p className="text-sm font-medium">
+                          {new Date(conversacionActiva.propuesta.fechaEntrega).toLocaleDateString('es-MX')}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button variant="outline" size="sm">
+                        Rechazar
+                      </Button>
+                      <Button size="sm" className="bg-black hover:bg-gray-800 text-white">
+                        Aceptar Propuesta
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Mensajes */}
+            <ScrollArea className="flex-1 p-6">
+              <div className="space-y-6">
+                {conversacionActiva.mensajes.map((mensaje: any) => (
+                  <div
+                    key={mensaje.id}
+                    className={cn(
+                      "flex",
+                      mensaje.remitente === 'business' ? "justify-end" : "justify-start"
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "max-w-[70%] rounded-2xl px-4 py-3",
+                        mensaje.remitente === 'business'
+                          ? "bg-black text-white"
+                          : "bg-white border border-gray-200"
+                      )}
+                    >
+                      <p className="text-sm">{mensaje.contenido}</p>
+                      
+                      {mensaje.adjuntos && mensaje.adjuntos.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          {mensaje.adjuntos.map((adjunto: any, index: number) => (
+                            <div
+                              key={index}
+                              className={cn(
+                                "flex items-center space-x-2 p-2 rounded-lg",
+                                mensaje.remitente === 'business'
+                                  ? "bg-white/10"
+                                  : "bg-gray-50"
+                              )}
+                            >
+                              {adjunto.tipo === 'imagen' ? (
+                                <Image className="w-4 h-4" />
+                              ) : (
+                                <FileText className="w-4 h-4" />
+                              )}
+                              <span className="text-xs">{adjunto.nombre}</span>
+                              <span className="text-xs opacity-60">{adjunto.tamaño}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <p
+                        className={cn(
+                          "text-xs mt-2",
+                          mensaje.remitente === 'business'
+                            ? "text-gray-300"
+                            : "text-gray-500"
+                        )}
+                      >
+                        {formatearFecha(mensaje.fecha)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+
+            {/* Input de mensaje */}
+            <div className="bg-white border-t border-gray-200 p-4">
+              <div className="flex items-end space-x-3">
+                <Button variant="ghost" size="icon" className="mb-1">
+                  <Paperclip className="h-5 w-5" />
+                </Button>
+                
+                <div className="flex-1">
+                  <Textarea
+                    placeholder="Escribe un mensaje..."
+                    value={nuevoMensaje}
+                    onChange={(e) => setNuevoMensaje(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        enviarMensaje();
+                      }
+                    }}
+                    className="min-h-[40px] max-h-[120px] resize-none"
+                  />
+                </div>
+                
+                <Button
+                  onClick={enviarMensaje}
+                  disabled={!nuevoMensaje.trim()}
+                  className="bg-black hover:bg-gray-800 text-white mb-1"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center space-x-2">
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    Programar
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    <FileText className="w-3 h-3 mr-1" />
+                    Plantillas
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Presiona Enter para enviar, Shift+Enter para nueva línea
+                </p>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">Selecciona una conversación para comenzar</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default CentroMensajes;

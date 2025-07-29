@@ -1,0 +1,651 @@
+import React, { useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { toast } from 'sonner';
+import {
+  Plus,
+  Search,
+  Filter,
+  Calendar as CalendarIcon,
+  DollarSign,
+  Users,
+  Eye,
+  MessageCircle,
+  FileText,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Edit,
+  Trash2,
+  Copy,
+  MoreVertical,
+  TrendingUp,
+  Download,
+  Share2
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { businessMockData } from '@/data/businessMockData';
+
+interface Campana {
+  id: string;
+  nombre: string;
+  estado: 'planificacion' | 'en_progreso' | 'revision' | 'completada';
+  progreso: number;
+  fechaInicio: string;
+  fechaFin: string;
+  presupuesto: number;
+  gastado: number;
+  creators: any[];
+  metricas: {
+    alcance: number;
+    engagement: number;
+    conversiones: number;
+    roi: number;
+  };
+}
+
+const GestionCampanas: React.FC = () => {
+  const [campanas, setCampanas] = useState<Record<string, Campana[]>>({
+    planificacion: businessMockData.campanasActivas.filter(c => c.estado === 'planificacion'),
+    en_progreso: businessMockData.campanasActivas.filter(c => c.estado === 'en_progreso'),
+    revision: businessMockData.campanasActivas.filter(c => c.estado === 'revision'),
+    completada: []
+  });
+
+  const [vistaActiva, setVistaActiva] = useState<'kanban' | 'lista'>('kanban');
+  const [filtroActivo, setFiltroActivo] = useState('todas');
+  const [busqueda, setBusqueda] = useState('');
+  const [nuevaCampanaAbierta, setNuevaCampanaAbierta] = useState(false);
+  const [fechaInicio, setFechaInicio] = useState<Date>();
+  const [fechaFin, setFechaFin] = useState<Date>();
+
+  // Formatear moneda
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
+  // Formatear números
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
+    return num.toString();
+  };
+
+  // Manejar drag and drop
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const { source, destination } = result;
+    
+    if (source.droppableId === destination.droppableId) {
+      // Reordenar dentro de la misma columna
+      const column = [...campanas[source.droppableId]];
+      const [removed] = column.splice(source.index, 1);
+      column.splice(destination.index, 0, removed);
+      
+      setCampanas({
+        ...campanas,
+        [source.droppableId]: column
+      });
+    } else {
+      // Mover entre columnas
+      const sourceColumn = [...campanas[source.droppableId]];
+      const destColumn = [...campanas[destination.droppableId]];
+      const [removed] = sourceColumn.splice(source.index, 1);
+      
+      // Actualizar el estado de la campaña
+      removed.estado = destination.droppableId as any;
+      destColumn.splice(destination.index, 0, removed);
+      
+      setCampanas({
+        ...campanas,
+        [source.droppableId]: sourceColumn,
+        [destination.droppableId]: destColumn
+      });
+      
+      toast.success(`Campaña movida a ${getEstadoLabel(destination.droppableId)}`);
+    }
+  };
+
+  // Obtener etiqueta del estado
+  const getEstadoLabel = (estado: string) => {
+    const labels: Record<string, string> = {
+      planificacion: 'Planificación',
+      en_progreso: 'En Progreso',
+      revision: 'En Revisión',
+      completada: 'Completadas'
+    };
+    return labels[estado] || estado;
+  };
+
+  // Obtener color del estado
+  const getEstadoColor = (estado: string) => {
+    const colors: Record<string, string> = {
+      planificacion: 'bg-gray-100 text-gray-800',
+      en_progreso: 'bg-blue-100 text-blue-800',
+      revision: 'bg-yellow-100 text-yellow-800',
+      completada: 'bg-green-100 text-green-800'
+    };
+    return colors[estado] || 'bg-gray-100 text-gray-800';
+  };
+
+  // Renderizar tarjeta de campaña
+  const renderCampanaCard = (campana: Campana, index: number) => (
+    <Draggable draggableId={campana.id} index={index} key={campana.id}>
+      {(provided, snapshot) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          className={cn(
+            "bg-white border border-gray-200 rounded-xl p-4 space-y-3 transition-all",
+            snapshot.isDragging && "shadow-lg rotate-2"
+          )}
+        >
+          {/* Header de la tarjeta */}
+          <div className="flex items-start justify-between">
+            <h4 className="font-medium text-gray-900 line-clamp-2">{campana.nombre}</h4>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Progreso */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">Progreso</span>
+              <span className="font-medium">{campana.progreso}%</span>
+            </div>
+            <Progress value={campana.progreso} className="h-2" />
+          </div>
+
+          {/* Presupuesto */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 text-sm text-gray-500">
+              <DollarSign className="w-4 h-4" />
+              <span>{formatCurrency(campana.gastado)} / {formatCurrency(campana.presupuesto)}</span>
+            </div>
+            <Badge variant="outline" className="text-xs">
+              {Math.round((campana.gastado / campana.presupuesto) * 100)}% usado
+            </Badge>
+          </div>
+
+          {/* Creators */}
+          <div className="flex items-center justify-between">
+            <div className="flex -space-x-2">
+              {campana.creators.slice(0, 3).map((creator) => (
+                <Avatar key={creator.id} className="w-8 h-8 border-2 border-white">
+                  <AvatarImage src={creator.avatar} />
+                  <AvatarFallback>{creator.nombre.charAt(0)}</AvatarFallback>
+                </Avatar>
+              ))}
+              {campana.creators.length > 3 && (
+                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-xs font-medium text-gray-600 border-2 border-white">
+                  +{campana.creators.length - 3}
+                </div>
+              )}
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-gray-500">
+              <Users className="w-3 h-3" />
+              <span>{campana.creators.length} creators</span>
+            </div>
+          </div>
+
+          {/* Métricas */}
+          <div className="grid grid-cols-2 gap-2 pt-2 border-t">
+            <div className="text-center">
+              <p className="text-xs text-gray-500">Alcance</p>
+              <p className="text-sm font-medium">{formatNumber(campana.metricas.alcance)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xs text-gray-500">ROI</p>
+              <p className="text-sm font-medium">{campana.metricas.roi}x</p>
+            </div>
+          </div>
+
+          {/* Fechas */}
+          <div className="flex items-center justify-between text-xs text-gray-400">
+            <span>{new Date(campana.fechaInicio).toLocaleDateString('es-MX', { month: 'short', day: 'numeric' })}</span>
+            <span>→</span>
+            <span>{new Date(campana.fechaFin).toLocaleDateString('es-MX', { month: 'short', day: 'numeric' })}</span>
+          </div>
+        </div>
+      )}
+    </Draggable>
+  );
+
+  // Vista Kanban
+  const VistaKanban = () => (
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {Object.entries(campanas).map(([estado, campanasEstado]) => (
+          <div key={estado} className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium text-gray-900">{getEstadoLabel(estado)}</h3>
+              <Badge className={getEstadoColor(estado)}>{campanasEstado.length}</Badge>
+            </div>
+            
+            <Droppable droppableId={estado}>
+              {(provided, snapshot) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className={cn(
+                    "space-y-3 min-h-[200px] p-2 rounded-xl transition-colors",
+                    snapshot.isDraggingOver && "bg-gray-50"
+                  )}
+                >
+                  {campanasEstado.map((campana, index) => renderCampanaCard(campana, index))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </div>
+        ))}
+      </div>
+    </DragDropContext>
+  );
+
+  // Vista Lista
+  const VistaLista = () => (
+    <Card>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Campaña
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Estado
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Progreso
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Presupuesto
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Creators
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Métricas
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {Object.values(campanas).flat().map((campana) => (
+                <tr key={campana.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{campana.nombre}</div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(campana.fechaInicio).toLocaleDateString('es-MX')} - {new Date(campana.fechaFin).toLocaleDateString('es-MX')}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <Badge className={getEstadoColor(campana.estado)}>
+                      {getEstadoLabel(campana.estado)}
+                    </Badge>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center space-x-2">
+                      <Progress value={campana.progreso} className="w-20 h-2" />
+                      <span className="text-sm text-gray-600">{campana.progreso}%</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm text-gray-900">{formatCurrency(campana.gastado)}</div>
+                      <div className="text-xs text-gray-500">de {formatCurrency(campana.presupuesto)}</div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex -space-x-2">
+                      {campana.creators.slice(0, 3).map((creator) => (
+                        <Avatar key={creator.id} className="w-8 h-8 border-2 border-white">
+                          <AvatarImage src={creator.avatar} />
+                          <AvatarFallback>{creator.nombre.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      ))}
+                      {campana.creators.length > 3 && (
+                        <span className="text-xs text-gray-500 ml-2">
+                          +{campana.creators.length - 3} más
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center space-x-4 text-sm">
+                      <div className="flex items-center space-x-1">
+                        <Eye className="w-4 h-4 text-gray-400" />
+                        <span>{formatNumber(campana.metricas.alcance)}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <TrendingUp className="w-4 h-4 text-gray-400" />
+                        <span>{campana.metricas.roi}x</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center space-x-2">
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-light text-gray-900">Gestión de Campañas</h2>
+          <p className="text-gray-500 mt-1">Administra todas tus campañas de marketing con creators</p>
+        </div>
+        <Dialog open={nuevaCampanaAbierta} onOpenChange={setNuevaCampanaAbierta}>
+          <DialogTrigger asChild>
+            <Button className="bg-black hover:bg-gray-800 text-white rounded-full">
+              <Plus className="w-4 h-4 mr-2" />
+              Nueva Campaña
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Crear Nueva Campaña</DialogTitle>
+              <DialogDescription>
+                Configura los detalles de tu nueva campaña de marketing
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="nombre">Nombre de la Campaña</Label>
+                <Input
+                  id="nombre"
+                  placeholder="Ej: Lanzamiento Producto Verano 2024"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="descripcion">Descripción</Label>
+                <Textarea
+                  id="descripcion"
+                  placeholder="Describe los objetivos y detalles de la campaña..."
+                  rows={3}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Fecha de Inicio</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !fechaInicio && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {fechaInicio ? format(fechaInicio, "PPP", { locale: es }) : "Seleccionar fecha"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={fechaInicio}
+                        onSelect={setFechaInicio}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Fecha de Fin</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !fechaFin && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {fechaFin ? format(fechaFin, "PPP", { locale: es }) : "Seleccionar fecha"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={fechaFin}
+                        onSelect={setFechaFin}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="presupuesto">Presupuesto Total</Label>
+                  <Input
+                    id="presupuesto"
+                    type="number"
+                    placeholder="0"
+                    className="pl-8"
+                  />
+                  <span className="absolute left-3 top-9 text-gray-500">$</span>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="objetivo">Objetivo Principal</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar objetivo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="awareness">Conocimiento de Marca</SelectItem>
+                      <SelectItem value="engagement">Engagement</SelectItem>
+                      <SelectItem value="conversions">Conversiones</SelectItem>
+                      <SelectItem value="traffic">Tráfico Web</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Plantilla de Campaña (Opcional)</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar plantilla" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {businessMockData.plantillasCampana.map((plantilla) => (
+                      <SelectItem key={plantilla.id} value={plantilla.id}>
+                        <div>
+                          <p className="font-medium">{plantilla.nombre}</p>
+                          <p className="text-xs text-gray-500">{plantilla.descripcion}</p>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setNuevaCampanaAbierta(false)}>
+                Cancelar
+              </Button>
+              <Button 
+                className="bg-black hover:bg-gray-800 text-white"
+                onClick={() => {
+                  toast.success('Campaña creada exitosamente');
+                  setNuevaCampanaAbierta(false);
+                }}
+              >
+                Crear Campaña
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Filtros y controles */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Buscar campañas..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="pl-10 w-64"
+            />
+          </div>
+          
+          <Select value={filtroActivo} onValueChange={setFiltroActivo}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todas">Todas</SelectItem>
+              <SelectItem value="activas">Activas</SelectItem>
+              <SelectItem value="completadas">Completadas</SelectItem>
+              <SelectItem value="este_mes">Este Mes</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Button variant="outline" size="icon">
+            <Filter className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <Tabs value={vistaActiva} onValueChange={(v) => setVistaActiva(v as any)}>
+          <TabsList>
+            <TabsTrigger value="kanban">Kanban</TabsTrigger>
+            <TabsTrigger value="lista">Lista</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {/* Vista principal */}
+      {vistaActiva === 'kanban' ? <VistaKanban /> : <VistaLista />}
+
+      {/* Resumen de métricas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-blue-600 font-medium">Total Campañas</p>
+                <p className="text-2xl font-bold text-blue-900">
+                  {Object.values(campanas).flat().length}
+                </p>
+              </div>
+              <Target className="w-8 h-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-green-600 font-medium">Completadas</p>
+                <p className="text-2xl font-bold text-green-900">
+                  {campanas.completada.length}
+                </p>
+              </div>
+              <CheckCircle className="w-8 h-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-yellow-600 font-medium">En Progreso</p>
+                <p className="text-2xl font-bold text-yellow-900">
+                  {campanas.en_progreso.length}
+                </p>
+              </div>
+              <Clock className="w-8 h-8 text-yellow-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-purple-600 font-medium">ROI Promedio</p>
+                <p className="text-2xl font-bold text-purple-900">4.2x</p>
+              </div>
+              <TrendingUp className="w-8 h-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default GestionCampanas;

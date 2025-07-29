@@ -1,0 +1,837 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Users,
+  UserCheck,
+  UserX,
+  Search,
+  Filter,
+  Download,
+  Upload,
+  Eye,
+  Edit,
+  Ban,
+  Shield,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar as CalendarIcon,
+  Clock,
+  Camera,
+  Store,
+  Crown,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  MoreVertical,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Star,
+  DollarSign,
+  MessageCircle,
+  Activity,
+  FileText,
+  RefreshCw,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+
+interface User {
+  id: string;
+  nombre: string;
+  email: string;
+  telefono?: string;
+  tipo: 'creador' | 'negocio' | 'admin';
+  estado: 'activo' | 'pendiente' | 'suspendido' | 'inactivo';
+  verificado: boolean;
+  fechaRegistro: Date;
+  ultimaActividad: Date;
+  ubicacion: string;
+  avatar?: string;
+  // Campos específicos de creador
+  seguidores?: number;
+  colaboraciones?: number;
+  ingresos?: number;
+  rating?: number;
+  categorias?: string[];
+  // Campos específicos de negocio
+  nombreEmpresa?: string;
+  empleados?: number;
+  campañas?: number;
+  gastoTotal?: number;
+  industria?: string;
+  // Campos de admin
+  permisos?: string;
+  departamento?: string;
+  accionesHoy?: number;
+}
+
+export const GestionUsuariosAdmin = () => {
+  const [usuarios, setUsuarios] = useState<User[]>([
+    {
+      id: '1',
+      nombre: 'María García',
+      email: 'maria@example.com',
+      telefono: '+52 55 1234 5678',
+      tipo: 'creador',
+      estado: 'activo',
+      verificado: true,
+      fechaRegistro: new Date('2024-01-15'),
+      ultimaActividad: new Date(),
+      ubicacion: 'Ciudad de México',
+      seguidores: 145000,
+      colaboraciones: 23,
+      ingresos: 452000,
+      rating: 4.9,
+      categorias: ['Lifestyle', 'Fashion', 'Beauty'],
+    },
+    {
+      id: '2',
+      nombre: 'Café Central',
+      email: 'info@cafecentral.com',
+      telefono: '+52 33 9876 5432',
+      tipo: 'negocio',
+      estado: 'activo',
+      verificado: true,
+      fechaRegistro: new Date('2024-01-14'),
+      ultimaActividad: new Date('2024-07-28'),
+      ubicacion: 'Guadalajara, Jalisco',
+      nombreEmpresa: 'Café Central S.A. de C.V.',
+      empleados: 25,
+      campañas: 12,
+      gastoTotal: 285000,
+      industria: 'Restaurantes',
+    },
+    {
+      id: '3',
+      nombre: 'Ana Martínez',
+      email: 'ana.fitness@gmail.com',
+      tipo: 'creador',
+      estado: 'pendiente',
+      verificado: false,
+      fechaRegistro: new Date('2024-07-25'),
+      ultimaActividad: new Date('2024-07-27'),
+      ubicacion: 'Monterrey, NL',
+      seguidores: 67000,
+      colaboraciones: 0,
+      ingresos: 0,
+      rating: 0,
+      categorias: ['Fitness', 'Health'],
+    },
+  ]);
+
+  const [filtroTipo, setFiltroTipo] = useState('todos');
+  const [filtroEstado, setFiltroEstado] = useState('todos');
+  const [busqueda, setBusqueda] = useState('');
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [usuariosPorPagina] = useState(10);
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<User | null>(null);
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [modalAccion, setModalAccion] = useState<'ver' | 'editar' | 'suspender' | null>(null);
+  const [ordenColumna, setOrdenColumna] = useState<keyof User>('fechaRegistro');
+  const [ordenDireccion, setOrdenDireccion] = useState<'asc' | 'desc'>('desc');
+
+  // Filtrar usuarios
+  const usuariosFiltrados = usuarios.filter(usuario => {
+    const coincideBusqueda = usuario.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+                            usuario.email.toLowerCase().includes(busqueda.toLowerCase());
+    const coincideTipo = filtroTipo === 'todos' || usuario.tipo === filtroTipo;
+    const coincideEstado = filtroEstado === 'todos' || usuario.estado === filtroEstado;
+    return coincideBusqueda && coincideTipo && coincideEstado;
+  });
+
+  // Ordenar usuarios
+  const usuariosOrdenados = [...usuariosFiltrados].sort((a, b) => {
+    const aValue = a[ordenColumna];
+    const bValue = b[ordenColumna];
+    
+    if (aValue === undefined || bValue === undefined) return 0;
+    
+    if (ordenDireccion === 'asc') {
+      return aValue > bValue ? 1 : -1;
+    } else {
+      return aValue < bValue ? 1 : -1;
+    }
+  });
+
+  // Paginación
+  const indiceUltimo = paginaActual * usuariosPorPagina;
+  const indicePrimero = indiceUltimo - usuariosPorPagina;
+  const usuariosPaginados = usuariosOrdenados.slice(indicePrimero, indiceUltimo);
+  const totalPaginas = Math.ceil(usuariosOrdenados.length / usuariosPorPagina);
+
+  const estadisticasPorTipo = {
+    creadores: usuarios.filter(u => u.tipo === 'creador').length,
+    negocios: usuarios.filter(u => u.tipo === 'negocio').length,
+    admins: usuarios.filter(u => u.tipo === 'admin').length,
+  };
+
+  const estadisticasPorEstado = {
+    activos: usuarios.filter(u => u.estado === 'activo').length,
+    pendientes: usuarios.filter(u => u.estado === 'pendiente').length,
+    suspendidos: usuarios.filter(u => u.estado === 'suspendido').length,
+    inactivos: usuarios.filter(u => u.estado === 'inactivo').length,
+  };
+
+  const getIconoTipo = (tipo: string) => {
+    switch (tipo) {
+      case 'creador': return <Camera className="w-4 h-4" />;
+      case 'negocio': return <Store className="w-4 h-4" />;
+      case 'admin': return <Crown className="w-4 h-4" />;
+      default: return <Users className="w-4 h-4" />;
+    }
+  };
+
+  const getColorEstado = (estado: string) => {
+    switch (estado) {
+      case 'activo': return 'bg-green-100 text-green-800 border-green-200';
+      case 'pendiente': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'suspendido': return 'bg-red-100 text-red-800 border-red-200';
+      case 'inactivo': return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const handleOrdenar = (columna: keyof User) => {
+    if (ordenColumna === columna) {
+      setOrdenDireccion(ordenDireccion === 'asc' ? 'desc' : 'asc');
+    } else {
+      setOrdenColumna(columna);
+      setOrdenDireccion('asc');
+    }
+  };
+
+  const handleAccionUsuario = (accion: string, usuario: User) => {
+    setUsuarioSeleccionado(usuario);
+    setModalAccion(accion as any);
+    setModalAbierto(true);
+  };
+
+  const exportarUsuarios = () => {
+    // Implementar exportación
+    console.log('Exportando usuarios...');
+  };
+
+  const importarUsuarios = () => {
+    // Implementar importación
+    console.log('Importando usuarios...');
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Estadísticas Generales */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center justify-between">
+              <span>Total Usuarios</span>
+              <Users className="w-5 h-5 text-gray-500" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{usuarios.length.toLocaleString('es-MX')}</div>
+            <p className="text-xs text-gray-500 mt-1">+12.5% vs mes anterior</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center justify-between">
+              <span>Usuarios Activos</span>
+              <UserCheck className="w-5 h-5 text-green-500" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-600">{estadisticasPorEstado.activos.toLocaleString('es-MX')}</div>
+            <p className="text-xs text-gray-500 mt-1">{((estadisticasPorEstado.activos / usuarios.length) * 100).toFixed(1)}% del total</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center justify-between">
+              <span>Pendientes</span>
+              <Clock className="w-5 h-5 text-yellow-500" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-yellow-600">{estadisticasPorEstado.pendientes}</div>
+            <p className="text-xs text-gray-500 mt-1">Requieren verificación</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center justify-between">
+              <span>Verificados</span>
+              <CheckCircle className="w-5 h-5 text-blue-500" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-600">{usuarios.filter(u => u.verificado).length}</div>
+            <p className="text-xs text-gray-500 mt-1">Cuentas verificadas</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tabla de Usuarios */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+            <div>
+              <CardTitle className="text-xl">Gestión de Usuarios</CardTitle>
+              <CardDescription>Administra todos los usuarios de la plataforma</CardDescription>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm" onClick={importarUsuarios}>
+                <Upload className="w-4 h-4 mr-2" />
+                Importar
+              </Button>
+              <Button variant="outline" size="sm" onClick={exportarUsuarios}>
+                <Download className="w-4 h-4 mr-2" />
+                Exportar
+              </Button>
+              <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                <Users className="w-4 h-4 mr-2" />
+                Nuevo Usuario
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Filtros */}
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Buscar por nombre o email..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
+            <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Tipo de usuario" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos los tipos</SelectItem>
+                <SelectItem value="creador">Creadores</SelectItem>
+                <SelectItem value="negocio">Negocios</SelectItem>
+                <SelectItem value="admin">Administradores</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filtroEstado} onValueChange={setFiltroEstado}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos los estados</SelectItem>
+                <SelectItem value="activo">Activos</SelectItem>
+                <SelectItem value="pendiente">Pendientes</SelectItem>
+                <SelectItem value="suspendido">Suspendidos</SelectItem>
+                <SelectItem value="inactivo">Inactivos</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="icon">
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Tabla */}
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[50px]">
+                    <input type="checkbox" className="rounded" />
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer"
+                    onClick={() => handleOrdenar('nombre')}
+                  >
+                    Usuario
+                  </TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead 
+                    className="cursor-pointer"
+                    onClick={() => handleOrdenar('estado')}
+                  >
+                    Estado
+                  </TableHead>
+                  <TableHead>Ubicación</TableHead>
+                  <TableHead>Métricas</TableHead>
+                  <TableHead 
+                    className="cursor-pointer"
+                    onClick={() => handleOrdenar('fechaRegistro')}
+                  >
+                    Registro
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer"
+                    onClick={() => handleOrdenar('ultimaActividad')}
+                  >
+                    Última Actividad
+                  </TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {usuariosPaginados.map((usuario) => (
+                  <TableRow key={usuario.id} className="hover:bg-gray-50">
+                    <TableCell>
+                      <input type="checkbox" className="rounded" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="w-10 h-10">
+                          <AvatarFallback className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                            {usuario.nombre.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <p className="font-medium">{usuario.nombre}</p>
+                            {usuario.verificado && <CheckCircle className="w-4 h-4 text-green-500" />}
+                          </div>
+                          <p className="text-sm text-gray-500">{usuario.email}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        {getIconoTipo(usuario.tipo)}
+                        <span className="capitalize">{usuario.tipo}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getColorEstado(usuario.estado)}>
+                        {usuario.estado}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-1">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm">{usuario.ubicacion}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {usuario.tipo === 'creador' ? (
+                        <div className="space-y-1">
+                          <div className="text-sm">
+                            <span className="font-medium">{usuario.seguidores?.toLocaleString('es-MX')}</span> seguidores
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {usuario.colaboraciones} colab • ⭐ {usuario.rating || 'N/A'}
+                          </div>
+                        </div>
+                      ) : usuario.tipo === 'negocio' ? (
+                        <div className="space-y-1">
+                          <div className="text-sm">
+                            <span className="font-medium">{usuario.campañas}</span> campañas
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            ${usuario.gastoTotal?.toLocaleString('es-MX')} MXN
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-500">
+                          {usuario.departamento}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {format(usuario.fechaRegistro, 'dd/MM/yyyy', { locale: es })}
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {format(usuario.ultimaActividad, 'dd/MM/yyyy HH:mm', { locale: es })}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreVertical className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleAccionUsuario('ver', usuario)}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            Ver detalles
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleAccionUsuario('editar', usuario)}>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Editar usuario
+                          </DropdownMenuItem>
+                          {!usuario.verificado && (
+                            <DropdownMenuItem>
+                              <UserCheck className="w-4 h-4 mr-2" />
+                              Verificar cuenta
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => handleAccionUsuario('suspender', usuario)}
+                          >
+                            <Ban className="w-4 h-4 mr-2" />
+                            {usuario.estado === 'suspendido' ? 'Reactivar' : 'Suspender'}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Paginación */}
+          <div className="flex items-center justify-between px-2 py-4">
+            <div className="text-sm text-gray-500">
+              Mostrando {indicePrimero + 1} a {Math.min(indiceUltimo, usuariosOrdenados.length)} de {usuariosOrdenados.length} usuarios
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPaginaActual(1)}
+                disabled={paginaActual === 1}
+              >
+                <ChevronsLeft className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPaginaActual(paginaActual - 1)}
+                disabled={paginaActual === 1}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <span className="text-sm">
+                Página {paginaActual} de {totalPaginas}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPaginaActual(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPaginaActual(totalPaginas)}
+                disabled={paginaActual === totalPaginas}
+              >
+                <ChevronsRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Modal de Usuario */}
+      <Dialog open={modalAbierto} onOpenChange={setModalAbierto}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {usuarioSeleccionado && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-3">
+                  <Avatar className="w-12 h-12">
+                    <AvatarFallback className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                      {usuarioSeleccionado.nombre.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xl">{usuarioSeleccionado.nombre}</span>
+                      {usuarioSeleccionado.verificado && <CheckCircle className="w-5 h-5 text-green-500" />}
+                    </div>
+                    <Badge variant="outline" className={getColorEstado(usuarioSeleccionado.estado)}>
+                      {usuarioSeleccionado.estado}
+                    </Badge>
+                  </div>
+                </DialogTitle>
+                <DialogDescription>
+                  {modalAccion === 'ver' && 'Información completa del usuario'}
+                  {modalAccion === 'editar' && 'Editar información del usuario'}
+                  {modalAccion === 'suspender' && 'Gestionar suspensión de cuenta'}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="mt-6">
+                {modalAccion === 'ver' && (
+                  <Tabs defaultValue="general" className="w-full">
+                    <TabsList className="grid w-full grid-cols-4">
+                      <TabsTrigger value="general">General</TabsTrigger>
+                      <TabsTrigger value="actividad">Actividad</TabsTrigger>
+                      <TabsTrigger value="finanzas">Finanzas</TabsTrigger>
+                      <TabsTrigger value="historial">Historial</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="general" className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Email</Label>
+                          <div className="flex items-center space-x-2">
+                            <Mail className="w-4 h-4 text-gray-400" />
+                            <span>{usuarioSeleccionado.email}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Teléfono</Label>
+                          <div className="flex items-center space-x-2">
+                            <Phone className="w-4 h-4 text-gray-400" />
+                            <span>{usuarioSeleccionado.telefono || 'No registrado'}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Ubicación</Label>
+                          <div className="flex items-center space-x-2">
+                            <MapPin className="w-4 h-4 text-gray-400" />
+                            <span>{usuarioSeleccionado.ubicacion}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Fecha de Registro</Label>
+                          <div className="flex items-center space-x-2">
+                            <CalendarIcon className="w-4 h-4 text-gray-400" />
+                            <span>{format(usuarioSeleccionado.fechaRegistro, 'dd/MM/yyyy', { locale: es })}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {usuarioSeleccionado.tipo === 'creador' && (
+                        <div className="pt-4 border-t">
+                          <h4 className="font-medium mb-3">Información de Creador</h4>
+                          <div className="grid grid-cols-3 gap-4">
+                            <Card>
+                              <CardContent className="pt-6">
+                                <div className="text-2xl font-bold">{usuarioSeleccionado.seguidores?.toLocaleString('es-MX')}</div>
+                                <p className="text-sm text-gray-500">Seguidores</p>
+                              </CardContent>
+                            </Card>
+                            <Card>
+                              <CardContent className="pt-6">
+                                <div className="text-2xl font-bold">{usuarioSeleccionado.colaboraciones}</div>
+                                <p className="text-sm text-gray-500">Colaboraciones</p>
+                              </CardContent>
+                            </Card>
+                            <Card>
+                              <CardContent className="pt-6">
+                                <div className="text-2xl font-bold">⭐ {usuarioSeleccionado.rating || 'N/A'}</div>
+                                <p className="text-sm text-gray-500">Rating</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                          <div className="mt-4">
+                            <Label>Categorías</Label>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {usuarioSeleccionado.categorias?.map((cat, idx) => (
+                                <Badge key={idx} variant="secondary">{cat}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {usuarioSeleccionado.tipo === 'negocio' && (
+                        <div className="pt-4 border-t">
+                          <h4 className="font-medium mb-3">Información del Negocio</h4>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Nombre de la Empresa</Label>
+                              <p>{usuarioSeleccionado.nombreEmpresa}</p>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Industria</Label>
+                              <p>{usuarioSeleccionado.industria}</p>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Número de Empleados</Label>
+                              <p>{usuarioSeleccionado.empleados}</p>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Campañas Realizadas</Label>
+                              <p>{usuarioSeleccionado.campañas}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="actividad" className="space-y-4">
+                      <div className="text-center py-8">
+                        <Activity className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                        <p className="text-gray-500">Historial de actividad del usuario</p>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="finanzas" className="space-y-4">
+                      <div className="text-center py-8">
+                        <DollarSign className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                        <p className="text-gray-500">Información financiera y transacciones</p>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="historial" className="space-y-4">
+                      <div className="text-center py-8">
+                        <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                        <p className="text-gray-500">Historial de cambios y auditoría</p>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                )}
+
+                {modalAccion === 'editar' && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Nombre</Label>
+                        <Input defaultValue={usuarioSeleccionado.nombre} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Email</Label>
+                        <Input defaultValue={usuarioSeleccionado.email} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Teléfono</Label>
+                        <Input defaultValue={usuarioSeleccionado.telefono} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Ubicación</Label>
+                        <Input defaultValue={usuarioSeleccionado.ubicacion} />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Estado de la Cuenta</Label>
+                      <Select defaultValue={usuarioSeleccionado.estado}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="activo">Activo</SelectItem>
+                          <SelectItem value="pendiente">Pendiente</SelectItem>
+                          <SelectItem value="suspendido">Suspendido</SelectItem>
+                          <SelectItem value="inactivo">Inactivo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch defaultChecked={usuarioSeleccionado.verificado} />
+                      <Label>Cuenta Verificada</Label>
+                    </div>
+                  </div>
+                )}
+
+                {modalAccion === 'suspender' && (
+                  <div className="space-y-4">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <div className="flex items-start space-x-3">
+                        <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                        <div>
+                          <h4 className="font-medium text-red-900">
+                            {usuarioSeleccionado.estado === 'suspendido' ? 'Reactivar Usuario' : 'Suspender Usuario'}
+                          </h4>
+                          <p className="text-sm text-red-700 mt-1">
+                            {usuarioSeleccionado.estado === 'suspendido' 
+                              ? 'Esta acción reactivará la cuenta del usuario y restaurará todos sus privilegios.'
+                              : 'Esta acción suspenderá temporalmente la cuenta del usuario. El usuario no podrá acceder a la plataforma.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Motivo de la {usuarioSeleccionado.estado === 'suspendido' ? 'reactivación' : 'suspensión'}</Label>
+                      <Textarea 
+                        placeholder={`Ingrese el motivo de la ${usuarioSeleccionado.estado === 'suspendido' ? 'reactivación' : 'suspensión'}...`}
+                        rows={4}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Duración (solo para suspensión)</Label>
+                      <Select disabled={usuarioSeleccionado.estado === 'suspendido'}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar duración" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="3d">3 días</SelectItem>
+                          <SelectItem value="7d">7 días</SelectItem>
+                          <SelectItem value="30d">30 días</SelectItem>
+                          <SelectItem value="indefinite">Indefinida</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-end space-x-2 mt-6">
+                  <Button variant="outline" onClick={() => setModalAbierto(false)}>
+                    Cancelar
+                  </Button>
+                  {modalAccion === 'ver' && (
+                    <Button 
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                      onClick={() => setModalAccion('editar')}
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Editar Usuario
+                    </Button>
+                  )}
+                  {modalAccion === 'editar' && (
+                    <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                      Guardar Cambios
+                    </Button>
+                  )}
+                  {modalAccion === 'suspender' && (
+                    <Button 
+                      variant={usuarioSeleccionado.estado === 'suspendido' ? 'default' : 'destructive'}
+                    >
+                      {usuarioSeleccionado.estado === 'suspendido' ? 'Reactivar Usuario' : 'Suspender Usuario'}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};

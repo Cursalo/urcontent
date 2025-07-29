@@ -1,0 +1,918 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Headphones,
+  MessageCircle,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  XCircle,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  Search,
+  Filter,
+  RefreshCw,
+  Send,
+  Paperclip,
+  Star,
+  ThumbsUp,
+  ThumbsDown,
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+  ArrowUp,
+  ArrowDown,
+  FileText,
+  HelpCircle,
+  BookOpen,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  MessageSquare,
+  ChevronRight,
+  ExternalLink,
+  Copy,
+  Download,
+  Upload,
+  Zap,
+  Users,
+  DollarSign,
+  Activity,
+} from "lucide-react";
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
+
+interface Ticket {
+  id: string;
+  asunto: string;
+  categoria: string;
+  prioridad: 'baja' | 'media' | 'alta' | 'urgente';
+  estado: 'nuevo' | 'abierto' | 'en_espera' | 'resuelto' | 'cerrado';
+  usuario: {
+    nombre: string;
+    email: string;
+    tipo: 'creador' | 'negocio';
+  };
+  fechaCreacion: Date;
+  ultimaActualizacion: Date;
+  asignadoA?: string;
+  mensajes: number;
+  satisfaccion?: number;
+}
+
+interface FAQ {
+  id: string;
+  pregunta: string;
+  respuesta: string;
+  categoria: string;
+  vistas: number;
+  util: number;
+  noUtil: number;
+}
+
+export const CentroSoporteAdmin = () => {
+  const [tickets, setTickets] = useState<Ticket[]>([
+    {
+      id: 'TKT-001',
+      asunto: 'No puedo acceder a mi cuenta',
+      categoria: 'Cuenta',
+      prioridad: 'alta',
+      estado: 'abierto',
+      usuario: {
+        nombre: 'María García',
+        email: 'maria@example.com',
+        tipo: 'creador',
+      },
+      fechaCreacion: new Date('2024-07-29T10:00:00'),
+      ultimaActualizacion: new Date('2024-07-29T14:30:00'),
+      asignadoA: 'Luis Soporte',
+      mensajes: 3,
+    },
+    {
+      id: 'TKT-002',
+      asunto: 'Error al procesar pago',
+      categoria: 'Pagos',
+      prioridad: 'urgente',
+      estado: 'nuevo',
+      usuario: {
+        nombre: 'Café Central',
+        email: 'info@cafecentral.com',
+        tipo: 'negocio',
+      },
+      fechaCreacion: new Date('2024-07-29T15:00:00'),
+      ultimaActualizacion: new Date('2024-07-29T15:00:00'),
+      mensajes: 1,
+    },
+    {
+      id: 'TKT-003',
+      asunto: 'Cómo verificar mi cuenta',
+      categoria: 'Verificación',
+      prioridad: 'media',
+      estado: 'resuelto',
+      usuario: {
+        nombre: 'Carlos Tech',
+        email: 'carlos@tech.com',
+        tipo: 'creador',
+      },
+      fechaCreacion: new Date('2024-07-28T09:00:00'),
+      ultimaActualizacion: new Date('2024-07-29T11:00:00'),
+      asignadoA: 'Ana Soporte',
+      mensajes: 5,
+      satisfaccion: 5,
+    },
+  ]);
+
+  const [faqs] = useState<FAQ[]>([
+    {
+      id: '1',
+      pregunta: '¿Cómo funciona la comisión de URContent?',
+      respuesta: 'URContent cobra una comisión del 15% sobre cada colaboración exitosa. Esta comisión se deduce automáticamente del pago total antes de transferir los fondos al creador.',
+      categoria: 'Pagos',
+      vistas: 1234,
+      util: 456,
+      noUtil: 23,
+    },
+    {
+      id: '2',
+      pregunta: '¿Cuánto tiempo tarda en verificarse mi cuenta?',
+      respuesta: 'El proceso de verificación generalmente toma entre 24-48 horas hábiles. Recibirás un correo electrónico una vez que tu cuenta haya sido verificada.',
+      categoria: 'Verificación',
+      vistas: 987,
+      util: 789,
+      noUtil: 12,
+    },
+    {
+      id: '3',
+      pregunta: '¿Cómo puedo aumentar mi visibilidad como creador?',
+      respuesta: 'Para aumentar tu visibilidad: 1) Completa tu perfil al 100%, 2) Mantén actualizadas tus métricas, 3) Responde rápidamente a las propuestas, 4) Obtén buenas calificaciones en tus colaboraciones.',
+      categoria: 'Creadores',
+      vistas: 654,
+      util: 543,
+      noUtil: 8,
+    },
+  ]);
+
+  const [ticketSeleccionado, setTicketSeleccionado] = useState<Ticket | null>(null);
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [modalTipo, setModalTipo] = useState<'ver' | 'responder' | 'nueva_faq' | null>(null);
+  const [filtroEstado, setFiltroEstado] = useState('todos');
+  const [filtroPrioridad, setFiltroPrioridad] = useState('todas');
+  const [busqueda, setBusqueda] = useState('');
+
+  // Estadísticas
+  const estadisticas = {
+    totalTickets: tickets.length,
+    nuevos: tickets.filter(t => t.estado === 'nuevo').length,
+    abiertos: tickets.filter(t => t.estado === 'abierto').length,
+    resueltos: tickets.filter(t => t.estado === 'resuelto').length,
+    tiempoRespuesta: '2.4h',
+    satisfaccion: 4.6,
+    resolucionPromedio: '18h',
+  };
+
+  // Datos para gráficos
+  const ticketsPorDia = [
+    { dia: 'Lun', nuevos: 12, resueltos: 10 },
+    { dia: 'Mar', nuevos: 15, resueltos: 14 },
+    { dia: 'Mie', nuevos: 8, resueltos: 12 },
+    { dia: 'Jue', nuevos: 18, resueltos: 15 },
+    { dia: 'Vie', nuevos: 22, resueltos: 20 },
+    { dia: 'Sab', nuevos: 5, resueltos: 6 },
+    { dia: 'Dom', nuevos: 3, resueltos: 4 },
+  ];
+
+  const ticketsPorCategoria = [
+    { categoria: 'Cuenta', cantidad: 28, porcentaje: 35 },
+    { categoria: 'Pagos', cantidad: 22, porcentaje: 27 },
+    { categoria: 'Colaboraciones', cantidad: 18, porcentaje: 22 },
+    { categoria: 'Verificación', cantidad: 8, porcentaje: 10 },
+    { categoria: 'Otros', cantidad: 5, porcentaje: 6 },
+  ];
+
+  const agentes = [
+    { nombre: 'Luis Soporte', tickets: 12, resueltos: 10, satisfaccion: 4.8, estado: 'online' },
+    { nombre: 'Ana Soporte', tickets: 15, resueltos: 14, satisfaccion: 4.9, estado: 'online' },
+    { nombre: 'Pedro Soporte', tickets: 8, resueltos: 7, satisfaccion: 4.5, estado: 'away' },
+    { nombre: 'María Soporte', tickets: 10, resueltos: 9, satisfaccion: 4.7, estado: 'offline' },
+  ];
+
+  const getColorPrioridad = (prioridad: string) => {
+    const colores = {
+      baja: 'bg-gray-100 text-gray-800 border-gray-200',
+      media: 'bg-blue-100 text-blue-800 border-blue-200',
+      alta: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      urgente: 'bg-red-100 text-red-800 border-red-200',
+    };
+    return colores[prioridad as keyof typeof colores] || colores.media;
+  };
+
+  const getColorEstado = (estado: string) => {
+    const colores = {
+      nuevo: 'bg-purple-100 text-purple-800 border-purple-200',
+      abierto: 'bg-blue-100 text-blue-800 border-blue-200',
+      en_espera: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      resuelto: 'bg-green-100 text-green-800 border-green-200',
+      cerrado: 'bg-gray-100 text-gray-800 border-gray-200',
+    };
+    return colores[estado as keyof typeof colores] || colores.nuevo;
+  };
+
+  const getEstadoAgente = (estado: string) => {
+    const config = {
+      online: { color: 'bg-green-500', label: 'En línea' },
+      away: { color: 'bg-yellow-500', label: 'Ausente' },
+      offline: { color: 'bg-gray-500', label: 'Desconectado' },
+    };
+    return config[estado as keyof typeof config] || config.offline;
+  };
+
+  const handleAccion = (tipo: string, ticket?: Ticket) => {
+    if (ticket) setTicketSeleccionado(ticket);
+    setModalTipo(tipo as any);
+    setModalAbierto(true);
+  };
+
+  const COLORS = ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B'];
+
+  return (
+    <div className="space-y-6">
+      {/* Estadísticas Generales */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center justify-between">
+              <span>Tickets Totales</span>
+              <MessageCircle className="w-5 h-5 text-gray-500" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{estadisticas.totalTickets}</div>
+            <div className="flex items-center space-x-2 text-sm text-gray-500 mt-1">
+              <span className="text-green-600 font-medium">{estadisticas.nuevos} nuevos</span>
+              <span>•</span>
+              <span className="text-blue-600 font-medium">{estadisticas.abiertos} abiertos</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center justify-between">
+              <span>Tiempo de Respuesta</span>
+              <Clock className="w-5 h-5 text-yellow-500" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{estadisticas.tiempoRespuesta}</div>
+            <p className="text-sm text-gray-500 mt-1">Promedio primera respuesta</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center justify-between">
+              <span>Satisfacción</span>
+              <Star className="w-5 h-5 text-yellow-500" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold flex items-center">
+              <span>{estadisticas.satisfaccion}</span>
+              <Star className="w-5 h-5 text-yellow-500 fill-current ml-1" />
+            </div>
+            <p className="text-sm text-gray-500 mt-1">Calificación promedio</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center justify-between">
+              <span>Resolución</span>
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{estadisticas.resolucionPromedio}</div>
+            <p className="text-sm text-gray-500 mt-1">Tiempo promedio de cierre</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tabs principales */}
+      <Tabs defaultValue="tickets" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="tickets">Tickets</TabsTrigger>
+          <TabsTrigger value="agentes">Agentes</TabsTrigger>
+          <TabsTrigger value="faq">FAQ</TabsTrigger>
+          <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
+        </TabsList>
+
+        {/* Tab Tickets */}
+        <TabsContent value="tickets" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div>
+                  <CardTitle className="text-xl">Gestión de Tickets</CardTitle>
+                  <CardDescription>Administra y responde a los tickets de soporte</CardDescription>
+                </div>
+                <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Enviar Comunicado Masivo
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Filtros */}
+              <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      placeholder="Buscar por asunto o usuario..."
+                      value={busqueda}
+                      onChange={(e) => setBusqueda(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
+                <Select value={filtroEstado} onValueChange={setFiltroEstado}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos los estados</SelectItem>
+                    <SelectItem value="nuevo">Nuevos</SelectItem>
+                    <SelectItem value="abierto">Abiertos</SelectItem>
+                    <SelectItem value="en_espera">En espera</SelectItem>
+                    <SelectItem value="resuelto">Resueltos</SelectItem>
+                    <SelectItem value="cerrado">Cerrados</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={filtroPrioridad} onValueChange={setFiltroPrioridad}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Prioridad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todas">Todas las prioridades</SelectItem>
+                    <SelectItem value="urgente">Urgente</SelectItem>
+                    <SelectItem value="alta">Alta</SelectItem>
+                    <SelectItem value="media">Media</SelectItem>
+                    <SelectItem value="baja">Baja</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" size="icon">
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Tabla de tickets */}
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Asunto</TableHead>
+                      <TableHead>Usuario</TableHead>
+                      <TableHead>Categoría</TableHead>
+                      <TableHead>Prioridad</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead>Asignado</TableHead>
+                      <TableHead>Actualizado</TableHead>
+                      <TableHead className="text-right">Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {tickets.map((ticket) => (
+                      <TableRow key={ticket.id} className="hover:bg-gray-50">
+                        <TableCell className="font-mono text-sm">{ticket.id}</TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <p className="font-medium">{ticket.asunto}</p>
+                            <div className="flex items-center space-x-2 text-sm text-gray-500">
+                              <MessageCircle className="w-3 h-3" />
+                              <span>{ticket.mensajes} mensajes</span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Avatar className="w-8 h-8">
+                              <AvatarFallback className="text-xs">
+                                {ticket.usuario.nombre.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="text-sm font-medium">{ticket.usuario.nombre}</p>
+                              <p className="text-xs text-gray-500">{ticket.usuario.tipo}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{ticket.categoria}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={getColorPrioridad(ticket.prioridad)}>
+                            {ticket.prioridad}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={getColorEstado(ticket.estado)}>
+                            {ticket.estado}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {ticket.asignadoA ? (
+                            <div className="flex items-center space-x-1">
+                              <User className="w-3 h-3 text-gray-400" />
+                              <span className="text-sm">{ticket.asignadoA}</span>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-400">Sin asignar</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {format(ticket.ultimaActualizacion, 'dd/MM HH:mm', { locale: es })}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleAccion('ver', ticket)}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleAccion('responder', ticket)}
+                            >
+                              <Send className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab Agentes */}
+        <TabsContent value="agentes" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Equipo de Soporte</CardTitle>
+              <CardDescription>Rendimiento y estado de los agentes de soporte</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {agentes.map((agente, index) => (
+                  <Card key={index}>
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <Avatar className="w-12 h-12">
+                          <AvatarFallback>
+                            {agente.nombre.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-3 h-3 rounded-full ${getEstadoAgente(agente.estado).color}`} />
+                          <span className="text-sm text-gray-500">{getEstadoAgente(agente.estado).label}</span>
+                        </div>
+                      </div>
+                      <h4 className="font-medium mb-3">{agente.nombre}</h4>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-500">Tickets asignados</span>
+                          <span className="font-medium">{agente.tickets}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-500">Resueltos</span>
+                          <span className="font-medium text-green-600">{agente.resueltos}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-500">Satisfacción</span>
+                          <div className="flex items-center space-x-1">
+                            <span className="font-medium">{agente.satisfaccion}</span>
+                            <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                          </div>
+                        </div>
+                      </div>
+                      <Progress 
+                        value={(agente.resueltos / agente.tickets) * 100} 
+                        className="mt-4 h-2"
+                      />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Tickets por Día</CardTitle>
+                <CardDescription>Comparación de tickets nuevos vs resueltos</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={ticketsPorDia}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="dia" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="nuevos" fill="#8B5CF6" name="Nuevos" />
+                    <Bar dataKey="resueltos" fill="#10B981" name="Resueltos" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Distribución por Categoría</CardTitle>
+                <CardDescription>Tipos de consultas más frecuentes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={ticketsPorCategoria}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ categoria, porcentaje }) => `${categoria}: ${porcentaje}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="cantidad"
+                    >
+                      {ticketsPorCategoria.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Tab FAQ */}
+        <TabsContent value="faq" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Base de Conocimientos</CardTitle>
+                  <CardDescription>Preguntas frecuentes y artículos de ayuda</CardDescription>
+                </div>
+                <Button onClick={() => handleAccion('nueva_faq')}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nueva FAQ
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {faqs.map((faq) => (
+                  <Card key={faq.id}>
+                    <CardContent className="pt-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <HelpCircle className="w-5 h-5 text-purple-500" />
+                            <h4 className="font-medium">{faq.pregunta}</h4>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-3">{faq.respuesta}</p>
+                          <div className="flex items-center space-x-4 text-sm">
+                            <Badge variant="secondary">{faq.categoria}</Badge>
+                            <div className="flex items-center space-x-1">
+                              <Eye className="w-4 h-4 text-gray-400" />
+                              <span>{faq.vistas} vistas</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="flex items-center space-x-1 text-green-600">
+                                <ThumbsUp className="w-4 h-4" />
+                                <span>{faq.util}</span>
+                              </div>
+                              <div className="flex items-center space-x-1 text-red-600">
+                                <ThumbsDown className="w-4 h-4" />
+                                <span>{faq.noUtil}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2 ml-4">
+                          <Button variant="ghost" size="sm">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="text-red-600">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab Estadísticas */}
+        <TabsContent value="estadisticas" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-gray-600">Tickets Hoy</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">18</div>
+                <div className="flex items-center space-x-1 text-sm">
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <span className="text-green-600">+12% vs ayer</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-gray-600">Tasa de Resolución</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">87.5%</div>
+                <Progress value={87.5} className="mt-2 h-2" />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-gray-600">Primera Respuesta</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">15 min</div>
+                <div className="flex items-center space-x-1 text-sm">
+                  <TrendingDown className="w-4 h-4 text-green-500" />
+                  <span className="text-green-600">-5 min vs promedio</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-gray-600">NPS Score</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">78</div>
+                <Badge className="mt-1" variant="outline">Excelente</Badge>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Tendencia Mensual de Tickets</CardTitle>
+              <CardDescription>Evolución del volumen de soporte</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={350}>
+                <LineChart data={[
+                  { mes: 'Ene', tickets: 234, resueltos: 210, satisfaccion: 4.5 },
+                  { mes: 'Feb', tickets: 256, resueltos: 240, satisfaccion: 4.6 },
+                  { mes: 'Mar', tickets: 298, resueltos: 280, satisfaccion: 4.7 },
+                  { mes: 'Abr', tickets: 312, resueltos: 295, satisfaccion: 4.6 },
+                  { mes: 'May', tickets: 345, resueltos: 330, satisfaccion: 4.8 },
+                  { mes: 'Jun', tickets: 378, resueltos: 360, satisfaccion: 4.7 },
+                  { mes: 'Jul', tickets: 402, resueltos: 385, satisfaccion: 4.6 },
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="mes" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip />
+                  <Line yAxisId="left" type="monotone" dataKey="tickets" stroke="#8B5CF6" name="Total Tickets" strokeWidth={2} />
+                  <Line yAxisId="left" type="monotone" dataKey="resueltos" stroke="#10B981" name="Resueltos" strokeWidth={2} />
+                  <Line yAxisId="right" type="monotone" dataKey="satisfaccion" stroke="#F59E0B" name="Satisfacción" strokeWidth={2} strokeDasharray="5 5" />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Modal de Ticket */}
+      <Dialog open={modalAbierto} onOpenChange={setModalAbierto}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {ticketSeleccionado && modalTipo === 'ver' && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Ticket {ticketSeleccionado.id}</DialogTitle>
+                <DialogDescription>{ticketSeleccionado.asunto}</DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-6">
+                {/* Información del ticket */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm text-gray-500">Usuario</Label>
+                    <div className="mt-1 flex items-center space-x-2">
+                      <Avatar className="w-8 h-8">
+                        <AvatarFallback className="text-xs">
+                          {ticketSeleccionado.usuario.nombre.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{ticketSeleccionado.usuario.nombre}</p>
+                        <p className="text-sm text-gray-500">{ticketSeleccionado.usuario.email}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-500">Asignado a</Label>
+                    <Select defaultValue={ticketSeleccionado.asignadoA}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Seleccionar agente" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {agentes.map((agente) => (
+                          <SelectItem key={agente.nombre} value={agente.nombre}>
+                            {agente.nombre}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-500">Prioridad</Label>
+                    <Select defaultValue={ticketSeleccionado.prioridad}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="baja">Baja</SelectItem>
+                        <SelectItem value="media">Media</SelectItem>
+                        <SelectItem value="alta">Alta</SelectItem>
+                        <SelectItem value="urgente">Urgente</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-500">Estado</Label>
+                    <Select defaultValue={ticketSeleccionado.estado}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="nuevo">Nuevo</SelectItem>
+                        <SelectItem value="abierto">Abierto</SelectItem>
+                        <SelectItem value="en_espera">En espera</SelectItem>
+                        <SelectItem value="resuelto">Resuelto</SelectItem>
+                        <SelectItem value="cerrado">Cerrado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Conversación */}
+                <div>
+                  <h4 className="font-medium mb-3">Conversación</h4>
+                  <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+                    <div className="text-center py-8 text-gray-500">
+                      <MessageCircle className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                      <p>Historial de mensajes del ticket</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Respuesta rápida */}
+                <div>
+                  <Label>Respuesta Rápida</Label>
+                  <Textarea 
+                    className="mt-2"
+                    placeholder="Escribe tu respuesta aquí..."
+                    rows={4}
+                  />
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="flex items-center space-x-2">
+                      <Button variant="outline" size="sm">
+                        <Paperclip className="w-4 h-4 mr-2" />
+                        Adjuntar
+                      </Button>
+                      <Select>
+                        <SelectTrigger className="w-[200px]">
+                          <SelectValue placeholder="Plantilla de respuesta" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="saludo">Saludo general</SelectItem>
+                          <SelectItem value="verificacion">Proceso de verificación</SelectItem>
+                          <SelectItem value="pagos">Información de pagos</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                      <Send className="w-4 h-4 mr-2" />
+                      Enviar Respuesta
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {modalTipo === 'nueva_faq' && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Crear Nueva FAQ</DialogTitle>
+                <DialogDescription>Agrega una nueva pregunta frecuente a la base de conocimientos</DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label>Categoría</Label>
+                  <Select>
+                    <SelectTrigger className="mt-2">
+                      <SelectValue placeholder="Seleccionar categoría" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="cuenta">Cuenta</SelectItem>
+                      <SelectItem value="pagos">Pagos</SelectItem>
+                      <SelectItem value="colaboraciones">Colaboraciones</SelectItem>
+                      <SelectItem value="verificacion">Verificación</SelectItem>
+                      <SelectItem value="general">General</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Pregunta</Label>
+                  <Input className="mt-2" placeholder="¿Cuál es la pregunta frecuente?" />
+                </div>
+                <div>
+                  <Label>Respuesta</Label>
+                  <Textarea 
+                    className="mt-2"
+                    placeholder="Proporciona una respuesta clara y detallada..."
+                    rows={6}
+                  />
+                </div>
+                <div>
+                  <Label>Palabras clave (separadas por comas)</Label>
+                  <Input className="mt-2" placeholder="pago, comisión, transferencia" />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setModalAbierto(false)}>
+                    Cancelar
+                  </Button>
+                  <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                    Crear FAQ
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
