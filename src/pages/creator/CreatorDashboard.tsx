@@ -36,6 +36,9 @@ import { ColaboracionesKanban } from "@/components/creator/ColaboracionesKanban"
 import { AnalyticsProfesionales } from "@/components/creator/AnalyticsProfesionales";
 import { HerramientasProductividad } from "@/components/creator/HerramientasProductividad";
 import { MiBrandKit } from "@/components/creator/MiBrandKit";
+import socialMediaCreators from "@/assets/social-media-creators.jpg";
+import fitnessCreators from "@/assets/fitness-creators.jpg";
+import restaurantFood from "@/assets/restaurant-food-ugc.jpg";
 
 const CreatorDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
