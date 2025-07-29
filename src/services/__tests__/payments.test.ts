@@ -1,10 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { paymentsService } from '../payments'
-import { createMockPayment } from '@/test-setup'
 
-// Mock Supabase
-const mockSupabase = {
-  from: vi.fn(() => ({
+// Mock Supabase before importing the service
+vi.mock('@/integrations/supabase/client', () => {
+  const (mockSupabase.from as any)() = {
     select: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
     update: vi.fn().mockReturnThis(),
@@ -15,12 +13,23 @@ const mockSupabase = {
     order: vi.fn().mockReturnThis(),
     range: vi.fn().mockReturnThis(),
     single: vi.fn(),
-  })),
-}
+  }
 
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: mockSupabase,
-}))
+  const mockSupabase = {
+    from: vi.fn(() => (mockSupabase.from as any)()),
+  }
+
+  return {
+    supabase: mockSupabase,
+  }
+})
+
+import { paymentsService } from '../payments'
+import { createMockPayment } from '@/test-setup'
+import { supabase } from '@/integrations/supabase/client'
+
+// Get the mocked supabase instance
+const mockSupabase = vi.mocked(supabase)
 
 describe('PaymentsService', () => {
   beforeEach(() => {
@@ -30,7 +39,7 @@ describe('PaymentsService', () => {
   describe('getPayments', () => {
     it('fetches payments with default parameters', async () => {
       const mockPayments = [createMockPayment(), createMockPayment({ id: 'payment-2' })]
-      mockSupabase.from().range.mockResolvedValue({ data: mockPayments, error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: mockPayments, error: null })
 
       const payments = await paymentsService.getPayments()
 
@@ -40,86 +49,86 @@ describe('PaymentsService', () => {
 
     it('applies user_id filter correctly', async () => {
       const mockPayments = [createMockPayment()]
-      mockSupabase.from().range.mockResolvedValue({ data: mockPayments, error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: mockPayments, error: null })
 
       await paymentsService.getPayments({ user_id: 'test-user-id' })
 
-      expect(mockSupabase.from().eq).toHaveBeenCalledWith('user_id', 'test-user-id')
+      expect((mockSupabase.from as any)().eq).toHaveBeenCalledWith('user_id', 'test-user-id')
     })
 
     it('applies type filter correctly', async () => {
       const mockPayments = [createMockPayment({ type: 'collaboration' })]
-      mockSupabase.from().range.mockResolvedValue({ data: mockPayments, error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: mockPayments, error: null })
 
       await paymentsService.getPayments({ type: 'collaboration' })
 
-      expect(mockSupabase.from().eq).toHaveBeenCalledWith('type', 'collaboration')
+      expect((mockSupabase.from as any)().eq).toHaveBeenCalledWith('type', 'collaboration')
     })
 
     it('applies status filter correctly', async () => {
       const mockPayments = [createMockPayment({ status: 'approved' })]
-      mockSupabase.from().range.mockResolvedValue({ data: mockPayments, error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: mockPayments, error: null })
 
       await paymentsService.getPayments({ status: 'approved' })
 
-      expect(mockSupabase.from().eq).toHaveBeenCalledWith('status', 'approved')
+      expect((mockSupabase.from as any)().eq).toHaveBeenCalledWith('status', 'approved')
     })
 
     it('applies date range filters correctly', async () => {
       const mockPayments = [createMockPayment()]
-      mockSupabase.from().range.mockResolvedValue({ data: mockPayments, error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: mockPayments, error: null })
 
       await paymentsService.getPayments({
         date_from: '2024-01-01',
         date_to: '2024-12-31',
       })
 
-      expect(mockSupabase.from().gte).toHaveBeenCalledWith('created_at', '2024-01-01')
-      expect(mockSupabase.from().lte).toHaveBeenCalledWith('created_at', '2024-12-31')
+      expect((mockSupabase.from as any)().gte).toHaveBeenCalledWith('created_at', '2024-01-01')
+      expect((mockSupabase.from as any)().lte).toHaveBeenCalledWith('created_at', '2024-12-31')
     })
 
     it('applies amount range filters correctly', async () => {
       const mockPayments = [createMockPayment()]
-      mockSupabase.from().range.mockResolvedValue({ data: mockPayments, error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: mockPayments, error: null })
 
       await paymentsService.getPayments({
         amount_min: 1000,
         amount_max: 5000,
       })
 
-      expect(mockSupabase.from().gte).toHaveBeenCalledWith('amount', 1000)
-      expect(mockSupabase.from().lte).toHaveBeenCalledWith('amount', 5000)
+      expect((mockSupabase.from as any)().gte).toHaveBeenCalledWith('amount', 1000)
+      expect((mockSupabase.from as any)().lte).toHaveBeenCalledWith('amount', 5000)
     })
 
     it('applies search term filter correctly', async () => {
       const mockPayments = [createMockPayment()]
-      mockSupabase.from().range.mockResolvedValue({ data: mockPayments, error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: mockPayments, error: null })
 
       await paymentsService.getPayments({ search_term: 'membership' })
 
-      expect(mockSupabase.from().or).toHaveBeenCalledWith(
+      expect((mockSupabase.from as any)().or).toHaveBeenCalledWith(
         'description.ilike.%membership%,transaction_id.ilike.%membership%'
       )
     })
 
     it('handles pagination correctly', async () => {
       const mockPayments = [createMockPayment()]
-      mockSupabase.from().range.mockResolvedValue({ data: mockPayments, error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: mockPayments, error: null })
 
       await paymentsService.getPayments({}, 25, 50)
 
-      expect(mockSupabase.from().range).toHaveBeenCalledWith(50, 74)
+      expect((mockSupabase.from as any)().range).toHaveBeenCalledWith(50, 74)
     })
 
     it('throws error when Supabase returns error', async () => {
       const mockError = new Error('Database error')
-      mockSupabase.from().range.mockResolvedValue({ data: null, error: mockError })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: null, error: mockError })
 
       await expect(paymentsService.getPayments()).rejects.toThrow('Database error')
     })
 
     it('returns empty array when no data', async () => {
-      mockSupabase.from().range.mockResolvedValue({ data: null, error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: null, error: null })
 
       const payments = await paymentsService.getPayments()
 
@@ -130,17 +139,17 @@ describe('PaymentsService', () => {
   describe('getPayment', () => {
     it('fetches single payment by ID', async () => {
       const mockPayment = createMockPayment()
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       const payment = await paymentsService.getPayment('test-payment-id')
 
       expect(mockSupabase.from).toHaveBeenCalledWith('payments')
-      expect(mockSupabase.from().eq).toHaveBeenCalledWith('id', 'test-payment-id')
+      expect((mockSupabase.from as any)().eq).toHaveBeenCalledWith('id', 'test-payment-id')
       expect(payment).toEqual(mockPayment)
     })
 
     it('returns null when payment not found', async () => {
-      mockSupabase.from().single.mockResolvedValue({
+      (mockSupabase.from as any)().single.mockResolvedValue({
         data: null,
         error: { code: 'PGRST116' }
       })
@@ -152,7 +161,7 @@ describe('PaymentsService', () => {
 
     it('throws error for other database errors', async () => {
       const mockError = new Error('Database connection error')
-      mockSupabase.from().single.mockResolvedValue({ data: null, error: mockError })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: null, error: mockError })
 
       await expect(paymentsService.getPayment('test-id')).rejects.toThrow('Database connection error')
     })
@@ -161,16 +170,16 @@ describe('PaymentsService', () => {
   describe('getPaymentByMPId', () => {
     it('fetches payment by MercadoPago ID', async () => {
       const mockPayment = createMockPayment({ mercadopago_payment_id: 'mp-123' })
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       const payment = await paymentsService.getPaymentByMPId('mp-123')
 
-      expect(mockSupabase.from().eq).toHaveBeenCalledWith('mercadopago_payment_id', 'mp-123')
+      expect((mockSupabase.from as any)().eq).toHaveBeenCalledWith('mercadopago_payment_id', 'mp-123')
       expect(payment).toEqual(mockPayment)
     })
 
     it('returns null when payment not found', async () => {
-      mockSupabase.from().single.mockResolvedValue({
+      (mockSupabase.from as any)().single.mockResolvedValue({
         data: null,
         error: { code: 'PGRST116' }
       })
@@ -184,7 +193,7 @@ describe('PaymentsService', () => {
   describe('createPayment', () => {
     it('creates payment with correct data', async () => {
       const mockPayment = createMockPayment()
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       const paymentData = {
         user_id: 'test-user-id',
@@ -197,7 +206,7 @@ describe('PaymentsService', () => {
       const payment = await paymentsService.createPayment(paymentData)
 
       expect(mockSupabase.from).toHaveBeenCalledWith('payments')
-      expect(mockSupabase.from().insert).toHaveBeenCalledWith(
+      expect((mockSupabase.from as any)().insert).toHaveBeenCalledWith(
         expect.objectContaining({
           user_id: 'test-user-id',
           type: 'membership',
@@ -214,7 +223,7 @@ describe('PaymentsService', () => {
 
     it('creates payment with custom currency', async () => {
       const mockPayment = createMockPayment({ currency: 'USD' })
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       const paymentData = {
         user_id: 'test-user-id',
@@ -227,7 +236,7 @@ describe('PaymentsService', () => {
 
       await paymentsService.createPayment(paymentData)
 
-      expect(mockSupabase.from().insert).toHaveBeenCalledWith(
+      expect((mockSupabase.from as any)().insert).toHaveBeenCalledWith(
         expect.objectContaining({
           currency: 'USD',
         })
@@ -236,7 +245,7 @@ describe('PaymentsService', () => {
 
     it('includes optional fields when provided', async () => {
       const mockPayment = createMockPayment()
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       const paymentData = {
         user_id: 'test-user-id',
@@ -251,7 +260,7 @@ describe('PaymentsService', () => {
 
       await paymentsService.createPayment(paymentData)
 
-      expect(mockSupabase.from().insert).toHaveBeenCalledWith(
+      expect((mockSupabase.from as any)().insert).toHaveBeenCalledWith(
         expect.objectContaining({
           reference_id: 'collab-123',
           reference_type: 'collaboration',
@@ -262,7 +271,7 @@ describe('PaymentsService', () => {
 
     it('throws error when creation fails', async () => {
       const mockError = new Error('Database error')
-      mockSupabase.from().single.mockResolvedValue({ data: null, error: mockError })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: null, error: mockError })
 
       const paymentData = {
         user_id: 'test-user-id',
@@ -279,7 +288,7 @@ describe('PaymentsService', () => {
   describe('updatePaymentStatus', () => {
     it('updates payment status to approved', async () => {
       const mockPayment = createMockPayment({ status: 'approved' })
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       const payment = await paymentsService.updatePaymentStatus(
         'test-payment-id',
@@ -287,7 +296,7 @@ describe('PaymentsService', () => {
         'mp-123'
       )
 
-      expect(mockSupabase.from().update).toHaveBeenCalledWith(
+      expect((mockSupabase.from as any)().update).toHaveBeenCalledWith(
         expect.objectContaining({
           status: 'approved',
           mercadopago_payment_id: 'mp-123',
@@ -300,7 +309,7 @@ describe('PaymentsService', () => {
 
     it('updates payment status to rejected with failure reason', async () => {
       const mockPayment = createMockPayment({ status: 'rejected' })
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       await paymentsService.updatePaymentStatus(
         'test-payment-id',
@@ -309,7 +318,7 @@ describe('PaymentsService', () => {
         'Insufficient funds'
       )
 
-      expect(mockSupabase.from().update).toHaveBeenCalledWith(
+      expect((mockSupabase.from as any)().update).toHaveBeenCalledWith(
         expect.objectContaining({
           status: 'rejected',
           failed_at: expect.any(String),
@@ -320,11 +329,11 @@ describe('PaymentsService', () => {
 
     it('updates payment status to refunded', async () => {
       const mockPayment = createMockPayment({ status: 'refunded' })
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       await paymentsService.updatePaymentStatus('test-payment-id', 'refunded')
 
-      expect(mockSupabase.from().update).toHaveBeenCalledWith(
+      expect((mockSupabase.from as any)().update).toHaveBeenCalledWith(
         expect.objectContaining({
           status: 'refunded',
           refunded_at: expect.any(String),
@@ -341,7 +350,7 @@ describe('PaymentsService', () => {
         createMockPayment({ status: 'pending', amount: 15000, type: 'membership' }),
         createMockPayment({ status: 'rejected', amount: 5000, type: 'experience' }),
       ]
-      mockSupabase.from().range.mockResolvedValue({ data: mockPayments, error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: mockPayments, error: null })
 
       const stats = await paymentsService.getPaymentStats()
 
@@ -359,7 +368,7 @@ describe('PaymentsService', () => {
     })
 
     it('handles empty payment list', async () => {
-      mockSupabase.from().range.mockResolvedValue({ data: [], error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: [], error: null })
 
       const stats = await paymentsService.getPaymentStats()
 
@@ -372,11 +381,11 @@ describe('PaymentsService', () => {
   describe('createMembershipPayment', () => {
     it('creates basic membership payment with correct amount', async () => {
       const mockPayment = createMockPayment()
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       await paymentsService.createMembershipPayment('user-123', 'basic', 'membership-456')
 
-      expect(mockSupabase.from().insert).toHaveBeenCalledWith(
+      expect((mockSupabase.from as any)().insert).toHaveBeenCalledWith(
         expect.objectContaining({
           user_id: 'user-123',
           type: 'membership',
@@ -394,11 +403,11 @@ describe('PaymentsService', () => {
 
     it('creates premium membership payment with correct amount', async () => {
       const mockPayment = createMockPayment()
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       await paymentsService.createMembershipPayment('user-123', 'premium', 'membership-456')
 
-      expect(mockSupabase.from().insert).toHaveBeenCalledWith(
+      expect((mockSupabase.from as any)().insert).toHaveBeenCalledWith(
         expect.objectContaining({
           amount: 899900, // $8,999 in cents
           description: 'URContent Premium - Plan Mensual',
@@ -408,11 +417,11 @@ describe('PaymentsService', () => {
 
     it('creates VIP membership payment with correct amount', async () => {
       const mockPayment = createMockPayment()
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       await paymentsService.createMembershipPayment('user-123', 'vip', 'membership-456')
 
-      expect(mockSupabase.from().insert).toHaveBeenCalledWith(
+      expect((mockSupabase.from as any)().insert).toHaveBeenCalledWith(
         expect.objectContaining({
           amount: 1999900, // $19,999 in cents
           description: 'URContent Vip - Plan Mensual',
@@ -424,7 +433,7 @@ describe('PaymentsService', () => {
   describe('processMercadoPageWebhook', () => {
     it('processes approved payment webhook', async () => {
       const mockPayment = createMockPayment({ mercadopago_payment_id: 'mp-123' })
-      mockSupabase.from().single
+      (mockSupabase.from as any)().single
         .mockResolvedValueOnce({ data: mockPayment, error: null }) // getPaymentByMPId
         .mockResolvedValueOnce({ data: { ...mockPayment, status: 'approved' }, error: null }) // updatePaymentStatus
 
@@ -435,7 +444,7 @@ describe('PaymentsService', () => {
 
     it('processes rejected payment webhook', async () => {
       const mockPayment = createMockPayment({ mercadopago_payment_id: 'mp-123' })
-      mockSupabase.from().single
+      (mockSupabase.from as any)().single
         .mockResolvedValueOnce({ data: mockPayment, error: null })
         .mockResolvedValueOnce({ data: { ...mockPayment, status: 'rejected' }, error: null })
 
@@ -445,7 +454,7 @@ describe('PaymentsService', () => {
     })
 
     it('returns null when payment not found', async () => {
-      mockSupabase.from().single.mockResolvedValue({ data: null, error: { code: 'PGRST116' } })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: null, error: { code: 'PGRST116' } })
 
       const result = await paymentsService.processMercadoPageWebhook('non-existent-mp-id', 'approved')
 
@@ -454,7 +463,7 @@ describe('PaymentsService', () => {
 
     it('handles unknown payment status', async () => {
       const mockPayment = createMockPayment({ mercadopago_payment_id: 'mp-123' })
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       const result = await paymentsService.processMercadoPageWebhook('mp-123', 'unknown_status')
 
@@ -482,7 +491,7 @@ describe('PaymentsService', () => {
           description: 'Collaboration Fee',
         }),
       ]
-      mockSupabase.from().range.mockResolvedValue({ data: mockPayments, error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: mockPayments, error: null })
 
       const csvContent = await paymentsService.exportPayments()
 
@@ -496,7 +505,7 @@ describe('PaymentsService', () => {
     })
 
     it('handles empty payment list', async () => {
-      mockSupabase.from().range.mockResolvedValue({ data: [], error: null })
+      (mockSupabase.from as any)().range.mockResolvedValue({ data: [], error: null })
 
       const csvContent = await paymentsService.exportPayments()
 
@@ -509,7 +518,7 @@ describe('PaymentsService', () => {
   describe('refundPayment', () => {
     it('refunds approved payment successfully', async () => {
       const mockPayment = createMockPayment({ status: 'approved' })
-      mockSupabase.from().single
+      (mockSupabase.from as any)().single
         .mockResolvedValueOnce({ data: mockPayment, error: null }) // getPayment
         .mockResolvedValueOnce({ data: { ...mockPayment, status: 'refunded' }, error: null }) // updatePaymentStatus
 
@@ -519,14 +528,14 @@ describe('PaymentsService', () => {
     })
 
     it('throws error when payment not found', async () => {
-      mockSupabase.from().single.mockResolvedValue({ data: null, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: null, error: null })
 
       await expect(paymentsService.refundPayment('non-existent-id')).rejects.toThrow('Payment not found')
     })
 
     it('throws error when payment is not approved', async () => {
       const mockPayment = createMockPayment({ status: 'pending' })
-      mockSupabase.from().single.mockResolvedValue({ data: mockPayment, error: null })
+      (mockSupabase.from as any)().single.mockResolvedValue({ data: mockPayment, error: null })
 
       await expect(paymentsService.refundPayment('payment-123')).rejects.toThrow('Only approved payments can be refunded')
     })

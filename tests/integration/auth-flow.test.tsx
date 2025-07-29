@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { render } from '@/__tests__/test-utils'
-import { BrowserRouter } from 'react-router-dom'
 import App from '@/App'
 import { server } from '@/__mocks__/server'
 import { http, HttpResponse } from 'msw'
@@ -47,11 +46,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Navigate to login page
       const loginLink = screen.getByText(/iniciar sesión/i)
@@ -83,11 +78,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Navigate to login page
       const loginLink = screen.getByText(/iniciar sesión/i)
@@ -119,11 +110,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Navigate to login page
       const loginLink = screen.getByText(/iniciar sesión/i)
@@ -174,11 +161,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Navigate to registration page
       const registerLink = screen.getByText(/regístrate/i)
@@ -209,11 +192,7 @@ describe('Authentication Flow Integration', () => {
     })
 
     it('displays validation errors for invalid form data', async () => {
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Navigate to registration page
       const registerLink = screen.getByText(/regístrate/i)
@@ -232,11 +211,7 @@ describe('Authentication Flow Integration', () => {
     })
 
     it('validates password confirmation match', async () => {
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Navigate to registration page
       const registerLink = screen.getByText(/regístrate/i)
@@ -284,11 +259,7 @@ describe('Authentication Flow Integration', () => {
       )
 
       // Render app with authenticated user
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Wait for authentication to load
       await waitFor(() => {
@@ -316,11 +287,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Navigate to login page and then to forgot password
       const loginLink = screen.getByText(/iniciar sesión/i)
@@ -346,11 +313,7 @@ describe('Authentication Flow Integration', () => {
     })
 
     it('handles invalid email for password reset', async () => {
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Navigate to forgot password page
       const loginLink = screen.getByText(/iniciar sesión/i)
@@ -375,11 +338,7 @@ describe('Authentication Flow Integration', () => {
 
   describe('Protected Routes', () => {
     it('redirects unauthenticated users to login', async () => {
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Try to navigate to protected route
       window.history.pushState({}, '', '/dashboard')
@@ -416,11 +375,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Navigate to protected route
       window.history.pushState({}, '', '/dashboard')
@@ -456,11 +411,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Try to navigate to business-only route
       window.history.pushState({}, '', '/content-review')
@@ -488,11 +439,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Should redirect to login when session expires
       await waitFor(() => {
@@ -527,11 +474,7 @@ describe('Authentication Flow Integration', () => {
         })
       )
 
-      render(
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      )
+      render(<App />)
 
       // Simulate token refresh trigger
       // This would normally happen automatically via Supabase auth

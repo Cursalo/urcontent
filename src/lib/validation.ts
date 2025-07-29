@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Phone number validation for Argentina
-export const phoneRegex = /^(\+54\s?)?(\d{1,4}\s?)?(\d{4}\s?\d{4}|\d{3}\s?\d{3}\s?\d{4})$/;
+export const phoneRegex = /^(\+54\s?)?(\d{2,4}\s?)?\d{4}[\s-]?\d{4}$/;
 
 // CUIT validation for Argentina
 export const cuitRegex = /^\d{2}-\d{8}-\d{1}$/;
@@ -183,6 +183,9 @@ export const validateStep = <T>(schema: z.ZodSchema<T>, data: unknown): { succes
 
 // CUIT validation function
 export const validateCuit = (cuit: string): boolean => {
+  // First check if it matches the regex format
+  if (!cuitRegex.test(cuit)) return false;
+  
   // Remove hyphens and spaces
   const cleanCuit = cuit.replace(/[-\s]/g, '');
   
