@@ -225,12 +225,28 @@ class MockAuthService {
 // Export singleton instance
 export const mockAuthService = new MockAuthService();
 
-// Helper function to check if we should use mock auth
+// Helper function to check if specific credentials should use mock auth
+export const shouldUseMockAuthForUser = (email: string): boolean => {
+  // Check if email matches any mock user accounts
+  const mockEmails = [
+    'creator@urcontent.com',
+    'venue@urcontent.com', 
+    'admin@urcontent.com'
+  ];
+  
+  return mockEmails.includes(email.toLowerCase());
+};
+
+// Helper function to check if we should use mock auth globally
 export const shouldUseMockAuth = (): boolean => {
-  // Check environment variables
+  // Check environment variables - only force mock auth if explicitly set
   return import.meta.env.VITE_USE_MOCK_DATA === 'true' || 
-         window.location.hostname === 'localhost' ||
-         !import.meta.env.VITE_SUPABASE_URL ||
-         // For immediate testing, always use mock auth to bypass Supabase issues  
+         // Always allow hybrid mode in development
          import.meta.env.MODE === 'development';
+};
+
+// Helper to detect auth type for a user session
+export const detectUserAuthType = (email?: string): 'mock' | 'supabase' => {
+  if (!email) return 'supabase';
+  return shouldUseMockAuthForUser(email) ? 'mock' : 'supabase';
 };

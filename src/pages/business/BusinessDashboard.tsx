@@ -52,14 +52,24 @@ import {
   Loader2
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { businessService, collaborationService, creatorService, Collaboration } from "@/services";
+import { useHybridDashboard } from "@/hooks/useHybridDashboard";
+import { toast } from "sonner";
 
 const BusinessDashboard = () => {
   const { user, profile } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [businessProfile, setBusinessProfile] = useState<any>(null);
-  const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
+  const {
+    loading,
+    error,
+    dashboardData,
+    authType,
+    userProfile: businessProfile,
+    collaborations,
+    metrics,
+    analytics,
+    refresh
+  } = useHybridDashboard('business');
+  
+  // Legacy state for component compatibility
   const [dashboardStats, setDashboardStats] = useState({
     campaignROI: 0,
     activeCampaigns: 0,
@@ -69,68 +79,36 @@ const BusinessDashboard = () => {
     avgRating: 0
   });
 
-  // Fetch dashboard data
+  // Update legacy stats when dashboard data changes
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      if (!user || !profile || profile.role !== 'business') return;
+    if (dashboardData && metrics) {
+      setDashboardStats({
+        campaignROI: metrics.avgCampaignROI || 0,
+        activeCampaigns: metrics.activeCampaigns || 0,
+        totalReach: metrics.totalReach || 0,
+        monthlySpend: metrics.monthlySpent || 0,
+        completedCampaigns: metrics.completedCampaigns || 0,
+        avgRating: metrics.avgRating || 0
+      });
       
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Get business profile
-        const businessData = await businessService.getBusinessByUserId(user.id);
-        if (!businessData) {
-          setError('Perfil de negocio no encontrado');
-          return;
-        }
-        setBusinessProfile(businessData);
-
-        // Get business collaborations
-        const collaborationsData = await collaborationService.getCollaborations({
-          business_id: businessData.id
+      console.log(`✅ Business Dashboard: Loaded ${authType} data with ${collaborations.length} collaborations`);
+      
+      // Show success notification
+      if (!loading && dashboardData) {
+        toast.success('Business Dashboard loaded successfully!', {
+          description: `Welcome back! You have ${metrics.activeCampaigns} active campaigns.`,
+          duration: 4000,
         });
-        setCollaborations(collaborationsData);
-
-        // Calculate dashboard stats
-        const activeCollab = collaborationsData.filter(c => 
-          ['accepted', 'in_progress'].includes(c.status)
-        ).length;
-        
-        const completedCollab = collaborationsData.filter(c => 
-          c.status === 'completed'
-        ).length;
-        
-        const monthlySpend = collaborationsData
-          .filter(c => c.compensation_amount)
-          .reduce((sum, c) => sum + (c.compensation_amount || 0), 0);
-
-        const totalReach = collaborationsData
-          .filter(c => c.reach)
-          .reduce((sum, c) => sum + (c.reach || 0), 0);
-
-        // Calculate ROI (simplified)
-        const totalRevenue = totalReach * 0.02; // Assume 2% conversion rate for demo
-        const roi = monthlySpend > 0 ? ((totalRevenue - monthlySpend) / monthlySpend) * 100 : 0;
-
-        setDashboardStats({
-          campaignROI: roi,
-          activeCampaigns: activeCollab,
-          totalReach,
-          monthlySpend,
-          completedCampaigns: completedCollab,
-          avgRating: businessData.rating || 0
-        });
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        setError('Error al cargar los datos del dashboard');
-      } finally {
-        setLoading(false);
       }
-    };
-
-    fetchDashboardData();
-  }, [user, profile]);
+    }
+  }, [dashboardData, metrics, authType, collaborations.length, loading]);
+  
+  // Handle errors with toast notifications
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   // Format numbers for display
   const formatReach = (count: number) => {

@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDashboardRedirect } from '@/components/dashboard/DashboardRedirect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,6 +31,7 @@ interface LoginFormProps {
 
 export const LoginForm: React.FC<LoginFormProps> = memo(({ onSuccess }) => {
   const { signIn } = useAuth();
+  const redirectToDashboard = useDashboardRedirect();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [showTestAccounts, setShowTestAccounts] = useState(false);
@@ -53,12 +55,17 @@ export const LoginForm: React.FC<LoginFormProps> = memo(({ onSuccess }) => {
       if (error) {
         setError(error.message);
       } else {
-        onSuccess?.();
+        // BULLETPROOF LOGIN SUCCESS: Redirect to role-appropriate dashboard
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          redirectToDashboard();
+        }
       }
     } catch (err) {
       setError('An unexpected error occurred');
     }
-  }, [signIn, onSuccess]);
+  }, [signIn, onSuccess, redirectToDashboard]);
 
   const togglePasswordVisibility = useCallback(() => {
     setShowPassword(prev => !prev);

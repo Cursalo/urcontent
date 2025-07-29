@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
 import { Tables } from '@/integrations/supabase/types';
-import { mockAuthService, shouldUseMockAuth } from '@/services/mockAuth';
+import { hybridAuthService } from '@/services/hybridAuth';
 import { MockUser } from '@/data/mockUsers';
 
 type UserProfile = Tables<'users'>;
@@ -46,316 +45,118 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<UserProfile | MockUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [useMockAuth] = useState(shouldUseMockAuth());
+  const [authType, setAuthType] = useState<'mock' | 'supabase'>('supabase');
 
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Optimized timeout for immediate feedback
-        const initTimeout = setTimeout(() => {
-          console.warn('Auth initialization timeout - setting loading to false');
-          setLoading(false);
-        }, 2000); // 2 second timeout for faster feedback
-
-        if (useMockAuth) {
-          // Use mock authentication - completely bypass Supabase
-          console.log('Using mock authentication system');
-          const { session: mockSession } = await mockAuthService.getSession();
-          const { user: mockUser } = await mockAuthService.getUser();
-          
-          if (mockSession && mockUser) {
-            console.log('Mock user authenticated:', { id: mockUser.id, role: mockUser.role, email: mockUser.email });
-            
-            // Convert mock session to Session-like object
-            const sessionLike = {
-              ...mockSession,
-              token_type: 'bearer',
-              user: {
-                id: mockUser.id,
-                email: mockUser.email,
-                user_metadata: {
-                  full_name: mockUser.full_name,
-                  role: mockUser.role
-                },
-                created_at: mockUser.created_at
-              }
-            } as Session;
-            
-            setSession(sessionLike);
-            setUser(mockUser as ExtendedUser);
-            setProfile(mockUser); // Use mockUser directly as profile
-            console.log('Mock auth initialization complete - profile set with role:', mockUser.role);
-          } else {
-            console.log('No mock session found');
-          }
-          
-          setLoading(false);
-          clearTimeout(initTimeout);
-          return;
-        }
-
-        // Original Supabase authentication
-        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('🔐 Initializing Hybrid Authentication System');
+        setLoading(true);
         
-        if (error) {
-          console.error('Error getting session:', error);
-          setLoading(false);
-          return;
-        }
-
-        setSession(session);
-        setUser(session?.user ?? null);
+        // Use hybrid auth service to get session
+        const result = await hybridAuthService.getSession();
         
-        if (session?.user) {
-          await fetchUserProfile(session.user.id);
+        if (result.user && result.session) {
+          console.log(`✅ Hybrid Auth: User authenticated via ${result.authType}`, {
+            id: result.user.id,
+            email: result.user.email,
+            authType: result.authType
+          });
+          
+          setUser(result.user as ExtendedUser);
+          setSession(result.session as Session);
+          setProfile(result.profile as UserProfile | MockUser);
+          setAuthType(result.authType);
         } else {
-          setLoading(false);
+          console.log('🔐 No active session found');
+          setUser(null);
+          setSession(null);
+          setProfile(null);
         }
-
-        clearTimeout(initTimeout);
       } catch (error) {
-        console.error('Auth initialization failed:', error);
+        console.error('❌ Hybrid auth initialization failed:', error);
+      } finally {
         setLoading(false);
       }
     };
 
     initializeAuth();
 
-    if (!useMockAuth) {
-      // Listen for auth changes (Supabase only)
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange(async (event, session) => {
-        try {
-          console.log('Auth state change:', event, session?.user?.id);
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            await fetchUserProfile(session.user.id);
-          } else {
-            setProfile(null);
-            setLoading(false);
-          }
-        } catch (error) {
-          console.error('Auth state change error:', error);
-          setLoading(false);
-        }
+    // Listen to hybrid auth state changes
+    const subscription = hybridAuthService.onAuthStateChange((state) => {
+      console.log(`🔐 Hybrid Auth state change: ${state.authType}`, {
+        hasUser: !!state.user,
+        hasProfile: !!state.profile,
+        loading: state.loading
       });
-
-      return () => subscription.unsubscribe();
-    }
-  }, [useMockAuth]);
-
-  const fetchUserProfile = async (userId: string) => {
-    // Skip profile fetch entirely if using mock auth
-    if (useMockAuth) {
-      console.log('Skipping profile fetch - using mock auth');
-      return;
-    }
-
-    const fetchTimeout = setTimeout(() => {
-      console.warn('Profile fetch timeout - setting loading to false');
-      setLoading(false);
-    }, 2000); // Optimized timeout for faster feedback
-
-    try {
-      setLoading(true);
-      console.log('Fetching profile for user:', userId);
       
-      // First, get user data from auth.users metadata as fallback
-      const { data: authUser } = await supabase.auth.getUser();
-      const userMetadata = authUser?.user?.user_metadata;
-      
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching user profile:', error);
-        
-        // Handle specific error cases
-        if (error.code === '42P01') {
-          console.warn('Users table does not exist. Please run the database setup script.');
-        } else if (error.code === '42P17') {
-          console.warn('RLS policy recursion detected. Please fix the database policies.');
-        } else if (error.code === 'PGRST116') {
-          console.warn('User profile not found in users table.');
-        }
-        
-        // If we can't get profile from database but have auth metadata, create a fallback profile
-        if (userMetadata && authUser?.user) {
-          const fallbackProfile = {
-            id: authUser.user.id,
-            email: authUser.user.email!,
-            full_name: userMetadata.full_name || 'User',
-            role: String(userMetadata.role || 'creator') as UserRole,
-            username: null,
-            avatar_url: null,
-            phone: null,
-            location: null,
-            timezone: null,
-            language: null,
-            is_verified: false,
-            verification_status: 'pending' as const,
-            created_at: authUser.user.created_at,
-            updated_at: null,
-            last_seen_at: null,
-          };
-          
-          console.log('Using fallback profile from auth metadata:', { role: fallbackProfile.role });
-          setProfile(fallbackProfile);
-        } else {
-          // Set profile to null instead of undefined to prevent infinite loops
-          setProfile(null);
-        }
-      } else {
-        console.log('Profile fetched successfully:', { role: data.role });
-        setProfile(data);
-      }
-    } catch (error) {
-      console.error('Unexpected error fetching user profile:', error);
-      setProfile(null);
-    } finally {
-      clearTimeout(fetchTimeout);
-      setLoading(false);
-    }
-  };
-
-  const signUp = async (email: string, password: string, userData: { full_name: string; role: UserRole }) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: userData.full_name,
-          role: userData.role,
-        },
-      },
+      setUser(state.user as ExtendedUser);
+      setProfile(state.profile);
+      setSession(state.session as Session);
+      setAuthType(state.authType);
+      setLoading(state.loading);
     });
 
-    if (!error && data.user) {
-      // Try to create user profile in our users table
-      // If this fails due to RLS policy issues, we'll handle it gracefully
-      try {
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert({
-            id: data.user.id,
-            email: data.user.email!,
-            full_name: userData.full_name,
-            role: userData.role,
-          });
+    return () => subscription.unsubscribe();
+  }, []);
 
-        if (profileError) {
-          console.warn('User profile creation failed (RLS policy issue):', profileError);
-          // Don't block signup for RLS issues - user can still authenticate
-          if (profileError.code === '42P17') {
-            console.warn('RLS policy recursion detected. User authenticated but profile creation failed.');
-            console.warn('Please run the database setup script to fix RLS policies.');
-          }
-        }
-      } catch (profileError) {
-        console.warn('Failed to create user profile, but authentication succeeded:', profileError);
-      }
+  // Remove old fetchUserProfile function - handled by hybrid service
+
+  const signUp = async (email: string, password: string, userData: { full_name: string; role: UserRole }) => {
+    const result = await hybridAuthService.signUp(email, password, userData);
+    
+    if (!result.error && result.user) {
+      console.log('✅ Hybrid Auth: Sign up successful');
+      setUser(result.user as ExtendedUser);
+      setSession(result.session as Session);
+      setProfile(result.profile as UserProfile | MockUser);
+      setAuthType(result.authType);
     }
-
-    return { error };
+    
+    return { error: result.error as AuthError | null };
   };
 
   const signIn = async (email: string, password: string) => {
-    if (useMockAuth) {
-      const result = await mockAuthService.signIn(email, password);
-      
-      if (result.error) {
-        return { error: { message: result.error.message } as AuthError };
-      }
-      
-      if (result.user && result.session) {
-        console.log('Mock sign-in successful:', { id: result.user.id, role: result.user.role, email: result.user.email });
-        
-        // Convert mock session to Session-like object
-        const sessionLike = {
-          ...result.session,
-          token_type: 'bearer',
-          user: {
-            id: result.user.id,
-            email: result.user.email,
-            user_metadata: {
-              full_name: result.user.full_name,
-              role: result.user.role
-            },
-            created_at: result.user.created_at
-          }
-        } as Session;
-        
-        setSession(sessionLike);
-        setUser(result.user as ExtendedUser);
-        setProfile(result.user); // Use mock user directly as profile
-        console.log('Mock sign-in complete - profile set with role:', result.user.role);
-      }
-      
-      return { error: null };
+    const result = await hybridAuthService.signIn(email, password);
+    
+    if (!result.error && result.user) {
+      console.log(`✅ Hybrid Auth: Sign in successful via ${result.authType}`);
+      setUser(result.user as ExtendedUser);
+      setSession(result.session as Session);
+      setProfile(result.profile as UserProfile | MockUser);
+      setAuthType(result.authType);
     }
     
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    return { error: result.error as AuthError | null };
   };
 
   const signOut = async () => {
-    if (useMockAuth) {
-      await mockAuthService.signOut();
-      setUser(null);
-      setProfile(null);
-      setSession(null);
-      return;
-    }
-    
-    await supabase.auth.signOut();
+    await hybridAuthService.signOut();
+    setUser(null);
+    setProfile(null);
+    setSession(null);
+    setAuthType('supabase');
+    console.log('✅ Hybrid Auth: Signed out successfully');
   };
 
   const resetPassword = async (email: string) => {
-    if (useMockAuth) {
-      const result = await mockAuthService.resetPassword(email);
-      return { error: result.error ? { message: result.error.message } as AuthError : null };
-    }
-    
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    return { error };
+    const result = await hybridAuthService.resetPassword(email);
+    return { error: result.error as AuthError | null };
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user) return;
 
-    if (useMockAuth) {
-      const result = await mockAuthService.updateProfile(user.id, updates);
-      if (result.error) {
-        throw new Error(result.error.message);
-      }
-      if (result.user) {
-        setProfile(result.user);
-      }
-      return;
+    const result = await hybridAuthService.updateProfile(user.id, updates, authType);
+    
+    if (result.error) {
+      throw new Error(result.error.message);
     }
-
-    const { error } = await supabase
-      .from('users')
-      .update(updates)
-      .eq('id', user.id);
-
-    if (error) {
-      throw error;
+    
+    if (result.profile) {
+      setProfile(result.profile);
+      console.log(`✅ Hybrid Auth: Profile updated via ${result.authType}`);
     }
-
-    // Refresh profile
-    await fetchUserProfile(user.id);
   };
 
   const value = {

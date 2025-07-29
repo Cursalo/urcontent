@@ -25,6 +25,8 @@
     "test:integration": "vitest run tests/integration",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
     "setup:test-db": "echo 'Setting up test database...'",
+    "test:database": "node test-database-fixes.js",
+    "test:db-quick": "node test-database-fixes.js",
     "docker:build": "docker build -t content-weave:latest .",
     "docker:run": "docker run -p 8080:8080 content-weave:latest",
     "docker:compose:up": "docker-compose up -d",

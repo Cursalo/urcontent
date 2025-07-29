@@ -66,8 +66,7 @@ import {
 } from "lucide-react";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { useAuth } from "@/contexts/AuthContext";
-import { creatorService, collaborationService, Collaboration } from "@/services";
-import { mockDataService, CreatorDashboardData } from "@/services/mockDataService";
+import { useHybridDashboard } from "@/hooks/useHybridDashboard";
 import { toast } from "sonner";
 import socialMediaCreators from "@/assets/social-media-creators.jpg";
 import fitnessCreators from "@/assets/fitness-creators.jpg";
@@ -75,11 +74,20 @@ import restaurantFood from "@/assets/restaurant-food-ugc.jpg";
 
 const CreatorDashboard = () => {
   const { user, profile } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [creatorProfile, setCreatorProfile] = useState<any>(null);
-  const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
-  const [dashboardData, setDashboardData] = useState<CreatorDashboardData | null>(null);
+  const {
+    loading,
+    error,
+    dashboardData,
+    authType,
+    userProfile: creatorProfile,
+    collaborations,
+    portfolio,
+    metrics,
+    analytics,
+    refresh
+  } = useHybridDashboard('creator');
+  
+  // Legacy state for component compatibility
   const [dashboardStats, setDashboardStats] = useState({
     monthlyEarnings: 0,
     activeCollaborations: 0,
@@ -89,136 +97,36 @@ const CreatorDashboard = () => {
     avgRating: 0
   });
 
-  // Fetch dashboard data
+  // Update legacy stats when dashboard data changes
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      const startTime = performance.now();
-      // Ensure we have user and that they are a creator
-      if (!user) {
-        console.log('No user found, skipping dashboard data fetch');
-        setLoading(false);
-        return;
-      }
-
-      // Check role from profile or user metadata
-      const userRole = profile?.role || user?.user_metadata?.role;
-      if (userRole !== 'creator') {
-        console.log('User is not a creator, skipping dashboard data fetch. Role:', userRole);
-        setLoading(false);
-        return;
-      }
+    if (dashboardData && metrics) {
+      setDashboardStats({
+        monthlyEarnings: metrics.monthlyEarnings || 0,
+        activeCollaborations: metrics.activeCollaborations || 0,
+        urScore: metrics.urScore || 0,
+        totalFollowers: metrics.totalFollowers || 0,
+        completedCollaborations: metrics.completedCollaborations || 0,
+        avgRating: metrics.avgRating || 0
+      });
       
-      try {
-        setLoading(true);
-        setError(null);
-        
-        console.log('Fetching creator dashboard data for user:', user.id);
-
-        // Try to get comprehensive mock data first
-        try {
-          const mockData = await mockDataService.getCreatorDashboardData(user.id);
-          if (mockData) {
-            console.log('Using comprehensive mock data:', mockData);
-            setDashboardData(mockData);
-            setCreatorProfile(mockData.profile);
-            setCollaborations(mockData.collaborations);
-            setDashboardStats({
-              monthlyEarnings: mockData.metrics.monthlyEarnings,
-              activeCollaborations: mockData.metrics.activeCollaborations,
-              urScore: mockData.profile.ur_score,
-              totalFollowers: mockData.profile.instagram_followers + mockData.profile.tiktok_followers + mockData.profile.youtube_followers,
-              completedCollaborations: mockData.metrics.completedCollaborations,
-              avgRating: mockData.metrics.avgRating
-            });
-            
-            // Show success notification with rich data
-            toast.success('Dashboard loaded successfully!', {
-              description: `Welcome back! You have ${mockData.metrics.activeCollaborations} active collaborations and ${mockData.portfolio.length} portfolio items.`,
-              duration: 4000,
-            });
-            
-            return;
-          }
-        } catch (mockError) {
-          console.log('Mock data not available, falling back to real data:', mockError);
-        }
-
-        // Fallback to real data if mock data is not available
-        const creatorData = await creatorService.getCreatorByUserId(user.id);
-        console.log('Creator data received:', creatorData);
-        
-        if (!creatorData) {
-          console.warn('No creator profile found for user:', user.id);
-          setError('Perfil de creador no encontrado');
-          return;
-        }
-        setCreatorProfile(creatorData);
-
-        // Get creator's collaborations - use the creator profile ID for the filter
-        const creatorId = creatorData.id || user.id;
-        const collaborationsData = await collaborationService.getCollaborations({
-          creator_id: creatorId
+      console.log(`✅ Creator Dashboard: Loaded ${authType} data with ${collaborations.length} collaborations`);
+      
+      // Show success notification
+      if (!loading && dashboardData) {
+        toast.success('Dashboard loaded successfully!', {
+          description: `Welcome back! You have ${metrics.activeCollaborations} active collaborations and ${portfolio.length} portfolio items.`,
+          duration: 4000,
         });
-        console.log('Collaborations data received:', collaborationsData);
-        setCollaborations(collaborationsData);
-
-        // Calculate dashboard stats
-        const activeCollab = collaborationsData.filter(c => 
-          ['accepted', 'in_progress'].includes(c.status)
-        ).length;
-        
-        const completedCollab = collaborationsData.filter(c => 
-          c.status === 'completed'
-        ).length;
-        
-        const monthlyEarnings = collaborationsData
-          .filter(c => c.status === 'completed' && c.compensation_amount)
-          .reduce((sum, c) => sum + (c.compensation_amount || 0), 0);
-
-        const totalFollowers = (creatorData.instagram_followers || 0) + 
-                              (creatorData.tiktok_followers || 0) + 
-                              (creatorData.youtube_followers || 0);
-
-        const newStats = {
-          monthlyEarnings,
-          activeCollaborations: activeCollab,
-          urScore: creatorData.ur_score || creatorData.rating || 0,
-          totalFollowers,
-          completedCollaborations: completedCollab,
-          avgRating: creatorData.rating || 0
-        };
-
-        console.log('Dashboard stats calculated:', newStats);
-        setDashboardStats(newStats);
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        setError('Error al cargar los datos del dashboard. Usando datos de demostración.');
-        
-        // Set fallback mock data on error
-        setDashboardStats({
-          monthlyEarnings: 3240,
-          activeCollaborations: 2,
-          urScore: 94,
-          totalFollowers: 145000,
-          completedCollaborations: 12,
-          avgRating: 4.8
-        });
-      } finally {
-        const endTime = performance.now();
-        const loadTime = endTime - startTime;
-        console.log(`Dashboard data loaded in ${loadTime.toFixed(2)}ms`);
-        
-        // Track performance if monitoring is available
-        if (typeof performanceMonitor !== 'undefined') {
-          performanceMonitor.trackEvent('dashboard_load', { loadTime });
-        }
-        
-        setLoading(false);
       }
-    };
-
-    fetchDashboardData();
-  }, [user, profile]);
+    }
+  }, [dashboardData, metrics, authType, collaborations.length, portfolio.length, loading]);
+  
+  // Handle errors with toast notifications
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   // Format numbers for display
   const formatFollowers = (count: number) => {
@@ -543,7 +451,7 @@ const CreatorDashboard = () => {
           {/* Enhanced Portfolio Showcase */}
           <div className="lg:col-span-2">
             <PortfolioShowcase 
-              portfolioItems={dashboardData?.portfolio || []}
+              portfolioItems={portfolio || []}
               maxItems={6}
             />
           </div>
@@ -553,7 +461,7 @@ const CreatorDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
           {/* Earnings Chart */}
           <AnalyticsChart 
-            data={dashboardData?.analytics.monthly || []}
+            data={analytics.monthly || []}
             title="Earnings Overview"
             description="Monthly revenue growth"
             type="area"
@@ -563,7 +471,7 @@ const CreatorDashboard = () => {
 
           {/* Platform Performance */}
           <AnalyticsChart 
-            data={dashboardData?.analytics.weekly || []}
+            data={analytics.weekly || []}
             title="Platform Performance"
             description="Engagement by platform"
             type="bar"
@@ -576,7 +484,7 @@ const CreatorDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           {/* Follower Growth */}
           <AnalyticsChart 
-            data={dashboardData?.analytics.daily || []}
+            data={analytics.daily || []}
             title="Follower Growth"
             description="Daily follower trends"
             type="line"
@@ -610,7 +518,7 @@ const CreatorDashboard = () => {
           {/* Recent Collaborations */}
           <div className="lg:col-span-2">
             <CollaborationsTable 
-              collaborations={dashboardData?.collaborations || collaborations}
+              collaborations={collaborations}
               maxItems={4}
             />
           </div>

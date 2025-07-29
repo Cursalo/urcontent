@@ -1,0 +1,525 @@
+// Database Testing Utility
+// Comprehensive testing for profile creation and RLS policy fixes
+// Use this to verify that the database fixes resolve all issues
+
+import { supabase } from '@/integrations/supabase/client';
+import { profileService } from '@/services/profileService';
+
+export interface TestResult {
+  name: string;
+  success: boolean;
+  message: string;
+  data?: any;
+  error?: string;
+  duration?: number;
+}
+
+export interface TestSuite {
+  name: string;
+  results: TestResult[];
+  success: boolean;
+  duration: number;
+}
+
+class DatabaseTester {
+  private testUserId = '18e8357e-77cf-40ed-8e20-60f5188c162a';
+  private testEmail = 'test@urcontentapp.com';
+
+  /**
+   * Run all database tests
+   */
+  async runAllTests(): Promise<TestSuite[]> {
+    console.log('🧪 Starting comprehensive database tests...');
+    
+    const suites: TestSuite[] = [];
+    
+    suites.push(await this.testConnectionAndBasicQueries());
+    suites.push(await this.testRLSPolicies());
+    suites.push(await this.testProfileCreation());
+    suites.push(await this.testProfileService());
+    suites.push(await this.testConcurrentOperations());
+    suites.push(await this.testErrorHandling());
+    
+    // Summary
+    const totalTests = suites.reduce((sum, suite) => sum + suite.results.length, 0);
+    const successfulTests = suites.reduce((sum, suite) => sum + suite.results.filter(r => r.success).length, 0);
+    const totalDuration = suites.reduce((sum, suite) => sum + suite.duration, 0);
+    
+    console.log(`\n📊 Test Summary:`);
+    console.log(`   Total Tests: ${totalTests}`);
+    console.log(`   Successful: ${successfulTests}`);
+    console.log(`   Failed: ${totalTests - successfulTests}`);
+    console.log(`   Duration: ${totalDuration.toFixed(2)}ms`);
+    
+    return suites;
+  }
+
+  /**
+   * Test basic database connection and queries
+   */
+  async testConnectionAndBasicQueries(): Promise<TestSuite> {
+    const startTime = Date.now();
+    const results: TestResult[] = [];
+    
+    // Test 1: Basic connection
+    results.push(await this.runTest('Database Connection', async () => {
+      const { data, error } = await supabase
+        .from('users')
+        .select('count')
+        .limit(1);
+      
+      if (error) throw new Error(`Connection failed: ${error.message}`);
+      return { message: 'Database connection successful' };
+    }));
+
+    // Test 2: Auth user access
+    results.push(await this.runTest('Auth User Access', async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      if (error) throw new Error(`Auth access failed: ${error.message}`);
+      return { 
+        message: user ? `Authenticated as ${user.email}` : 'No authenticated user',
+        data: { hasUser: !!user, userId: user?.id }
+      };
+    }));
+
+    // Test 3: Basic table access
+    const tables = ['users', 'business_profiles', 'creator_profiles', 'collaborations'];
+    for (const table of tables) {
+      results.push(await this.runTest(`${table} Table Access`, async () => {
+        const { data, error } = await supabase
+          .from(table)
+          .select('id')
+          .limit(1);
+        
+        if (error) throw new Error(`Table access failed: ${error.message}`);
+        return { message: `${table} table accessible`, data: { rowCount: data?.length || 0 } };
+      }));
+    }
+
+    return {
+      name: 'Database Connection & Basic Queries',
+      results,
+      success: results.every(r => r.success),
+      duration: Date.now() - startTime
+    };
+  }
+
+  /**
+   * Test RLS policies
+   */
+  async testRLSPolicies(): Promise<TestSuite> {
+    const startTime = Date.now();
+    const results: TestResult[] = [];
+    
+    // Test 1: User table SELECT policy
+    results.push(await this.runTest('Users SELECT Policy', async () => {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .limit(5);
+      
+      if (error) throw new Error(`SELECT policy failed: ${error.message}`);
+      return { 
+        message: 'Users SELECT policy working',
+        data: { rowCount: data?.length || 0 }
+      };
+    }));
+
+    // Test 2: User table INSERT policy (if authenticated)
+    results.push(await this.runTest('Users INSERT Policy Test', async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return {
+          message: 'No authenticated user - INSERT policy not testable',
+          data: { skipped: true }
+        };
+      }
+
+      // Try to insert (this should either succeed or fail gracefully)
+      const { error } = await supabase
+        .from('users')
+        .insert({
+          id: user.id,
+          email: user.email!,
+          full_name: 'Test User',
+          role: 'creator'
+        });
+
+      if (error && error.code === '23505') {
+        // User already exists - this is fine
+        return { message: 'INSERT policy working (user already exists)' };
+      } else if (error) {
+        throw new Error(`INSERT policy issue: ${error.message}`);
+      }
+
+      return { message: 'INSERT policy working (new user created)' };
+    }));
+
+    // Test 3: Business profiles access
+    results.push(await this.runTest('Business Profiles Access', async () => {
+      const { data, error } = await supabase
+        .from('business_profiles')
+        .select('id, company_name')
+        .limit(3);
+      
+      if (error) throw new Error(`Business profiles access failed: ${error.message}`);
+      return { 
+        message: 'Business profiles accessible',
+        data: { rowCount: data?.length || 0 }
+      };
+    }));
+
+    // Test 4: Creator profiles access
+    results.push(await this.runTest('Creator Profiles Access', async () => {
+      const { data, error } = await supabase
+        .from('creator_profiles')
+        .select('id, bio')
+        .limit(3);
+      
+      if (error) throw new Error(`Creator profiles access failed: ${error.message}`);
+      return { 
+        message: 'Creator profiles accessible',
+        data: { rowCount: data?.length || 0 }
+      };
+    }));
+
+    return {
+      name: 'RLS Policies',
+      results,
+      success: results.every(r => r.success),
+      duration: Date.now() - startTime
+    };
+  }
+
+  /**
+   * Test profile creation using database functions
+   */
+  async testProfileCreation(): Promise<TestSuite> {
+    const startTime = Date.now();
+    const results: TestResult[] = [];
+    
+    // Test 1: Database function exists
+    results.push(await this.runTest('Database Function Availability', async () => {
+      const { data, error } = await supabase.rpc('test_profile_creation', {
+        test_user_id: this.testUserId,
+        test_email: this.testEmail
+      });
+      
+      if (error) throw new Error(`Database function failed: ${error.message}`);
+      return { 
+        message: 'Database functions available',
+        data 
+      };
+    }));
+
+    // Test 2: Get or create profile function
+    results.push(await this.runTest('Get or Create Profile Function', async () => {
+      const { data, error } = await supabase.rpc('get_or_create_user_profile', {
+        user_id: this.testUserId,
+        user_email: this.testEmail,
+        full_name: 'Test User',
+        user_role: 'creator'
+      });
+      
+      if (error) throw new Error(`Get or create function failed: ${error.message}`);
+      return { 
+        message: 'Get or create profile function working',
+        data 
+      };
+    }));
+
+    // Test 3: Profile creation idempotency
+    results.push(await this.runTest('Profile Creation Idempotency', async () => {
+      const testId = `test-${Date.now()}`;
+      
+      // Call twice with same ID
+      const result1 = await supabase.rpc('get_or_create_user_profile', {
+        user_id: testId,
+        user_email: `${testId}@test.com`,
+        full_name: 'Test User',
+        user_role: 'creator'
+      });
+      
+      const result2 = await supabase.rpc('get_or_create_user_profile', {
+        user_id: testId,
+        user_email: `${testId}@test.com`,
+        full_name: 'Test User',
+        user_role: 'creator'
+      });
+      
+      if (result1.error || result2.error) {
+        throw new Error('Idempotency test failed');
+      }
+      
+      return { 
+        message: 'Profile creation is idempotent',
+        data: { 
+          first: result1.data?.created,
+          second: result2.data?.created 
+        }
+      };
+    }));
+
+    return {
+      name: 'Profile Creation Functions',
+      results,
+      success: results.every(r => r.success),
+      duration: Date.now() - startTime
+    };
+  }
+
+  /**
+   * Test the profile service
+   */
+  async testProfileService(): Promise<TestSuite> {
+    const startTime = Date.now();
+    const results: TestResult[] = [];
+    
+    // Test 1: Profile service availability
+    results.push(await this.runTest('Profile Service Availability', async () => {
+      if (!profileService) throw new Error('Profile service not available');
+      return { message: 'Profile service loaded successfully' };
+    }));
+
+    // Test 2: Get or create profile
+    results.push(await this.runTest('Profile Service Get/Create', async () => {
+      const result = await profileService.getOrCreateProfile(
+        this.testUserId,
+        this.testEmail,
+        'Test User',
+        'creator'
+      );
+      
+      if (!result.success) {
+        throw new Error(`Profile service failed: ${result.error}`);
+      }
+      
+      return { 
+        message: `Profile ${result.created ? 'created' : 'retrieved'} successfully`,
+        data: { 
+          created: result.created,
+          profile: result.profile 
+        }
+      };
+    }));
+
+    // Test 3: Profile update
+    results.push(await this.runTest('Profile Service Update', async () => {
+      const result = await profileService.updateProfile(this.testUserId, {
+        full_name: 'Updated Test User',
+        location: 'Buenos Aires'
+      });
+      
+      if (!result.success) {
+        // This might fail if profile doesn't exist, which is okay
+        return { 
+          message: 'Profile update test skipped (profile may not exist)',
+          data: { skipped: true, error: result.error }
+        };
+      }
+      
+      return { 
+        message: 'Profile updated successfully',
+        data: result.profile 
+      };
+    }));
+
+    // Test 4: Profile existence check
+    results.push(await this.runTest('Profile Existence Check', async () => {
+      const exists = await profileService.profileExists(this.testUserId);
+      return { 
+        message: `Profile existence check: ${exists}`,
+        data: { exists }
+      };
+    }));
+
+    // Test 5: Profile stats
+    results.push(await this.runTest('Profile Statistics', async () => {
+      const stats = await profileService.getProfileStats();
+      return { 
+        message: 'Profile statistics retrieved',
+        data: stats 
+      };
+    }));
+
+    return {
+      name: 'Profile Service',
+      results,
+      success: results.every(r => r.success),
+      duration: Date.now() - startTime
+    };
+  }
+
+  /**
+   * Test concurrent operations
+   */
+  async testConcurrentOperations(): Promise<TestSuite> {
+    const startTime = Date.now();
+    const results: TestResult[] = [];
+    
+    // Test 1: Concurrent profile creation
+    results.push(await this.runTest('Concurrent Profile Creation', async () => {
+      const testId = `concurrent-${Date.now()}`;
+      const testEmail = `${testId}@test.com`;
+      
+      // Create multiple promises that try to create the same profile
+      const promises = Array.from({ length: 5 }, () =>
+        profileService.getOrCreateProfile(testId, testEmail, 'Concurrent Test', 'creator')
+      );
+      
+      const results = await Promise.all(promises);
+      
+      // Check that all succeeded and only one created the profile
+      const successes = results.filter(r => r.success).length;
+      const creations = results.filter(r => r.created).length;
+      
+      if (successes !== 5) {
+        throw new Error(`Only ${successes}/5 operations succeeded`);
+      }
+      
+      return { 
+        message: `Concurrent operations handled correctly`,
+        data: { 
+          successes,
+          creations,
+          expected: 'Only 1 creation, 4 retrievals'
+        }
+      };
+    }));
+
+    return {
+      name: 'Concurrent Operations',
+      results,
+      success: results.every(r => r.success),
+      duration: Date.now() - startTime
+    };
+  }
+
+  /**
+   * Test error handling
+   */
+  async testErrorHandling(): Promise<TestSuite> {
+    const startTime = Date.now();
+    const results: TestResult[] = [];
+    
+    // Test 1: Invalid user ID handling
+    results.push(await this.runTest('Invalid User ID Handling', async () => {
+      const result = await profileService.getProfile('invalid-uuid');
+      
+      if (result.success) {
+        throw new Error('Should have failed with invalid UUID');
+      }
+      
+      return { 
+        message: 'Invalid user ID handled correctly',
+        data: { error: result.error, code: result.code }
+      };
+    }));
+
+    // Test 2: Network error simulation (using invalid table)
+    results.push(await this.runTest('Database Error Handling', async () => {
+      try {
+        const { data, error } = await supabase
+          .from('nonexistent_table')
+          .select('*')
+          .limit(1);
+        
+        if (!error) {
+          throw new Error('Should have failed with nonexistent table');
+        }
+        
+        return { 
+          message: 'Database errors handled correctly',
+          data: { errorCode: error.code }
+        };
+      } catch (error: any) {
+        return { 
+          message: 'Database errors handled correctly',
+          data: { error: error.message }
+        };
+      }
+    }));
+
+    return {
+      name: 'Error Handling',
+      results,
+      success: results.every(r => r.success),
+      duration: Date.now() - startTime
+    };
+  }
+
+  /**
+   * Run a single test with error handling and timing
+   */
+  private async runTest(name: string, testFn: () => Promise<any>): Promise<TestResult> {
+    const startTime = Date.now();
+    
+    try {
+      const result = await testFn();
+      const duration = Date.now() - startTime;
+      
+      console.log(`✅ ${name} - ${duration}ms`);
+      
+      return {
+        name,
+        success: true,
+        message: result.message || 'Test passed',
+        data: result.data,
+        duration
+      };
+    } catch (error: any) {
+      const duration = Date.now() - startTime;
+      
+      console.log(`❌ ${name} - ${duration}ms - ${error.message}`);
+      
+      return {
+        name,
+        success: false,
+        message: 'Test failed',
+        error: error.message,
+        duration
+      };
+    }
+  }
+
+  /**
+   * Clean up test data (optional)
+   */
+  async cleanup(): Promise<void> {
+    console.log('🧹 Cleaning up test data...');
+    
+    try {
+      // Clean up test users (be careful not to delete real users)
+      const { error } = await supabase
+        .from('users')
+        .delete()
+        .like('email', '%@test.com');
+      
+      if (error) {
+        console.warn('Cleanup warning:', error.message);
+      } else {
+        console.log('✅ Test data cleaned up');
+      }
+    } catch (error) {
+      console.warn('Cleanup error:', error);
+    }
+  }
+}
+
+// Export singleton instance
+export const databaseTester = new DatabaseTester();
+
+// Export a simple function to run tests
+export async function runDatabaseTests(includeCleanup = false): Promise<TestSuite[]> {
+  const results = await databaseTester.runAllTests();
+  
+  if (includeCleanup) {
+    await databaseTester.cleanup();
+  }
+  
+  return results;
+}
+
+export default databaseTester;

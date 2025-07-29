@@ -1,0 +1,94 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+
+/**
+ * BULLETPROOF DASHBOARD REDIRECT UTILITY
+ * Automatically redirects users to their appropriate dashboard
+ * Used in login success handlers and role-based redirects
+ */
+export const DashboardRedirect = () => {
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      // Detect user role using same logic as Dashboard component
+      const detectUserRole = (): 'creator' | 'business' | 'admin' => {
+        // Layer 1: Profile role
+        if (profile?.role && typeof profile.role === 'string') {
+          return profile.role as 'creator' | 'business' | 'admin';
+        }
+        
+        // Layer 2: Auth metadata
+        if (user?.user_metadata?.role && typeof user.user_metadata.role === 'string') {
+          return user.user_metadata.role as 'creator' | 'business' | 'admin';
+        }
+        
+        // Layer 3: Email pattern
+        if (user?.email) {
+          if (user.email.includes('admin@')) return 'admin';
+          if (user.email.includes('venue@') || user.email.includes('business@')) return 'business';
+          if (user.email.includes('creator@')) return 'creator';
+        }
+        
+        // Layer 4: Fallback
+        return 'creator';
+      };
+
+      const userRole = detectUserRole();
+      
+      console.log('🎯 DashboardRedirect: Redirecting to dashboard for role:', userRole);
+      
+      // Navigate to role-specific dashboard
+      navigate(`/dashboard/${userRole}`, { replace: true });
+    }
+  }, [user, profile, navigate]);
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center space-x-2">
+        <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center animate-pulse">
+          <span className="text-white font-bold text-sm">UR</span>
+        </div>
+        <span className="text-lg">Redirecting to your dashboard...</span>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * HOOK: Use Dashboard Redirect
+ * Returns a function to redirect users to their appropriate dashboard
+ */
+export const useDashboardRedirect = () => {
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
+
+  const redirectToDashboard = () => {
+    if (!user) return;
+
+    const detectUserRole = (): 'creator' | 'business' | 'admin' => {
+      if (profile?.role && typeof profile.role === 'string') {
+        return profile.role as 'creator' | 'business' | 'admin';
+      }
+      
+      if (user?.user_metadata?.role && typeof user.user_metadata.role === 'string') {
+        return user.user_metadata.role as 'creator' | 'business' | 'admin';
+      }
+      
+      if (user?.email) {
+        if (user.email.includes('admin@')) return 'admin';
+        if (user.email.includes('venue@') || user.email.includes('business@')) return 'business';
+        if (user.email.includes('creator@')) return 'creator';
+      }
+      
+      return 'creator';
+    };
+
+    const userRole = detectUserRole();
+    navigate(`/dashboard/${userRole}`, { replace: true });
+  };
+
+  return redirectToDashboard;
+};

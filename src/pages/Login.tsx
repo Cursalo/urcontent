@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoginForm } from '@/components/auth/LoginForm';
+import { DashboardRedirect } from '@/components/dashboard/DashboardRedirect';
 
 const Login: React.FC = () => {
   const { user, loading } = useAuth();
@@ -14,9 +15,9 @@ const Login: React.FC = () => {
     );
   }
 
-  // Redirect if already logged in
+  // BULLETPROOF REDIRECT: Send user to their appropriate dashboard
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <DashboardRedirect />;
   }
 
   return (

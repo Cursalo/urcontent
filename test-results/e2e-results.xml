@@ -1,6 +1,6 @@
-<testsuites id="" name="" tests="301" failures="301" skipped="0" errors="0" time="37.057458">
-<testsuite name="auth.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="chromium" tests="20" failures="20" skipped="0" time="0.036" errors="0">
-<testcase name="Authentication E2E Tests › Login Flow › should display login form correctly" classname="auth.spec.ts" time="0.002">
+<testsuites id="" name="" tests="301" failures="301" skipped="0" errors="0" time="38.228722999999995">
+<testsuite name="auth.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="chromium" tests="20" failures="20" skipped="0" time="0.027" errors="0">
+<testcase name="Authentication E2E Tests › Login Flow › should display login form correctly" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:9:5 should display login form correctly" type="FAILURE">
 <![CDATA[  [chromium] › auth.spec.ts:9:5 › Authentication E2E Tests › Login Flow › should display login form correctly 
 
@@ -16,7 +16,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should show validation errors for empty form" classname="auth.spec.ts" time="0.005">
+<testcase name="Authentication E2E Tests › Login Flow › should show validation errors for empty form" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:28:5 should show validation errors for empty form" type="FAILURE">
 <![CDATA[  [chromium] › auth.spec.ts:28:5 › Authentication E2E Tests › Login Flow › should show validation errors for empty form 
 
@@ -32,7 +32,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should toggle password visibility" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Login Flow › should toggle password visibility" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:42:5 should toggle password visibility" type="FAILURE">
 <![CDATA[  [chromium] › auth.spec.ts:42:5 › Authentication E2E Tests › Login Flow › should toggle password visibility 
 
@@ -64,7 +64,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should show loading state during submission" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Login Flow › should show loading state during submission" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:77:5 should show loading state during submission" type="FAILURE">
 <![CDATA[  [chromium] › auth.spec.ts:77:5 › Authentication E2E Tests › Login Flow › should show loading state during submission 
 
@@ -112,7 +112,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should validate password confirmation" classname="auth.spec.ts" time="0.004">
+<testcase name="Authentication E2E Tests › Registration Flow › should validate password confirmation" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:136:5 should validate password confirmation" type="FAILURE">
 <![CDATA[  [chromium] › auth.spec.ts:136:5 › Authentication E2E Tests › Registration Flow › should validate password confirmation 
 
@@ -144,7 +144,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should register business successfully" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Registration Flow › should register business successfully" classname="auth.spec.ts" time="0.003">
 <failure message="auth.spec.ts:175:5 should register business successfully" type="FAILURE">
 <![CDATA[  [chromium] › auth.spec.ts:175:5 › Authentication E2E Tests › Registration Flow › should register business successfully 
 
@@ -176,7 +176,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Forgot Password Flow › should validate email format" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Forgot Password Flow › should validate email format" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:209:5 should validate email format" type="FAILURE">
 <![CDATA[  [chromium] › auth.spec.ts:209:5 › Authentication E2E Tests › Forgot Password Flow › should validate email format 
 
@@ -192,7 +192,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Forgot Password Flow › should submit password reset request" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Forgot Password Flow › should submit password reset request" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:222:5 should submit password reset request" type="FAILURE">
 <![CDATA[  [chromium] › auth.spec.ts:222:5 › Authentication E2E Tests › Forgot Password Flow › should submit password reset request 
 
@@ -224,7 +224,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Navigation › should handle browser back/forward buttons" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Navigation › should handle browser back/forward buttons" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:263:5 should handle browser back/forward buttons" type="FAILURE">
 <![CDATA[  [chromium] › auth.spec.ts:263:5 › Authentication E2E Tests › Navigation › should handle browser back/forward buttons 
 
@@ -256,7 +256,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on tablet devices" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on tablet devices" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:311:5 should display correctly on tablet devices" type="FAILURE">
 <![CDATA[  [chromium] › auth.spec.ts:311:5 › Authentication E2E Tests › Responsive Design › should display correctly on tablet devices 
 
@@ -304,7 +304,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Accessibility › should announce errors to screen readers" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Accessibility › should announce errors to screen readers" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:364:5 should announce errors to screen readers" type="FAILURE">
 <![CDATA[  [chromium] › auth.spec.ts:364:5 › Authentication E2E Tests › Accessibility › should announce errors to screen readers 
 
@@ -321,8 +321,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="chromium" tests="23" failures="23" skipped="0" time="0.05" errors="0">
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly" classname="payment-flow.spec.ts" time="0.004">
+<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="chromium" tests="23" failures="23" skipped="0" time="0.027" errors="0">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:22:5 should display membership plans correctly" type="FAILURE">
 <![CDATA[  [chromium] › payment-flow.spec.ts:22:5 › Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly 
 
@@ -498,7 +498,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment" classname="payment-flow.spec.ts" time="0.003">
+<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:233:5 should process campaign deposit payment" type="FAILURE">
 <![CDATA[  [chromium] › payment-flow.spec.ts:233:5 › Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment 
 
@@ -514,7 +514,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Success Flow › should handle successful payment callback" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Payment Success Flow › should handle successful payment callback" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:265:5 should handle successful payment callback" type="FAILURE">
 <![CDATA[  [chromium] › payment-flow.spec.ts:265:5 › Payment Flow E2E Tests › Payment Success Flow › should handle successful payment callback 
 
@@ -530,7 +530,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Success Flow › should redirect to appropriate page after success" classname="payment-flow.spec.ts" time="0.015">
+<testcase name="Payment Flow E2E Tests › Payment Success Flow › should redirect to appropriate page after success" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:279:5 should redirect to appropriate page after success" type="FAILURE">
 <![CDATA[  [chromium] › payment-flow.spec.ts:279:5 › Payment Flow E2E Tests › Payment Success Flow › should redirect to appropriate page after success 
 
@@ -546,7 +546,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Failure Flow › should handle failed payment callback" classname="payment-flow.spec.ts" time="0.005">
+<testcase name="Payment Flow E2E Tests › Payment Failure Flow › should handle failed payment callback" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:291:5 should handle failed payment callback" type="FAILURE">
 <![CDATA[  [chromium] › payment-flow.spec.ts:291:5 › Payment Flow E2E Tests › Payment Failure Flow › should handle failed payment callback 
 
@@ -578,7 +578,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:316:5 should handle pending payment callback" type="FAILURE">
 <![CDATA[  [chromium] › payment-flow.spec.ts:316:5 › Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback 
 
@@ -642,7 +642,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Mobile Payment Flow › should work correctly on mobile devices" classname="payment-flow.spec.ts" time="0.003">
+<testcase name="Payment Flow E2E Tests › Mobile Payment Flow › should work correctly on mobile devices" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:380:5 should work correctly on mobile devices" type="FAILURE">
 <![CDATA[  [chromium] › payment-flow.spec.ts:380:5 › Payment Flow E2E Tests › Mobile Payment Flow › should work correctly on mobile devices 
 
@@ -691,7 +691,7 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="auth.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="firefox" tests="20" failures="20" skipped="0" time="0.028" errors="0">
+<testsuite name="auth.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="firefox" tests="20" failures="20" skipped="0" time="0.026" errors="0">
 <testcase name="Authentication E2E Tests › Login Flow › should display login form correctly" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:9:5 should display login form correctly" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:9:5 › Authentication E2E Tests › Login Flow › should display login form correctly 
@@ -724,7 +724,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should toggle password visibility" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Login Flow › should toggle password visibility" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:42:5 should toggle password visibility" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:42:5 › Authentication E2E Tests › Login Flow › should toggle password visibility 
 
@@ -772,7 +772,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should display registration form correctly" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Registration Flow › should display registration form correctly" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:97:5 should display registration form correctly" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:97:5 › Authentication E2E Tests › Registration Flow › should display registration form correctly 
 
@@ -788,7 +788,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should validate required fields" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Registration Flow › should validate required fields" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:117:5 should validate required fields" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:117:5 › Authentication E2E Tests › Registration Flow › should validate required fields 
 
@@ -804,7 +804,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should validate password confirmation" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Registration Flow › should validate password confirmation" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:136:5 should validate password confirmation" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:136:5 › Authentication E2E Tests › Registration Flow › should validate password confirmation 
 
@@ -852,7 +852,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Forgot Password Flow › should display forgot password form" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Forgot Password Flow › should display forgot password form" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:194:5 should display forgot password form" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:194:5 › Authentication E2E Tests › Forgot Password Flow › should display forgot password form 
 
@@ -868,7 +868,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Forgot Password Flow › should validate email format" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Forgot Password Flow › should validate email format" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:209:5 should validate email format" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:209:5 › Authentication E2E Tests › Forgot Password Flow › should validate email format 
 
@@ -900,7 +900,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Navigation › should navigate between auth pages correctly" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Navigation › should navigate between auth pages correctly" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:238:5 should navigate between auth pages correctly" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:238:5 › Authentication E2E Tests › Navigation › should navigate between auth pages correctly 
 
@@ -916,7 +916,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Navigation › should handle browser back/forward buttons" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Navigation › should handle browser back/forward buttons" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:263:5 should handle browser back/forward buttons" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:263:5 › Authentication E2E Tests › Navigation › should handle browser back/forward buttons 
 
@@ -932,7 +932,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on mobile devices" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on mobile devices" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:283:5 should display correctly on mobile devices" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:283:5 › Authentication E2E Tests › Responsive Design › should display correctly on mobile devices 
 
@@ -948,7 +948,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on tablet devices" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on tablet devices" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:311:5 should display correctly on tablet devices" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:311:5 › Authentication E2E Tests › Responsive Design › should display correctly on tablet devices 
 
@@ -964,7 +964,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Accessibility › should have proper ARIA attributes" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Accessibility › should have proper ARIA attributes" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:329:5 should have proper ARIA attributes" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:329:5 › Authentication E2E Tests › Accessibility › should have proper ARIA attributes 
 
@@ -996,7 +996,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Accessibility › should announce errors to screen readers" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Accessibility › should announce errors to screen readers" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:364:5 should announce errors to screen readers" type="FAILURE">
 <![CDATA[  [firefox] › auth.spec.ts:364:5 › Authentication E2E Tests › Accessibility › should announce errors to screen readers 
 
@@ -1013,7 +1013,7 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="firefox" tests="23" failures="23" skipped="0" time="0.044" errors="0">
+<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="firefox" tests="23" failures="23" skipped="0" time="0.038" errors="0">
 <testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:22:5 should display membership plans correctly" type="FAILURE">
 <![CDATA[  [firefox] › payment-flow.spec.ts:22:5 › Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly 
@@ -1030,7 +1030,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate Basic membership purchase" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate Basic membership purchase" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:40:5 should initiate Basic membership purchase" type="FAILURE">
 <![CDATA[  [firefox] › payment-flow.spec.ts:40:5 › Payment Flow E2E Tests › Membership Purchase Flow › should initiate Basic membership purchase 
 
@@ -1078,7 +1078,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:88:5 should display payment details in modal" type="FAILURE">
 <![CDATA[  [firefox] › payment-flow.spec.ts:88:5 › Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal 
 
@@ -1094,7 +1094,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should cancel payment modal" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should cancel payment modal" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:105:5 should cancel payment modal" type="FAILURE">
 <![CDATA[  [firefox] › payment-flow.spec.ts:105:5 › Payment Flow E2E Tests › Membership Purchase Flow › should cancel payment modal 
 
@@ -1126,7 +1126,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should display experience booking form" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should display experience booking form" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:142:5 should display experience booking form" type="FAILURE">
 <![CDATA[  [firefox] › payment-flow.spec.ts:142:5 › Payment Flow E2E Tests › Experience Booking Payment › should display experience booking form 
 
@@ -1142,7 +1142,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should calculate total price correctly" classname="payment-flow.spec.ts" time="0.004">
+<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should calculate total price correctly" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:158:5 should calculate total price correctly" type="FAILURE">
 <![CDATA[  [firefox] › payment-flow.spec.ts:158:5 › Payment Flow E2E Tests › Experience Booking Payment › should calculate total price correctly 
 
@@ -1190,7 +1190,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment" classname="payment-flow.spec.ts" time="0.014">
+<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:233:5 should process campaign deposit payment" type="FAILURE">
 <![CDATA[  [firefox] › payment-flow.spec.ts:233:5 › Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment 
 
@@ -1238,7 +1238,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Failure Flow › should handle failed payment callback" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Payment Failure Flow › should handle failed payment callback" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:291:5 should handle failed payment callback" type="FAILURE">
 <![CDATA[  [firefox] › payment-flow.spec.ts:291:5 › Payment Flow E2E Tests › Payment Failure Flow › should handle failed payment callback 
 
@@ -1286,7 +1286,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment History › should display payment history" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Payment History › should display payment history" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:331:5 should display payment history" type="FAILURE">
 <![CDATA[  [firefox] › payment-flow.spec.ts:331:5 › Payment Flow E2E Tests › Payment History › should display payment history 
 
@@ -1318,7 +1318,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment History › should export payment history" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Payment History › should export payment history" classname="payment-flow.spec.ts" time="0.003">
 <failure message="payment-flow.spec.ts:364:5 should export payment history" type="FAILURE">
 <![CDATA[  [firefox] › payment-flow.spec.ts:364:5 › Payment Flow E2E Tests › Payment History › should export payment history 
 
@@ -1350,7 +1350,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Error Handling › should handle network errors during payment" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Error Handling › should handle network errors during payment" classname="payment-flow.spec.ts" time="0.008">
 <failure message="payment-flow.spec.ts:403:5 should handle network errors during payment" type="FAILURE">
 <![CDATA[  [firefox] › payment-flow.spec.ts:403:5 › Payment Flow E2E Tests › Error Handling › should handle network errors during payment 
 
@@ -1383,8 +1383,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="auth.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="webkit" tests="20" failures="20" skipped="0" time="0.026" errors="0">
-<testcase name="Authentication E2E Tests › Login Flow › should display login form correctly" classname="auth.spec.ts" time="0.002">
+<testsuite name="auth.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="webkit" tests="20" failures="20" skipped="0" time="0.031" errors="0">
+<testcase name="Authentication E2E Tests › Login Flow › should display login form correctly" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:9:5 should display login form correctly" type="FAILURE">
 <![CDATA[  [webkit] › auth.spec.ts:9:5 › Authentication E2E Tests › Login Flow › should display login form correctly 
 
@@ -1400,7 +1400,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should show validation errors for empty form" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Login Flow › should show validation errors for empty form" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:28:5 should show validation errors for empty form" type="FAILURE">
 <![CDATA[  [webkit] › auth.spec.ts:28:5 › Authentication E2E Tests › Login Flow › should show validation errors for empty form 
 
@@ -1416,7 +1416,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should toggle password visibility" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Login Flow › should toggle password visibility" classname="auth.spec.ts" time="0.008">
 <failure message="auth.spec.ts:42:5 should toggle password visibility" type="FAILURE">
 <![CDATA[  [webkit] › auth.spec.ts:42:5 › Authentication E2E Tests › Login Flow › should toggle password visibility 
 
@@ -1432,7 +1432,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should handle invalid credentials" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Login Flow › should handle invalid credentials" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:60:5 should handle invalid credentials" type="FAILURE">
 <![CDATA[  [webkit] › auth.spec.ts:60:5 › Authentication E2E Tests › Login Flow › should handle invalid credentials 
 
@@ -1448,7 +1448,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should show loading state during submission" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Login Flow › should show loading state during submission" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:77:5 should show loading state during submission" type="FAILURE">
 <![CDATA[  [webkit] › auth.spec.ts:77:5 › Authentication E2E Tests › Login Flow › should show loading state during submission 
 
@@ -1528,7 +1528,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should register business successfully" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Registration Flow › should register business successfully" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:175:5 should register business successfully" type="FAILURE">
 <![CDATA[  [webkit] › auth.spec.ts:175:5 › Authentication E2E Tests › Registration Flow › should register business successfully 
 
@@ -1592,7 +1592,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Navigation › should navigate between auth pages correctly" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Navigation › should navigate between auth pages correctly" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:238:5 should navigate between auth pages correctly" type="FAILURE">
 <![CDATA[  [webkit] › auth.spec.ts:238:5 › Authentication E2E Tests › Navigation › should navigate between auth pages correctly 
 
@@ -1608,7 +1608,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Navigation › should handle browser back/forward buttons" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Navigation › should handle browser back/forward buttons" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:263:5 should handle browser back/forward buttons" type="FAILURE">
 <![CDATA[  [webkit] › auth.spec.ts:263:5 › Authentication E2E Tests › Navigation › should handle browser back/forward buttons 
 
@@ -1624,7 +1624,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on mobile devices" classname="auth.spec.ts" time="0.003">
+<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on mobile devices" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:283:5 should display correctly on mobile devices" type="FAILURE">
 <![CDATA[  [webkit] › auth.spec.ts:283:5 › Authentication E2E Tests › Responsive Design › should display correctly on mobile devices 
 
@@ -1672,7 +1672,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Accessibility › should support keyboard navigation" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Accessibility › should support keyboard navigation" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:344:5 should support keyboard navigation" type="FAILURE">
 <![CDATA[  [webkit] › auth.spec.ts:344:5 › Authentication E2E Tests › Accessibility › should support keyboard navigation 
 
@@ -1705,7 +1705,7 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="webkit" tests="23" failures="23" skipped="0" time="0.034" errors="0">
+<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="webkit" tests="23" failures="23" skipped="0" time="0.029" errors="0">
 <testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:22:5 should display membership plans correctly" type="FAILURE">
 <![CDATA[  [webkit] › payment-flow.spec.ts:22:5 › Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly 
@@ -1754,7 +1754,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate VIP membership purchase" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate VIP membership purchase" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:72:5 should initiate VIP membership purchase" type="FAILURE">
 <![CDATA[  [webkit] › payment-flow.spec.ts:72:5 › Payment Flow E2E Tests › Membership Purchase Flow › should initiate VIP membership purchase 
 
@@ -1770,7 +1770,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:88:5 should display payment details in modal" type="FAILURE">
 <![CDATA[  [webkit] › payment-flow.spec.ts:88:5 › Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal 
 
@@ -1818,7 +1818,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should display experience booking form" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should display experience booking form" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:142:5 should display experience booking form" type="FAILURE">
 <![CDATA[  [webkit] › payment-flow.spec.ts:142:5 › Payment Flow E2E Tests › Experience Booking Payment › should display experience booking form 
 
@@ -1850,7 +1850,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should process experience booking payment" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should process experience booking payment" classname="payment-flow.spec.ts" time="0.003">
 <failure message="payment-flow.spec.ts:175:5 should process experience booking payment" type="FAILURE">
 <![CDATA[  [webkit] › payment-flow.spec.ts:175:5 › Payment Flow E2E Tests › Experience Booking Payment › should process experience booking payment 
 
@@ -1866,7 +1866,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should allow business to create campaign with deposit" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should allow business to create campaign with deposit" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:198:5 should allow business to create campaign with deposit" type="FAILURE">
 <![CDATA[  [webkit] › payment-flow.spec.ts:198:5 › Payment Flow E2E Tests › Campaign Deposit Payment › should allow business to create campaign with deposit 
 
@@ -1914,7 +1914,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Success Flow › should redirect to appropriate page after success" classname="payment-flow.spec.ts" time="0.005">
+<testcase name="Payment Flow E2E Tests › Payment Success Flow › should redirect to appropriate page after success" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:279:5 should redirect to appropriate page after success" type="FAILURE">
 <![CDATA[  [webkit] › payment-flow.spec.ts:279:5 › Payment Flow E2E Tests › Payment Success Flow › should redirect to appropriate page after success 
 
@@ -1962,7 +1962,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback" classname="payment-flow.spec.ts" time="0.003">
+<testcase name="Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:316:5 should handle pending payment callback" type="FAILURE">
 <![CDATA[  [webkit] › payment-flow.spec.ts:316:5 › Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback 
 
@@ -2058,7 +2058,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Error Handling › should handle API errors during payment" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Error Handling › should handle API errors during payment" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:418:5 should handle API errors during payment" type="FAILURE">
 <![CDATA[  [webkit] › payment-flow.spec.ts:418:5 › Payment Flow E2E Tests › Error Handling › should handle API errors during payment 
 
@@ -2075,7 +2075,7 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="auth.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="Mobile Chrome" tests="20" failures="20" skipped="0" time="0.063" errors="0">
+<testsuite name="auth.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="Mobile Chrome" tests="20" failures="20" skipped="0" time="0.027" errors="0">
 <testcase name="Authentication E2E Tests › Login Flow › should display login form correctly" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:9:5 should display login form correctly" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › auth.spec.ts:9:5 › Authentication E2E Tests › Login Flow › should display login form correctly 
@@ -2108,7 +2108,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should toggle password visibility" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Login Flow › should toggle password visibility" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:42:5 should toggle password visibility" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › auth.spec.ts:42:5 › Authentication E2E Tests › Login Flow › should toggle password visibility 
 
@@ -2124,7 +2124,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should handle invalid credentials" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Login Flow › should handle invalid credentials" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:60:5 should handle invalid credentials" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › auth.spec.ts:60:5 › Authentication E2E Tests › Login Flow › should handle invalid credentials 
 
@@ -2140,7 +2140,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should show loading state during submission" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Login Flow › should show loading state during submission" classname="auth.spec.ts" time="0.005">
 <failure message="auth.spec.ts:77:5 should show loading state during submission" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › auth.spec.ts:77:5 › Authentication E2E Tests › Login Flow › should show loading state during submission 
 
@@ -2172,7 +2172,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should validate required fields" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Registration Flow › should validate required fields" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:117:5 should validate required fields" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › auth.spec.ts:117:5 › Authentication E2E Tests › Registration Flow › should validate required fields 
 
@@ -2188,7 +2188,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should validate password confirmation" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Registration Flow › should validate password confirmation" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:136:5 should validate password confirmation" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › auth.spec.ts:136:5 › Authentication E2E Tests › Registration Flow › should validate password confirmation 
 
@@ -2236,7 +2236,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Forgot Password Flow › should display forgot password form" classname="auth.spec.ts" time="0.017">
+<testcase name="Authentication E2E Tests › Forgot Password Flow › should display forgot password form" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:194:5 should display forgot password form" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › auth.spec.ts:194:5 › Authentication E2E Tests › Forgot Password Flow › should display forgot password form 
 
@@ -2252,7 +2252,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Forgot Password Flow › should validate email format" classname="auth.spec.ts" time="0.023">
+<testcase name="Authentication E2E Tests › Forgot Password Flow › should validate email format" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:209:5 should validate email format" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › auth.spec.ts:209:5 › Authentication E2E Tests › Forgot Password Flow › should validate email format 
 
@@ -2284,7 +2284,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Navigation › should navigate between auth pages correctly" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Navigation › should navigate between auth pages correctly" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:238:5 should navigate between auth pages correctly" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › auth.spec.ts:238:5 › Authentication E2E Tests › Navigation › should navigate between auth pages correctly 
 
@@ -2316,7 +2316,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on mobile devices" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on mobile devices" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:283:5 should display correctly on mobile devices" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › auth.spec.ts:283:5 › Authentication E2E Tests › Responsive Design › should display correctly on mobile devices 
 
@@ -2332,7 +2332,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on tablet devices" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on tablet devices" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:311:5 should display correctly on tablet devices" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › auth.spec.ts:311:5 › Authentication E2E Tests › Responsive Design › should display correctly on tablet devices 
 
@@ -2348,7 +2348,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Accessibility › should have proper ARIA attributes" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Accessibility › should have proper ARIA attributes" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:329:5 should have proper ARIA attributes" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › auth.spec.ts:329:5 › Authentication E2E Tests › Accessibility › should have proper ARIA attributes 
 
@@ -2397,7 +2397,7 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="Mobile Chrome" tests="23" failures="23" skipped="0" time="0.032" errors="0">
+<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="Mobile Chrome" tests="23" failures="23" skipped="0" time="0.032" errors="0">
 <testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:22:5 should display membership plans correctly" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:22:5 › Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly 
@@ -2446,7 +2446,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate VIP membership purchase" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate VIP membership purchase" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:72:5 should initiate VIP membership purchase" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:72:5 › Payment Flow E2E Tests › Membership Purchase Flow › should initiate VIP membership purchase 
 
@@ -2478,7 +2478,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should cancel payment modal" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should cancel payment modal" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:105:5 should cancel payment modal" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:105:5 › Payment Flow E2E Tests › Membership Purchase Flow › should cancel payment modal 
 
@@ -2526,7 +2526,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should calculate total price correctly" classname="payment-flow.spec.ts" time="0.003">
+<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should calculate total price correctly" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:158:5 should calculate total price correctly" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:158:5 › Payment Flow E2E Tests › Experience Booking Payment › should calculate total price correctly 
 
@@ -2558,7 +2558,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should allow business to create campaign with deposit" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should allow business to create campaign with deposit" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:198:5 should allow business to create campaign with deposit" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:198:5 › Payment Flow E2E Tests › Campaign Deposit Payment › should allow business to create campaign with deposit 
 
@@ -2574,7 +2574,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:233:5 should process campaign deposit payment" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:233:5 › Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment 
 
@@ -2590,7 +2590,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Success Flow › should handle successful payment callback" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Payment Success Flow › should handle successful payment callback" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:265:5 should handle successful payment callback" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:265:5 › Payment Flow E2E Tests › Payment Success Flow › should handle successful payment callback 
 
@@ -2606,7 +2606,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Success Flow › should redirect to appropriate page after success" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Payment Success Flow › should redirect to appropriate page after success" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:279:5 should redirect to appropriate page after success" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:279:5 › Payment Flow E2E Tests › Payment Success Flow › should redirect to appropriate page after success 
 
@@ -2638,7 +2638,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Failure Flow › should allow user to retry payment" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Payment Failure Flow › should allow user to retry payment" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:304:5 should allow user to retry payment" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:304:5 › Payment Flow E2E Tests › Payment Failure Flow › should allow user to retry payment 
 
@@ -2654,7 +2654,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:316:5 should handle pending payment callback" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:316:5 › Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback 
 
@@ -2686,7 +2686,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment History › should filter payment history" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Payment History › should filter payment history" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:347:5 should filter payment history" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:347:5 › Payment Flow E2E Tests › Payment History › should filter payment history 
 
@@ -2718,7 +2718,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Mobile Payment Flow › should work correctly on mobile devices" classname="payment-flow.spec.ts" time="0.003">
+<testcase name="Payment Flow E2E Tests › Mobile Payment Flow › should work correctly on mobile devices" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:380:5 should work correctly on mobile devices" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:380:5 › Payment Flow E2E Tests › Mobile Payment Flow › should work correctly on mobile devices 
 
@@ -2734,7 +2734,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Error Handling › should handle network errors during payment" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Error Handling › should handle network errors during payment" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:403:5 should handle network errors during payment" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:403:5 › Payment Flow E2E Tests › Error Handling › should handle network errors during payment 
 
@@ -2750,7 +2750,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Error Handling › should handle API errors during payment" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Error Handling › should handle API errors during payment" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:418:5 should handle API errors during payment" type="FAILURE">
 <![CDATA[  [Mobile Chrome] › payment-flow.spec.ts:418:5 › Payment Flow E2E Tests › Error Handling › should handle API errors during payment 
 
@@ -2767,8 +2767,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="auth.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="Mobile Safari" tests="20" failures="20" skipped="0" time="0.026" errors="0">
-<testcase name="Authentication E2E Tests › Login Flow › should display login form correctly" classname="auth.spec.ts" time="0.001">
+<testsuite name="auth.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="Mobile Safari" tests="20" failures="20" skipped="0" time="0.025" errors="0">
+<testcase name="Authentication E2E Tests › Login Flow › should display login form correctly" classname="auth.spec.ts" time="0.003">
 <failure message="auth.spec.ts:9:5 should display login form correctly" type="FAILURE">
 <![CDATA[  [Mobile Safari] › auth.spec.ts:9:5 › Authentication E2E Tests › Login Flow › should display login form correctly 
 
@@ -2832,7 +2832,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should show loading state during submission" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Login Flow › should show loading state during submission" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:77:5 should show loading state during submission" type="FAILURE">
 <![CDATA[  [Mobile Safari] › auth.spec.ts:77:5 › Authentication E2E Tests › Login Flow › should show loading state during submission 
 
@@ -2848,7 +2848,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should display registration form correctly" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Registration Flow › should display registration form correctly" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:97:5 should display registration form correctly" type="FAILURE">
 <![CDATA[  [Mobile Safari] › auth.spec.ts:97:5 › Authentication E2E Tests › Registration Flow › should display registration form correctly 
 
@@ -2912,7 +2912,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should register business successfully" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Registration Flow › should register business successfully" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:175:5 should register business successfully" type="FAILURE">
 <![CDATA[  [Mobile Safari] › auth.spec.ts:175:5 › Authentication E2E Tests › Registration Flow › should register business successfully 
 
@@ -2944,7 +2944,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Forgot Password Flow › should validate email format" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Forgot Password Flow › should validate email format" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:209:5 should validate email format" type="FAILURE">
 <![CDATA[  [Mobile Safari] › auth.spec.ts:209:5 › Authentication E2E Tests › Forgot Password Flow › should validate email format 
 
@@ -2992,7 +2992,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Navigation › should handle browser back/forward buttons" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Navigation › should handle browser back/forward buttons" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:263:5 should handle browser back/forward buttons" type="FAILURE">
 <![CDATA[  [Mobile Safari] › auth.spec.ts:263:5 › Authentication E2E Tests › Navigation › should handle browser back/forward buttons 
 
@@ -3089,7 +3089,7 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="Mobile Safari" tests="23" failures="23" skipped="0" time="0.031" errors="0">
+<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="Mobile Safari" tests="23" failures="23" skipped="0" time="0.034" errors="0">
 <testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:22:5 should display membership plans correctly" type="FAILURE">
 <![CDATA[  [Mobile Safari] › payment-flow.spec.ts:22:5 › Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly 
@@ -3138,7 +3138,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate VIP membership purchase" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate VIP membership purchase" classname="payment-flow.spec.ts" time="0.004">
 <failure message="payment-flow.spec.ts:72:5 should initiate VIP membership purchase" type="FAILURE">
 <![CDATA[  [Mobile Safari] › payment-flow.spec.ts:72:5 › Payment Flow E2E Tests › Membership Purchase Flow › should initiate VIP membership purchase 
 
@@ -3154,7 +3154,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:88:5 should display payment details in modal" type="FAILURE">
 <![CDATA[  [Mobile Safari] › payment-flow.spec.ts:88:5 › Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal 
 
@@ -3170,7 +3170,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should cancel payment modal" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should cancel payment modal" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:105:5 should cancel payment modal" type="FAILURE">
 <![CDATA[  [Mobile Safari] › payment-flow.spec.ts:105:5 › Payment Flow E2E Tests › Membership Purchase Flow › should cancel payment modal 
 
@@ -3266,7 +3266,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment" classname="payment-flow.spec.ts" time="0.003">
+<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:233:5 should process campaign deposit payment" type="FAILURE">
 <![CDATA[  [Mobile Safari] › payment-flow.spec.ts:233:5 › Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment 
 
@@ -3282,7 +3282,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Success Flow › should handle successful payment callback" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Payment Success Flow › should handle successful payment callback" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:265:5 should handle successful payment callback" type="FAILURE">
 <![CDATA[  [Mobile Safari] › payment-flow.spec.ts:265:5 › Payment Flow E2E Tests › Payment Success Flow › should handle successful payment callback 
 
@@ -3346,7 +3346,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback" classname="payment-flow.spec.ts" time="0.005">
 <failure message="payment-flow.spec.ts:316:5 should handle pending payment callback" type="FAILURE">
 <![CDATA[  [Mobile Safari] › payment-flow.spec.ts:316:5 › Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback 
 
@@ -3378,7 +3378,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment History › should filter payment history" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Payment History › should filter payment history" classname="payment-flow.spec.ts" time="0.003">
 <failure message="payment-flow.spec.ts:347:5 should filter payment history" type="FAILURE">
 <![CDATA[  [Mobile Safari] › payment-flow.spec.ts:347:5 › Payment Flow E2E Tests › Payment History › should filter payment history 
 
@@ -3394,7 +3394,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment History › should export payment history" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Payment History › should export payment history" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:364:5 should export payment history" type="FAILURE">
 <![CDATA[  [Mobile Safari] › payment-flow.spec.ts:364:5 › Payment Flow E2E Tests › Payment History › should export payment history 
 
@@ -3442,7 +3442,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Error Handling › should handle API errors during payment" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Error Handling › should handle API errors during payment" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:418:5 should handle API errors during payment" type="FAILURE">
 <![CDATA[  [Mobile Safari] › payment-flow.spec.ts:418:5 › Payment Flow E2E Tests › Error Handling › should handle API errors during payment 
 
@@ -3459,8 +3459,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="auth.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="Microsoft Edge" tests="20" failures="20" skipped="0" time="0.023" errors="0">
-<testcase name="Authentication E2E Tests › Login Flow › should display login form correctly" classname="auth.spec.ts" time="0.001">
+<testsuite name="auth.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="Microsoft Edge" tests="20" failures="20" skipped="0" time="0.028" errors="0">
+<testcase name="Authentication E2E Tests › Login Flow › should display login form correctly" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:9:5 should display login form correctly" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › auth.spec.ts:9:5 › Authentication E2E Tests › Login Flow › should display login form correctly 
 
@@ -3469,7 +3469,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should show validation errors for empty form" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Login Flow › should show validation errors for empty form" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:28:5 should show validation errors for empty form" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › auth.spec.ts:28:5 › Authentication E2E Tests › Login Flow › should show validation errors for empty form 
 
@@ -3478,7 +3478,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should toggle password visibility" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Login Flow › should toggle password visibility" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:42:5 should toggle password visibility" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › auth.spec.ts:42:5 › Authentication E2E Tests › Login Flow › should toggle password visibility 
 
@@ -3523,7 +3523,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should validate password confirmation" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Registration Flow › should validate password confirmation" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:136:5 should validate password confirmation" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › auth.spec.ts:136:5 › Authentication E2E Tests › Registration Flow › should validate password confirmation 
 
@@ -3595,7 +3595,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on mobile devices" classname="auth.spec.ts" time="0.002">
+<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on mobile devices" classname="auth.spec.ts" time="0.001">
 <failure message="auth.spec.ts:283:5 should display correctly on mobile devices" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › auth.spec.ts:283:5 › Authentication E2E Tests › Responsive Design › should display correctly on mobile devices 
 
@@ -3604,7 +3604,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on tablet devices" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on tablet devices" classname="auth.spec.ts" time="0.002">
 <failure message="auth.spec.ts:311:5 should display correctly on tablet devices" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › auth.spec.ts:311:5 › Authentication E2E Tests › Responsive Design › should display correctly on tablet devices 
 
@@ -3613,7 +3613,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Accessibility › should have proper ARIA attributes" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Accessibility › should have proper ARIA attributes" classname="auth.spec.ts" time="0.003">
 <failure message="auth.spec.ts:329:5 should have proper ARIA attributes" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › auth.spec.ts:329:5 › Authentication E2E Tests › Accessibility › should have proper ARIA attributes 
 
@@ -3631,7 +3631,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Accessibility › should announce errors to screen readers" classname="auth.spec.ts" time="0.001">
+<testcase name="Authentication E2E Tests › Accessibility › should announce errors to screen readers" classname="auth.spec.ts" time="0.004">
 <failure message="auth.spec.ts:364:5 should announce errors to screen readers" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › auth.spec.ts:364:5 › Authentication E2E Tests › Accessibility › should announce errors to screen readers 
 
@@ -3641,8 +3641,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="Microsoft Edge" tests="23" failures="23" skipped="0" time="0.034" errors="0">
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly" classname="payment-flow.spec.ts" time="0.002">
+<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="Microsoft Edge" tests="23" failures="23" skipped="0" time="0.027" errors="0">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:22:5 should display membership plans correctly" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › payment-flow.spec.ts:22:5 › Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly 
 
@@ -3660,7 +3660,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate Premium membership purchase" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate Premium membership purchase" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:56:5 should initiate Premium membership purchase" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › payment-flow.spec.ts:56:5 › Payment Flow E2E Tests › Membership Purchase Flow › should initiate Premium membership purchase 
 
@@ -3678,7 +3678,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal" classname="payment-flow.spec.ts" time="0.001">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:88:5 should display payment details in modal" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › payment-flow.spec.ts:88:5 › Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal 
 
@@ -3705,7 +3705,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should display experience booking form" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should display experience booking form" classname="payment-flow.spec.ts" time="0.003">
 <failure message="payment-flow.spec.ts:142:5 should display experience booking form" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › payment-flow.spec.ts:142:5 › Payment Flow E2E Tests › Experience Booking Payment › should display experience booking form 
 
@@ -3723,7 +3723,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should process experience booking payment" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should process experience booking payment" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:175:5 should process experience booking payment" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › payment-flow.spec.ts:175:5 › Payment Flow E2E Tests › Experience Booking Payment › should process experience booking payment 
 
@@ -3741,7 +3741,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:233:5 should process campaign deposit payment" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › payment-flow.spec.ts:233:5 › Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment 
 
@@ -3777,7 +3777,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Failure Flow › should allow user to retry payment" classname="payment-flow.spec.ts" time="0.002">
+<testcase name="Payment Flow E2E Tests › Payment Failure Flow › should allow user to retry payment" classname="payment-flow.spec.ts" time="0.001">
 <failure message="payment-flow.spec.ts:304:5 should allow user to retry payment" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › payment-flow.spec.ts:304:5 › Payment Flow E2E Tests › Payment Failure Flow › should allow user to retry payment 
 
@@ -3786,7 +3786,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback" classname="payment-flow.spec.ts" time="0.006">
+<testcase name="Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback" classname="payment-flow.spec.ts" time="0.002">
 <failure message="payment-flow.spec.ts:316:5 should handle pending payment callback" type="FAILURE">
 <![CDATA[  [Microsoft Edge] › payment-flow.spec.ts:316:5 › Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback 
 
@@ -3850,8 +3850,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="auth.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="Google Chrome" tests="20" failures="20" skipped="0" time="11.183" errors="0">
-<testcase name="Authentication E2E Tests › Login Flow › should display login form correctly" classname="auth.spec.ts" time="0.963">
+<testsuite name="auth.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="Google Chrome" tests="20" failures="20" skipped="0" time="8.757" errors="0">
+<testcase name="Authentication E2E Tests › Login Flow › should display login form correctly" classname="auth.spec.ts" time="0.648">
 <failure message="auth.spec.ts:9:5 should display login form correctly" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:9:5 › Authentication E2E Tests › Login Flow › should display login form correctly 
 
@@ -3867,7 +3867,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should show validation errors for empty form" classname="auth.spec.ts" time="0.779">
+<testcase name="Authentication E2E Tests › Login Flow › should show validation errors for empty form" classname="auth.spec.ts" time="0.489">
 <failure message="auth.spec.ts:28:5 should show validation errors for empty form" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:28:5 › Authentication E2E Tests › Login Flow › should show validation errors for empty form 
 
@@ -3883,7 +3883,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should toggle password visibility" classname="auth.spec.ts" time="0.946">
+<testcase name="Authentication E2E Tests › Login Flow › should toggle password visibility" classname="auth.spec.ts" time="0.606">
 <failure message="auth.spec.ts:42:5 should toggle password visibility" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:42:5 › Authentication E2E Tests › Login Flow › should toggle password visibility 
 
@@ -3899,7 +3899,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should handle invalid credentials" classname="auth.spec.ts" time="0.963">
+<testcase name="Authentication E2E Tests › Login Flow › should handle invalid credentials" classname="auth.spec.ts" time="0.532">
 <failure message="auth.spec.ts:60:5 should handle invalid credentials" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:60:5 › Authentication E2E Tests › Login Flow › should handle invalid credentials 
 
@@ -3915,7 +3915,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Login Flow › should show loading state during submission" classname="auth.spec.ts" time="0.982">
+<testcase name="Authentication E2E Tests › Login Flow › should show loading state during submission" classname="auth.spec.ts" time="0.617">
 <failure message="auth.spec.ts:77:5 should show loading state during submission" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:77:5 › Authentication E2E Tests › Login Flow › should show loading state during submission 
 
@@ -3931,7 +3931,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should display registration form correctly" classname="auth.spec.ts" time="0.765">
+<testcase name="Authentication E2E Tests › Registration Flow › should display registration form correctly" classname="auth.spec.ts" time="0.599">
 <failure message="auth.spec.ts:97:5 should display registration form correctly" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:97:5 › Authentication E2E Tests › Registration Flow › should display registration form correctly 
 
@@ -3947,7 +3947,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should validate required fields" classname="auth.spec.ts" time="0.666">
+<testcase name="Authentication E2E Tests › Registration Flow › should validate required fields" classname="auth.spec.ts" time="0.677">
 <failure message="auth.spec.ts:117:5 should validate required fields" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:117:5 › Authentication E2E Tests › Registration Flow › should validate required fields 
 
@@ -3963,7 +3963,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should validate password confirmation" classname="auth.spec.ts" time="0.299">
+<testcase name="Authentication E2E Tests › Registration Flow › should validate password confirmation" classname="auth.spec.ts" time="0.551">
 <failure message="auth.spec.ts:136:5 should validate password confirmation" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:136:5 › Authentication E2E Tests › Registration Flow › should validate password confirmation 
 
@@ -3979,7 +3979,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should register creator successfully" classname="auth.spec.ts" time="0.463">
+<testcase name="Authentication E2E Tests › Registration Flow › should register creator successfully" classname="auth.spec.ts" time="0.422">
 <failure message="auth.spec.ts:153:5 should register creator successfully" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:153:5 › Authentication E2E Tests › Registration Flow › should register creator successfully 
 
@@ -3995,7 +3995,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Registration Flow › should register business successfully" classname="auth.spec.ts" time="0.691">
+<testcase name="Authentication E2E Tests › Registration Flow › should register business successfully" classname="auth.spec.ts" time="0.617">
 <failure message="auth.spec.ts:175:5 should register business successfully" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:175:5 › Authentication E2E Tests › Registration Flow › should register business successfully 
 
@@ -4011,7 +4011,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Forgot Password Flow › should display forgot password form" classname="auth.spec.ts" time="0.451">
+<testcase name="Authentication E2E Tests › Forgot Password Flow › should display forgot password form" classname="auth.spec.ts" time="0.356">
 <failure message="auth.spec.ts:194:5 should display forgot password form" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:194:5 › Authentication E2E Tests › Forgot Password Flow › should display forgot password form 
 
@@ -4027,7 +4027,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Forgot Password Flow › should validate email format" classname="auth.spec.ts" time="0.373">
+<testcase name="Authentication E2E Tests › Forgot Password Flow › should validate email format" classname="auth.spec.ts" time="0.389">
 <failure message="auth.spec.ts:209:5 should validate email format" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:209:5 › Authentication E2E Tests › Forgot Password Flow › should validate email format 
 
@@ -4043,7 +4043,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Forgot Password Flow › should submit password reset request" classname="auth.spec.ts" time="0.42">
+<testcase name="Authentication E2E Tests › Forgot Password Flow › should submit password reset request" classname="auth.spec.ts" time="0.232">
 <failure message="auth.spec.ts:222:5 should submit password reset request" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:222:5 › Authentication E2E Tests › Forgot Password Flow › should submit password reset request 
 
@@ -4059,7 +4059,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Navigation › should navigate between auth pages correctly" classname="auth.spec.ts" time="0.357">
+<testcase name="Authentication E2E Tests › Navigation › should navigate between auth pages correctly" classname="auth.spec.ts" time="0.306">
 <failure message="auth.spec.ts:238:5 should navigate between auth pages correctly" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:238:5 › Authentication E2E Tests › Navigation › should navigate between auth pages correctly 
 
@@ -4075,7 +4075,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Navigation › should handle browser back/forward buttons" classname="auth.spec.ts" time="0.281">
+<testcase name="Authentication E2E Tests › Navigation › should handle browser back/forward buttons" classname="auth.spec.ts" time="0.367">
 <failure message="auth.spec.ts:263:5 should handle browser back/forward buttons" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:263:5 › Authentication E2E Tests › Navigation › should handle browser back/forward buttons 
 
@@ -4091,7 +4091,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on mobile devices" classname="auth.spec.ts" time="0.403">
+<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on mobile devices" classname="auth.spec.ts" time="0.157">
 <failure message="auth.spec.ts:283:5 should display correctly on mobile devices" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:283:5 › Authentication E2E Tests › Responsive Design › should display correctly on mobile devices 
 
@@ -4107,7 +4107,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on tablet devices" classname="auth.spec.ts" time="0.349">
+<testcase name="Authentication E2E Tests › Responsive Design › should display correctly on tablet devices" classname="auth.spec.ts" time="0.399">
 <failure message="auth.spec.ts:311:5 should display correctly on tablet devices" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:311:5 › Authentication E2E Tests › Responsive Design › should display correctly on tablet devices 
 
@@ -4123,7 +4123,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Accessibility › should have proper ARIA attributes" classname="auth.spec.ts" time="0.156">
+<testcase name="Authentication E2E Tests › Accessibility › should have proper ARIA attributes" classname="auth.spec.ts" time="0.274">
 <failure message="auth.spec.ts:329:5 should have proper ARIA attributes" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:329:5 › Authentication E2E Tests › Accessibility › should have proper ARIA attributes 
 
@@ -4139,7 +4139,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Accessibility › should support keyboard navigation" classname="auth.spec.ts" time="0.431">
+<testcase name="Authentication E2E Tests › Accessibility › should support keyboard navigation" classname="auth.spec.ts" time="0.28">
 <failure message="auth.spec.ts:344:5 should support keyboard navigation" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:344:5 › Authentication E2E Tests › Accessibility › should support keyboard navigation 
 
@@ -4155,7 +4155,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Authentication E2E Tests › Accessibility › should announce errors to screen readers" classname="auth.spec.ts" time="0.445">
+<testcase name="Authentication E2E Tests › Accessibility › should announce errors to screen readers" classname="auth.spec.ts" time="0.239">
 <failure message="auth.spec.ts:364:5 should announce errors to screen readers" type="FAILURE">
 <![CDATA[  [Google Chrome] › auth.spec.ts:364:5 › Authentication E2E Tests › Accessibility › should announce errors to screen readers 
 
@@ -4172,8 +4172,8 @@
 </failure>
 </testcase>
 </testsuite>
-<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T03:38:10.886Z" hostname="Google Chrome" tests="23" failures="23" skipped="0" time="9.638" errors="0">
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly" classname="payment-flow.spec.ts" time="0.529">
+<testsuite name="payment-flow.spec.ts" timestamp="2025-07-29T04:49:25.063Z" hostname="Google Chrome" tests="23" failures="23" skipped="0" time="6.764" errors="0">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly" classname="payment-flow.spec.ts" time="0.213">
 <failure message="payment-flow.spec.ts:22:5 should display membership plans correctly" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:22:5 › Payment Flow E2E Tests › Membership Purchase Flow › should display membership plans correctly 
 
@@ -4189,7 +4189,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate Basic membership purchase" classname="payment-flow.spec.ts" time="0.403">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate Basic membership purchase" classname="payment-flow.spec.ts" time="0.355">
 <failure message="payment-flow.spec.ts:40:5 should initiate Basic membership purchase" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:40:5 › Payment Flow E2E Tests › Membership Purchase Flow › should initiate Basic membership purchase 
 
@@ -4205,7 +4205,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate Premium membership purchase" classname="payment-flow.spec.ts" time="0.447">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate Premium membership purchase" classname="payment-flow.spec.ts" time="0.301">
 <failure message="payment-flow.spec.ts:56:5 should initiate Premium membership purchase" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:56:5 › Payment Flow E2E Tests › Membership Purchase Flow › should initiate Premium membership purchase 
 
@@ -4221,7 +4221,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate VIP membership purchase" classname="payment-flow.spec.ts" time="0.187">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should initiate VIP membership purchase" classname="payment-flow.spec.ts" time="0.246">
 <failure message="payment-flow.spec.ts:72:5 should initiate VIP membership purchase" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:72:5 › Payment Flow E2E Tests › Membership Purchase Flow › should initiate VIP membership purchase 
 
@@ -4237,7 +4237,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal" classname="payment-flow.spec.ts" time="0.562">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal" classname="payment-flow.spec.ts" time="0.244">
 <failure message="payment-flow.spec.ts:88:5 should display payment details in modal" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:88:5 › Payment Flow E2E Tests › Membership Purchase Flow › should display payment details in modal 
 
@@ -4253,7 +4253,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should cancel payment modal" classname="payment-flow.spec.ts" time="0.529">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should cancel payment modal" classname="payment-flow.spec.ts" time="0.266">
 <failure message="payment-flow.spec.ts:105:5 should cancel payment modal" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:105:5 › Payment Flow E2E Tests › Membership Purchase Flow › should cancel payment modal 
 
@@ -4269,7 +4269,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should redirect to MercadoPago for payment" classname="payment-flow.spec.ts" time="0.474">
+<testcase name="Payment Flow E2E Tests › Membership Purchase Flow › should redirect to MercadoPago for payment" classname="payment-flow.spec.ts" time="0.171">
 <failure message="payment-flow.spec.ts:122:5 should redirect to MercadoPago for payment" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:122:5 › Payment Flow E2E Tests › Membership Purchase Flow › should redirect to MercadoPago for payment 
 
@@ -4285,7 +4285,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should display experience booking form" classname="payment-flow.spec.ts" time="0.324">
+<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should display experience booking form" classname="payment-flow.spec.ts" time="0.241">
 <failure message="payment-flow.spec.ts:142:5 should display experience booking form" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:142:5 › Payment Flow E2E Tests › Experience Booking Payment › should display experience booking form 
 
@@ -4301,7 +4301,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should calculate total price correctly" classname="payment-flow.spec.ts" time="0.371">
+<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should calculate total price correctly" classname="payment-flow.spec.ts" time="0.275">
 <failure message="payment-flow.spec.ts:158:5 should calculate total price correctly" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:158:5 › Payment Flow E2E Tests › Experience Booking Payment › should calculate total price correctly 
 
@@ -4317,7 +4317,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should process experience booking payment" classname="payment-flow.spec.ts" time="0.164">
+<testcase name="Payment Flow E2E Tests › Experience Booking Payment › should process experience booking payment" classname="payment-flow.spec.ts" time="0.349">
 <failure message="payment-flow.spec.ts:175:5 should process experience booking payment" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:175:5 › Payment Flow E2E Tests › Experience Booking Payment › should process experience booking payment 
 
@@ -4333,7 +4333,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should allow business to create campaign with deposit" classname="payment-flow.spec.ts" time="0.479">
+<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should allow business to create campaign with deposit" classname="payment-flow.spec.ts" time="0.438">
 <failure message="payment-flow.spec.ts:198:5 should allow business to create campaign with deposit" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:198:5 › Payment Flow E2E Tests › Campaign Deposit Payment › should allow business to create campaign with deposit 
 
@@ -4349,7 +4349,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment" classname="payment-flow.spec.ts" time="0.51">
+<testcase name="Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment" classname="payment-flow.spec.ts" time="0.428">
 <failure message="payment-flow.spec.ts:233:5 should process campaign deposit payment" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:233:5 › Payment Flow E2E Tests › Campaign Deposit Payment › should process campaign deposit payment 
 
@@ -4365,7 +4365,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Success Flow › should handle successful payment callback" classname="payment-flow.spec.ts" time="0.359">
+<testcase name="Payment Flow E2E Tests › Payment Success Flow › should handle successful payment callback" classname="payment-flow.spec.ts" time="0.454">
 <failure message="payment-flow.spec.ts:265:5 should handle successful payment callback" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:265:5 › Payment Flow E2E Tests › Payment Success Flow › should handle successful payment callback 
 
@@ -4381,7 +4381,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Success Flow › should redirect to appropriate page after success" classname="payment-flow.spec.ts" time="0.205">
+<testcase name="Payment Flow E2E Tests › Payment Success Flow › should redirect to appropriate page after success" classname="payment-flow.spec.ts" time="0.192">
 <failure message="payment-flow.spec.ts:279:5 should redirect to appropriate page after success" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:279:5 › Payment Flow E2E Tests › Payment Success Flow › should redirect to appropriate page after success 
 
@@ -4397,7 +4397,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Failure Flow › should handle failed payment callback" classname="payment-flow.spec.ts" time="0.42">
+<testcase name="Payment Flow E2E Tests › Payment Failure Flow › should handle failed payment callback" classname="payment-flow.spec.ts" time="0.348">
 <failure message="payment-flow.spec.ts:291:5 should handle failed payment callback" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:291:5 › Payment Flow E2E Tests › Payment Failure Flow › should handle failed payment callback 
 
@@ -4413,7 +4413,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Failure Flow › should allow user to retry payment" classname="payment-flow.spec.ts" time="0.429">
+<testcase name="Payment Flow E2E Tests › Payment Failure Flow › should allow user to retry payment" classname="payment-flow.spec.ts" time="0.192">
 <failure message="payment-flow.spec.ts:304:5 should allow user to retry payment" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:304:5 › Payment Flow E2E Tests › Payment Failure Flow › should allow user to retry payment 
 
@@ -4429,7 +4429,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback" classname="payment-flow.spec.ts" time="0.517">
+<testcase name="Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback" classname="payment-flow.spec.ts" time="0.377">
 <failure message="payment-flow.spec.ts:316:5 should handle pending payment callback" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:316:5 › Payment Flow E2E Tests › Payment Pending Flow › should handle pending payment callback 
 
@@ -4445,7 +4445,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment History › should display payment history" classname="payment-flow.spec.ts" time="0.447">
+<testcase name="Payment Flow E2E Tests › Payment History › should display payment history" classname="payment-flow.spec.ts" time="0.446">
 <failure message="payment-flow.spec.ts:331:5 should display payment history" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:331:5 › Payment Flow E2E Tests › Payment History › should display payment history 
 
@@ -4461,7 +4461,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment History › should filter payment history" classname="payment-flow.spec.ts" time="0.8">
+<testcase name="Payment Flow E2E Tests › Payment History › should filter payment history" classname="payment-flow.spec.ts" time="0.413">
 <failure message="payment-flow.spec.ts:347:5 should filter payment history" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:347:5 › Payment Flow E2E Tests › Payment History › should filter payment history 
 
@@ -4477,7 +4477,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Payment History › should export payment history" classname="payment-flow.spec.ts" time="0.56">
+<testcase name="Payment Flow E2E Tests › Payment History › should export payment history" classname="payment-flow.spec.ts" time="0.321">
 <failure message="payment-flow.spec.ts:364:5 should export payment history" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:364:5 › Payment Flow E2E Tests › Payment History › should export payment history 
 
@@ -4493,7 +4493,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Mobile Payment Flow › should work correctly on mobile devices" classname="payment-flow.spec.ts" time="0.57">
+<testcase name="Payment Flow E2E Tests › Mobile Payment Flow › should work correctly on mobile devices" classname="payment-flow.spec.ts" time="0.245">
 <failure message="payment-flow.spec.ts:380:5 should work correctly on mobile devices" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:380:5 › Payment Flow E2E Tests › Mobile Payment Flow › should work correctly on mobile devices 
 
@@ -4509,7 +4509,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Error Handling › should handle network errors during payment" classname="payment-flow.spec.ts" time="0.177">
+<testcase name="Payment Flow E2E Tests › Error Handling › should handle network errors during payment" classname="payment-flow.spec.ts" time="0.147">
 <failure message="payment-flow.spec.ts:403:5 should handle network errors during payment" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:403:5 › Payment Flow E2E Tests › Error Handling › should handle network errors during payment 
 
@@ -4525,7 +4525,7 @@
 ]]>
 </failure>
 </testcase>
-<testcase name="Payment Flow E2E Tests › Error Handling › should handle API errors during payment" classname="payment-flow.spec.ts" time="0.175">
+<testcase name="Payment Flow E2E Tests › Error Handling › should handle API errors during payment" classname="payment-flow.spec.ts" time="0.102">
 <failure message="payment-flow.spec.ts:418:5 should handle API errors during payment" type="FAILURE">
 <![CDATA[  [Google Chrome] › payment-flow.spec.ts:418:5 › Payment Flow E2E Tests › Error Handling › should handle API errors during payment 
 

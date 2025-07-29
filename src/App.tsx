@@ -70,7 +70,13 @@ const App = () => (
             <Route path="/onboarding/business" element={<BusinessOnboarding />} />
             <Route path="/registro/creador" element={<RegistroCreador />} />
             <Route path="/onboarding/creator" element={<CreatorOnboarding />} />
+            {/* BULLETPROOF DASHBOARD ROUTING: Auto-detect role or force specific role */}
             <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard/:role" element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>

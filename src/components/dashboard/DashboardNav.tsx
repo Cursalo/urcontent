@@ -26,27 +26,28 @@ import {
   Store
 } from "lucide-react";
 
+// BULLETPROOF NAVIGATION: Role-specific menu items with deep link support
 const navigationItems = {
   admin: [
-    { name: "Overview", href: "/dashboard", icon: Home },
-    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-    { name: "Users", href: "/dashboard/users", icon: Users },
-    { name: "Collaborations", href: "/dashboard/collaborations", icon: MessageCircle },
-    { name: "Settings", href: "/dashboard/settings", icon: Settings },
+    { name: "Overview", href: "/dashboard", icon: Home, description: "Platform overview" },
+    { name: "Users", href: "/dashboard/users", icon: Users, description: "Manage users" },
+    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3, description: "Platform analytics" },
+    { name: "Platform Settings", href: "/dashboard/settings", icon: Settings, description: "System settings" },
+    { name: "Collaborations", href: "/dashboard/collaborations", icon: MessageCircle, description: "All collaborations" },
   ],
   creator: [
-    { name: "Dashboard", href: "/dashboard", icon: Home },
-    { name: "My Profile", href: "/dashboard/profile", icon: Camera },
-    { name: "Collaborations", href: "/dashboard/collaborations", icon: MessageCircle },
-    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-    { name: "Settings", href: "/dashboard/settings", icon: Settings },
+    { name: "Dashboard", href: "/dashboard", icon: Home, description: "Creator home" },
+    { name: "My Profile", href: "/dashboard/profile", icon: Camera, description: "Profile & portfolio" },
+    { name: "Collaborations", href: "/dashboard/collaborations", icon: MessageCircle, description: "Your projects" },
+    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3, description: "Performance metrics" },
+    { name: "Settings", href: "/dashboard/settings", icon: Settings, description: "Account settings" },
   ],
   business: [
-    { name: "Dashboard", href: "/dashboard", icon: Home },
-    { name: "Find Creators", href: "/marketplace", icon: Search },
-    { name: "My Campaigns", href: "/campaigns", icon: Store },
-    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-    { name: "Settings", href: "/dashboard/settings", icon: Settings },
+    { name: "Dashboard", href: "/dashboard", icon: Home, description: "Business overview" },
+    { name: "Find Creators", href: "/marketplace", icon: Search, description: "Discover talent" },
+    { name: "My Campaigns", href: "/campaigns", icon: Store, description: "Campaign management" },
+    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3, description: "Campaign insights" },
+    { name: "Settings", href: "/dashboard/settings", icon: Settings, description: "Business settings" },
   ]
 };
 
@@ -54,15 +55,40 @@ export const DashboardNav = () => {
   const { user, profile, signOut } = useAuth();
   const location = useLocation();
   
-  // Get role from profile first, then user metadata, with creator as fallback
-  // Ensure role is always a string, not an object
-  const profileRole = typeof profile?.role === 'string' ? profile.role : null;
-  const metadataRole = typeof user?.user_metadata?.role === 'string' ? user.user_metadata.role : null;
-  const userRole = profileRole || metadataRole || 'creator';
-  const navigation = navigationItems[userRole as keyof typeof navigationItems] || navigationItems.creator;
+  // BULLETPROOF ROLE DETECTION: Same logic as Dashboard component
+  const detectUserRole = (): 'creator' | 'business' | 'admin' => {
+    // Layer 1: Profile role (real users with completed profiles)
+    if (profile?.role && typeof profile.role === 'string') {
+      return profile.role as 'creator' | 'business' | 'admin';
+    }
+    
+    // Layer 2: Auth metadata (mock users and real users without profiles)
+    if (user?.user_metadata?.role && typeof user.user_metadata.role === 'string') {
+      return user.user_metadata.role as 'creator' | 'business' | 'admin';
+    }
+    
+    // Layer 3: Email-based detection for mock users
+    if (user?.email) {
+      if (user.email.includes('admin@')) {
+        return 'admin';
+      }
+      if (user.email.includes('venue@') || user.email.includes('business@')) {
+        return 'business';
+      }
+      if (user.email.includes('creator@')) {
+        return 'creator';
+      }
+    }
+    
+    // Layer 4: Ultimate fallback
+    return 'creator';
+  };
   
-  // Log role detection for debugging - clean output
-  console.log('DashboardNav role detection:', userRole);
+  const userRole = detectUserRole();
+  const navigation = navigationItems[userRole] || navigationItems.creator;
+  
+  // Clean role detection logging
+  console.log('🧭 DashboardNav: Role detected as', userRole);
   
   const getRoleIcon = (role: string) => {
     switch (role) {
@@ -118,7 +144,7 @@ export const DashboardNav = () => {
 
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
-            {/* Quick Action Button */}
+            {/* BULLETPROOF ROLE-BASED QUICK ACTIONS */}
             {userRole === 'business' && (
               <Link to="/marketplace">
                 <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
@@ -132,6 +158,13 @@ export const DashboardNav = () => {
               <Button size="sm" className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Content
+              </Button>
+            )}
+            
+            {userRole === 'admin' && (
+              <Button size="sm" className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Admin Panel
               </Button>
             )}
 
