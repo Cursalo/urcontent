@@ -1,0 +1,539 @@
+// Mock Collaboration data - database-ready structure
+import { MockCollaboration, mockUsers } from './mockUsers';
+
+export const mockCollaborations: MockCollaboration[] = [
+  {
+    id: 'collab-001',
+    title: 'Mediterranean Summer Menu Showcase',
+    description: 'Create authentic and engaging content showcasing our new Mediterranean summer menu. Focus on fresh ingredients, traditional recipes, and the dining experience.',
+    business_id: 'business-user-001',
+    creator_id: 'creator-user-001',
+    status: 'completed',
+    collaboration_type: 'sponsored_post',
+    platform: 'multi_platform',
+    compensation_amount: 120000, // €1200 in cents
+    compensation_type: 'fixed',
+    deliverables: {
+      posts: 3,
+      stories: 5,
+      reels: 1,
+      videos: 0,
+      usage_rights: true,
+      exclusivity_period: 30,
+      revisions_included: 2
+    },
+    requirements: {
+      hashtags: ['#LaPLazaMediterranean', '#SummerFlavors', '#AuthenticTaste'],
+      mentions: ['@laplazarestaurant'],
+      content_guidelines: 'Focus on natural lighting, authentic moments, and food presentation',
+      posting_schedule: 'Staggered over 2 weeks',
+      approval_required: true
+    },
+    timeline: {
+      start_date: '2024-07-01T10:00:00Z',
+      end_date: '2024-07-15T10:00:00Z',
+      content_due_date: '2024-07-08T18:00:00Z',
+      posting_start_date: '2024-07-10T12:00:00Z',
+      posting_end_date: '2024-07-15T20:00:00Z'
+    },
+    created_at: '2024-06-25T10:00:00Z',
+    updated_at: '2024-07-15T20:30:00Z',
+    accepted_at: '2024-06-26T14:20:00Z',
+    started_at: '2024-07-01T10:00:00Z',
+    completed_at: '2024-07-15T20:30:00Z',
+    cancelled_at: null,
+    performance: {
+      total_reach: 25400,
+      total_impressions: 45600,
+      total_engagement: 1876,
+      clicks: 1250,
+      conversions: 34,
+      roi: 285
+    },
+    creator_response: 'Excited to showcase your beautiful Mediterranean cuisine!',
+    business_feedback: 'Excellent work! The content perfectly captured our brand essence.',
+    rating_by_business: 5,
+    rating_by_creator: 5
+  },
+  {
+    id: 'collab-002',
+    title: 'Sustainable Autumn Collection Campaign',
+    description: 'Create compelling content showcasing our new sustainable autumn collection. Emphasize the eco-friendly materials and timeless designs perfect for conscious consumers.',
+    business_id: 'business-user-002',
+    creator_id: 'creator-user-001',
+    status: 'in_progress',
+    collaboration_type: 'brand_partnership',
+    platform: 'multi_platform',
+    compensation_amount: 200000, // €2000 in cents
+    compensation_type: 'fixed',
+    deliverables: {
+      posts: 5,
+      stories: 8,
+      reels: 2,
+      videos: 1,
+      usage_rights: true,
+      exclusivity_period: 60,
+      revisions_included: 3
+    },
+    requirements: {
+      hashtags: ['#BellaFashionAutumn', '#SustainableFashion', '#ConsciousStyle'],
+      mentions: ['@bellafashionofficial'],
+      content_guidelines: 'Highlight sustainability aspects, versatility, and styling tips',
+      posting_schedule: 'Daily posts over campaign period',
+      approval_required: true
+    },
+    timeline: {
+      start_date: '2024-07-20T10:00:00Z',
+      end_date: '2024-08-05T18:00:00Z',
+      content_due_date: '2024-07-30T17:00:00Z',
+      posting_start_date: '2024-08-01T09:00:00Z',
+      posting_end_date: '2024-08-05T18:00:00Z'
+    },
+    created_at: '2024-07-15T10:00:00Z',
+    updated_at: '2024-07-25T16:45:00Z',
+    accepted_at: '2024-07-18T15:30:00Z',
+    started_at: '2024-07-20T10:00:00Z',
+    completed_at: null,
+    cancelled_at: null,
+    performance: {
+      total_reach: 18900,
+      total_impressions: 34200,
+      total_engagement: 1456,
+      clicks: 890,
+      conversions: 23,
+      roi: 156
+    },
+    creator_response: 'Love the sustainable approach! Excited to create authentic content.',
+    business_feedback: null,
+    rating_by_business: null,
+    rating_by_creator: null
+  },
+  {
+    id: 'collab-003',
+    title: 'Luxury Resort Experience Campaign',
+    description: 'Create inspiring and aspirational content showcasing the luxury experience at Paradise Resort. Focus on the stunning beachfront location, world-class amenities, and unforgettable moments.',
+    business_id: 'business-user-003',
+    creator_id: 'creator-user-001',
+    status: 'accepted',
+    collaboration_type: 'brand_partnership',
+    platform: 'multi_platform',
+    compensation_amount: 350000, // €3500 in cents
+    compensation_type: 'fixed',
+    deliverables: {
+      posts: 8,
+      stories: 12,
+      reels: 4,
+      videos: 1,
+      usage_rights: true,
+      exclusivity_period: 90,
+      revisions_included: 2
+    },
+    requirements: {
+      hashtags: ['#ParadiseResort', '#LuxuryTravel', '#PalmaDreams'],
+      mentions: ['@paradiseresortofficial'],
+      content_guidelines: 'Capture luxury, relaxation, and the unique Balearic atmosphere',
+      posting_schedule: 'Throughout stay and 2 weeks post-visit',
+      approval_required: false
+    },
+    timeline: {
+      start_date: '2024-08-10T10:00:00Z',
+      end_date: '2024-08-25T20:00:00Z',
+      content_due_date: '2024-08-20T18:00:00Z',
+      posting_start_date: '2024-08-12T12:00:00Z',
+      posting_end_date: '2024-09-05T18:00:00Z'
+    },
+    created_at: '2024-07-25T10:00:00Z',
+    updated_at: '2024-07-27T11:15:00Z',
+    accepted_at: '2024-07-27T11:15:00Z',
+    started_at: null,
+    completed_at: null,
+    cancelled_at: null,
+    performance: null,
+    creator_response: 'Cannot wait to experience and share this amazing resort!',
+    business_feedback: null,
+    rating_by_business: null,
+    rating_by_creator: null
+  },
+  {
+    id: 'collab-004',
+    title: 'Natural Skincare Line Review & Tutorial',
+    description: 'Create authentic content reviewing our new natural skincare line. Include honest opinions, application tutorials, and results after testing period.',
+    business_id: 'business-user-004',
+    creator_id: 'creator-user-001',
+    status: 'proposed',
+    collaboration_type: 'product_review',
+    platform: 'multi_platform',
+    compensation_amount: 80000, // €800 in cents
+    compensation_type: 'fixed',
+    deliverables: {
+      posts: 2,
+      stories: 6,
+      reels: 2,
+      videos: 0,
+      usage_rights: false,
+      exclusivity_period: 14,
+      revisions_included: 1
+    },
+    requirements: {
+      hashtags: ['#GlowUpCosmetics', '#NaturalSkincare', '#HonestReview'],
+      mentions: ['@glowupcosmetics'],
+      content_guidelines: 'Honest review, show application process, discuss ingredients',
+      posting_schedule: 'After 2-week testing period',
+      approval_required: false
+    },
+    timeline: {
+      start_date: '2024-08-15T10:00:00Z',
+      end_date: '2024-08-30T18:00:00Z',
+      content_due_date: '2024-08-28T17:00:00Z',
+      posting_start_date: '2024-08-29T12:00:00Z',
+      posting_end_date: '2024-08-30T18:00:00Z'
+    },
+    created_at: '2024-07-28T10:00:00Z',
+    updated_at: '2024-07-28T10:00:00Z',
+    accepted_at: null,
+    started_at: null,
+    completed_at: null,
+    cancelled_at: null,
+    performance: null,
+    creator_response: null,
+    business_feedback: null,
+    rating_by_business: null,
+    rating_by_creator: null
+  },
+  {
+    id: 'collab-005',
+    title: 'Fitness Equipment Partnership',
+    description: 'Long-term partnership showcasing innovative fitness equipment and workout routines. Create engaging content that motivates our audience.',
+    business_id: 'business-user-001', // Restaurant as secondary business
+    creator_id: 'creator-user-002',
+    status: 'completed',
+    collaboration_type: 'brand_partnership',
+    platform: 'multi_platform',
+    compensation_amount: 150000, // €1500 in cents
+    compensation_type: 'fixed',
+    deliverables: {
+      posts: 4,
+      stories: 8,
+      reels: 3,
+      videos: 1,
+      usage_rights: true,
+      exclusivity_period: 45,
+      revisions_included: 2
+    },
+    requirements: {
+      hashtags: ['#FitnessTech', '#WorkoutMotivation', '#HealthyLifestyle'],
+      mentions: ['@techfitpro'],
+      content_guidelines: 'Show real workouts, demonstrate equipment features, motivational messaging',
+      posting_schedule: 'Weekly content over 4 weeks',
+      approval_required: true
+    },
+    timeline: {
+      start_date: '2024-06-15T08:00:00Z',
+      end_date: '2024-07-15T20:00:00Z',
+      content_due_date: '2024-07-10T18:00:00Z',
+      posting_start_date: '2024-06-20T08:00:00Z',
+      posting_end_date: '2024-07-15T20:00:00Z'
+    },
+    created_at: '2024-06-05T14:20:00Z',
+    updated_at: '2024-07-15T20:30:00Z',
+    accepted_at: '2024-06-08T16:45:00Z',
+    started_at: '2024-06-15T08:00:00Z',
+    completed_at: '2024-07-15T20:30:00Z',
+    cancelled_at: null,
+    performance: {
+      total_reach: 34500,
+      total_impressions: 67800,
+      total_engagement: 2890,
+      clicks: 1560,
+      conversions: 67,
+      roi: 445
+    },
+    creator_response: 'Great equipment! My audience will love these workout tips.',
+    business_feedback: 'Marco created amazing content that drove great engagement!',
+    rating_by_business: 5,
+    rating_by_creator: 4
+  },
+  {
+    id: 'collab-006',
+    title: 'Local Restaurant Food Story',
+    description: 'Capture the authentic story of our traditional Valencian restaurant. Show the passion behind our recipes and local ingredient sourcing.',
+    business_id: 'business-user-001',
+    creator_id: 'creator-user-003',
+    status: 'in_progress',
+    collaboration_type: 'ugc_creation',
+    platform: 'multi_platform',
+    compensation_amount: 90000, // €900 in cents
+    compensation_type: 'fixed',
+    deliverables: {
+      posts: 3,
+      stories: 10,
+      reels: 2,
+      videos: 1,
+      usage_rights: true,
+      exclusivity_period: 30,
+      revisions_included: 2
+    },
+    requirements: {
+      hashtags: ['#ValencianCuisine', '#AuthenticFlavors', '#LocalIngredients'],
+      mentions: ['@laplazarestaurant'],
+      content_guidelines: 'Focus on authenticity, cooking process, and cultural aspects',
+      posting_schedule: 'Spread over 2 weeks',
+      approval_required: true
+    },
+    timeline: {
+      start_date: '2024-07-22T11:00:00Z',
+      end_date: '2024-08-05T19:00:00Z',
+      content_due_date: '2024-08-02T17:00:00Z',
+      posting_start_date: '2024-08-03T12:00:00Z',
+      posting_end_date: '2024-08-05T19:00:00Z'
+    },
+    created_at: '2024-07-18T13:45:00Z',
+    updated_at: '2024-07-26T14:20:00Z',
+    accepted_at: '2024-07-20T09:30:00Z',
+    started_at: '2024-07-22T11:00:00Z',
+    completed_at: null,
+    cancelled_at: null,
+    performance: {
+      total_reach: 12400,
+      total_impressions: 19800,
+      total_engagement: 1245,
+      clicks: 456,
+      conversions: 18,
+      roi: 200
+    },
+    creator_response: 'Excited to showcase the beautiful traditional recipes!',
+    business_feedback: null,
+    rating_by_business: null,
+    rating_by_creator: null
+  },
+  {
+    id: 'collab-007',
+    title: 'Fashion Week Street Style Coverage',
+    description: 'Cover Madrid Fashion Week with authentic street style content. Capture the latest trends and behind-the-scenes moments.',
+    business_id: 'business-user-002',
+    creator_id: 'creator-user-002',
+    status: 'rejected',
+    collaboration_type: 'event_coverage',
+    platform: 'multi_platform',
+    compensation_amount: 180000, // €1800 in cents
+    compensation_type: 'fixed',
+    deliverables: {
+      posts: 6,
+      stories: 15,
+      reels: 4,
+      videos: 1,
+      usage_rights: true,
+      exclusivity_period: 30,
+      revisions_included: 2
+    },
+    requirements: {
+      hashtags: ['#MadridFashionWeek', '#StreetStyle', '#BellaFashion'],
+      mentions: ['@bellafashionofficial', '@madridfashionweek'],
+      content_guidelines: 'Focus on street style, diversity, and fashion innovation',
+      posting_schedule: 'Live coverage during event',
+      approval_required: false
+    },
+    timeline: {
+      start_date: '2024-09-15T09:00:00Z',
+      end_date: '2024-09-20T20:00:00Z',
+      content_due_date: '2024-09-20T22:00:00Z',
+      posting_start_date: '2024-09-15T09:00:00Z',
+      posting_end_date: '2024-09-25T18:00:00Z'
+    },
+    created_at: '2024-08-01T16:30:00Z',
+    updated_at: '2024-08-05T11:20:00Z',
+    accepted_at: null,
+    started_at: null,
+    completed_at: null,
+    cancelled_at: '2024-08-05T11:20:00Z',
+    performance: null,
+    creator_response: 'Unfortunately, I have a scheduling conflict during those dates.',
+    business_feedback: 'Thanks for the quick response. Let\'s explore future opportunities.',
+    rating_by_business: null,
+    rating_by_creator: null
+  },
+  {
+    id: 'collab-008',
+    title: 'Tech Gadgets for Fitness Enthusiasts',
+    description: 'Review and showcase the latest tech gadgets that enhance fitness routines. Include honest reviews and practical demonstrations.',
+    business_id: 'business-user-003', // Paradise Resort expanding to tech partnerships
+    creator_id: 'creator-user-002',
+    status: 'completed',
+    collaboration_type: 'product_review',
+    platform: 'youtube',
+    compensation_amount: 120000, // €1200 in cents
+    compensation_type: 'fixed',
+    deliverables: {
+      posts: 2,
+      stories: 5,
+      reels: 1,
+      videos: 2,
+      usage_rights: true,
+      exclusivity_period: 60,
+      revisions_included: 1
+    },
+    requirements: {
+      hashtags: ['#TechReview', '#FitnessGadgets', '#TechFitness'],
+      mentions: ['@techfitpro'],
+      content_guidelines: 'Honest reviews, practical demonstrations, pros and cons',
+      posting_schedule: 'One video per week for 2 weeks',
+      approval_required: false
+    },
+    timeline: {
+      start_date: '2024-05-20T10:00:00Z',
+      end_date: '2024-06-10T18:00:00Z',
+      content_due_date: '2024-06-08T17:00:00Z',
+      posting_start_date: '2024-06-01T12:00:00Z',
+      posting_end_date: '2024-06-10T18:00:00Z'
+    },
+    created_at: '2024-05-10T14:15:00Z',
+    updated_at: '2024-06-10T19:45:00Z',
+    accepted_at: '2024-05-12T09:20:00Z',
+    started_at: '2024-05-20T10:00:00Z',
+    completed_at: '2024-06-10T19:45:00Z',
+    cancelled_at: null,
+    performance: {
+      total_reach: 28900,
+      total_impressions: 56700,
+      total_engagement: 2145,
+      clicks: 1890,
+      conversions: 89,
+      roi: 378
+    },
+    creator_response: 'Excited to test these innovative fitness gadgets!',
+    business_feedback: 'Great authentic reviews that really resonated with our target audience.',
+    rating_by_business: 5,
+    rating_by_creator: 5
+  },
+  {
+    id: 'collab-009',
+    title: 'Beauty Brand Launch Campaign',
+    description: 'Help launch our new natural beauty line with authentic content that showcases the products\' benefits and your personal experience.',
+    business_id: 'business-user-004',
+    creator_id: 'creator-user-003',
+    status: 'proposed',
+    collaboration_type: 'product_review',
+    platform: 'multi_platform',
+    compensation_amount: 95000, // €950 in cents
+    compensation_type: 'fixed',
+    deliverables: {
+      posts: 3,
+      stories: 8,
+      reels: 2,
+      videos: 1,
+      usage_rights: false,
+      exclusivity_period: 21,
+      revisions_included: 2
+    },
+    requirements: {
+      hashtags: ['#GlowUpLaunch', '#NaturalBeauty', '#CleanBeauty'],
+      mentions: ['@glowupcosmetics'],
+      content_guidelines: 'Authentic experience, before/after if applicable, ingredient focus',
+      posting_schedule: 'Spread over 3 weeks with product launch announcement',
+      approval_required: true
+    },
+    timeline: {
+      start_date: '2024-09-01T08:00:00Z',
+      end_date: '2024-09-22T20:00:00Z',
+      content_due_date: '2024-09-18T17:00:00Z',
+      posting_start_date: '2024-09-05T12:00:00Z',
+      posting_end_date: '2024-09-22T20:00:00Z'
+    },
+    created_at: '2024-08-15T11:30:00Z',
+    updated_at: '2024-08-15T11:30:00Z',
+    accepted_at: null,
+    started_at: null,
+    completed_at: null,
+    cancelled_at: null,
+    performance: null,
+    creator_response: null,
+    business_feedback: null,
+    rating_by_business: null,
+    rating_by_creator: null
+  },
+  {
+    id: 'collab-010',
+    title: 'Traditional Cooking Masterclass Series',
+    description: 'Create a series showcasing traditional Spanish cooking techniques and family recipes. Focus on authentic culinary heritage.',
+    business_id: 'business-user-001',
+    creator_id: 'creator-user-003',
+    status: 'accepted',
+    collaboration_type: 'ugc_creation',
+    platform: 'youtube',
+    compensation_amount: 200000, // €2000 in cents
+    compensation_type: 'fixed',
+    deliverables: {
+      posts: 4,
+      stories: 12,
+      reels: 3,
+      videos: 4,
+      usage_rights: true,
+      exclusivity_period: 45,
+      revisions_included: 3
+    },
+    requirements: {
+      hashtags: ['#SpanishCooking', '#TraditionalRecipes', '#CulinaryHeritage'],
+      mentions: ['@laplazarestaurant'],
+      content_guidelines: 'Educational content, step-by-step instructions, cultural context',
+      posting_schedule: 'One video per week for 4 weeks',
+      approval_required: true
+    },
+    timeline: {
+      start_date: '2024-08-20T10:00:00Z',
+      end_date: '2024-09-20T18:00:00Z',
+      content_due_date: '2024-09-15T17:00:00Z',
+      posting_start_date: '2024-08-25T12:00:00Z',
+      posting_end_date: '2024-09-20T18:00:00Z'
+    },
+    created_at: '2024-08-05T15:45:00Z',
+    updated_at: '2024-08-08T10:20:00Z',
+    accepted_at: '2024-08-08T10:20:00Z',
+    started_at: null,
+    completed_at: null,
+    cancelled_at: null,
+    performance: null,
+    creator_response: 'This aligns perfectly with my passion for traditional cooking!',
+    business_feedback: null,
+    rating_by_business: null,
+    rating_by_creator: null
+  }
+];
+
+// Helper functions for collaborations
+export const getCollaborationById = (id: string): MockCollaboration | undefined => {
+  return mockCollaborations.find(collab => collab.id === id);
+};
+
+export const getCollaborationsByBusinessId = (businessId: string): MockCollaboration[] => {
+  return mockCollaborations.filter(collab => collab.business_id === businessId);
+};
+
+export const getCollaborationsByCreatorId = (creatorId: string): MockCollaboration[] => {
+  return mockCollaborations.filter(collab => collab.creator_id === creatorId);
+};
+
+export const getCollaborationsByStatus = (status: string): MockCollaboration[] => {
+  return mockCollaborations.filter(collab => collab.status === status);
+};
+
+export const getActiveCollaborations = (): MockCollaboration[] => {
+  return mockCollaborations.filter(collab => 
+    ['accepted', 'in_progress'].includes(collab.status)
+  );
+};
+
+export const getCompletedCollaborations = (): MockCollaboration[] => {
+  return mockCollaborations.filter(collab => collab.status === 'completed');
+};
+
+export const getProposedCollaborations = (): MockCollaboration[] => {
+  return mockCollaborations.filter(collab => collab.status === 'proposed');
+};
+
+export const getCollaborationsByType = (type: string): MockCollaboration[] => {
+  return mockCollaborations.filter(collab => collab.collaboration_type === type);
+};
+
+export const getCollaborationsByPlatform = (platform: string): MockCollaboration[] => {
+  return mockCollaborations.filter(collab => collab.platform === platform);
+};

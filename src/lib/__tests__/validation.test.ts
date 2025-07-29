@@ -272,11 +272,11 @@ describe('Validation Library', () => {
 
   describe('validateCuit function', () => {
     it('validates correct CUIT numbers', () => {
-      // These are test CUITs with valid check digits
+      // These are test CUITs with valid check digits calculated properly
       const validCuits = [
-        '20-12345674-3',
-        '27-12345674-0',
-        '30-12345674-7',
+        '20-12345678-6', // Valid CUIT
+        '27-12345678-0', // Valid CUIT
+        '30-12345678-1', // Valid CUIT
       ]
 
       validCuits.forEach(cuit => {
@@ -298,9 +298,9 @@ describe('Validation Library', () => {
     })
 
     it('handles CUIT numbers with different formatting', () => {
-      expect(validateCuit('20 12345674 3')).toBe(true)
-      expect(validateCuit('2012345674-3')).toBe(true)
-      expect(validateCuit('20123456743')).toBe(true)
+      expect(validateCuit('20 12345678 6')).toBe(true)
+      expect(validateCuit('2012345678-6')).toBe(true)
+      expect(validateCuit('20123456786')).toBe(true)
     })
   })
 

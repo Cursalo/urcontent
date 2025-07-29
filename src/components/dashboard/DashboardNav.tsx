@@ -55,14 +55,19 @@ export const DashboardNav = () => {
   const location = useLocation();
   
   // Get role from profile first, then user metadata, with creator as fallback
-  const userRole = profile?.role || user?.user_metadata?.role || 'creator';
+  // Ensure role is always a string, not an object
+  const profileRole = typeof profile?.role === 'string' ? profile.role : null;
+  const metadataRole = typeof user?.user_metadata?.role === 'string' ? user.user_metadata.role : null;
+  const userRole = profileRole || metadataRole || 'creator';
   const navigation = navigationItems[userRole as keyof typeof navigationItems] || navigationItems.creator;
   
   // Log role detection for debugging
   console.log('DashboardNav role detection:', {
-    profileRole: profile?.role,
-    userMetadataRole: user?.user_metadata?.role,
-    finalRole: userRole
+    profileRole,
+    metadataRole,
+    finalRole: userRole,
+    profileType: typeof profile?.role,
+    metadataType: typeof user?.user_metadata?.role
   });
   
   const getRoleIcon = (role: string) => {

@@ -1,10 +1,11 @@
 // Mock user data for testing authentication system
 // This bypasses Supabase issues and provides immediate testing capability
+// Designed to match PostgreSQL/Supabase schema exactly for easy migration
 
 export interface MockUser {
-  id: string;
+  id: string; // UUID format
   email: string;
-  password: string;
+  password: string; // For mock auth only - not stored in real DB
   full_name: string;
   role: 'creator' | 'business' | 'admin';
   username: string | null;
@@ -15,23 +16,221 @@ export interface MockUser {
   language: string | null;
   is_verified: boolean;
   verification_status: 'pending' | 'verified' | 'rejected';
-  created_at: string;
-  updated_at: string | null;
-  last_seen_at: string | null;
-  // Additional metadata for each role
+  created_at: string; // ISO timestamp
+  updated_at: string | null; // ISO timestamp
+  last_seen_at: string | null; // ISO timestamp
+  // Additional metadata for each role (JSON field in real DB)
   metadata?: any;
+}
+
+// Mock Creator Profile interface - matches DB schema exactly
+export interface MockCreatorProfile {
+  id: string; // UUID
+  user_id: string; // Foreign key to users table
+  user?: MockUser; // Joined user data
+  bio: string;
+  specialties: string[]; // Array field in PostgreSQL
+  rating: number; // Decimal field
+  ur_score: number; // Integer 0-100
+  instagram_followers: number;
+  tiktok_followers: number;
+  youtube_followers: number;
+  instagram_handle: string | null;
+  tiktok_handle: string | null;
+  youtube_handle: string | null;
+  engagement_rate: number; // Decimal percentage
+  min_collaboration_fee: number; // Money amount in cents
+  max_collaboration_fee: number; // Money amount in cents
+  is_available: boolean;
+  public_slug: string; // Unique slug for public profiles
+  portfolio?: MockPortfolioItem[]; // Related portfolio items
+  created_at: string; // ISO timestamp
+  updated_at: string; // ISO timestamp
+  // Additional profile fields
+  years_experience: number;
+  preferred_brands: string[];
+  content_style: string[];
+  rates_per_post: number;
+  rates_per_story: number;
+  rates_per_reel: number;
+  rates_per_video: number;
+  location_preferences: string[];
+  languages_spoken: string[];
+}
+
+// Mock Portfolio Item interface - matches DB schema exactly
+export interface MockPortfolioItem {
+  id: string; // UUID
+  creator_id: string; // Foreign key to creator_profiles
+  title: string;
+  description: string;
+  media_url: string;
+  media_type: 'image' | 'video' | 'carousel' | 'reel';
+  platform: 'instagram' | 'tiktok' | 'youtube' | 'other';
+  engagement_stats: {
+    likes: number;
+    comments: number;
+    shares?: number;
+    saves?: number;
+    views?: number;
+    reach?: number;
+    impressions?: number;
+    engagement_rate: number;
+  };
+  performance_metrics: {
+    click_through_rate?: number;
+    conversion_rate?: number;
+    cost_per_engagement?: number;
+  };
+  tags: string[]; // Content tags for categorization
+  brand_mention: string | null; // Brand featured in content
+  campaign_id: string | null; // Associated campaign if any
+  is_featured: boolean; // Featured in profile
+  created_at: string; // ISO timestamp
+  updated_at: string; // ISO timestamp
+}
+
+// Mock Business Profile interface - matches DB schema exactly
+export interface MockBusinessProfile {
+  id: string; // UUID
+  user_id: string; // Foreign key to users table
+  user?: MockUser; // Joined user data
+  company_name: string;
+  description: string;
+  industry: string;
+  company_size: '1-10' | '11-50' | '51-200' | '201-1000' | '1000+';
+  website_url: string | null;
+  logo_url: string | null;
+  address: string | null;
+  city: string | null;
+  country: string | null;
+  is_verified_business: boolean;
+  verification_documents: string[] | null;
+  tax_id: string | null;
+  business_registration: string | null;
+  contact_email: string;
+  contact_phone: string | null;
+  social_media: {
+    instagram?: string;
+    facebook?: string;
+    twitter?: string;
+    linkedin?: string;
+    website?: string;
+  };
+  campaign_budget_range: {
+    min: number;
+    max: number;
+  };
+  preferred_creator_tiers: ('nano' | 'micro' | 'macro' | 'mega')[];
+  target_audience: {
+    age_range: [number, number];
+    genders: string[];
+    interests: string[];
+    locations: string[];
+  };
+  collaboration_history: {
+    total_campaigns: number;
+    successful_campaigns: number;
+    average_rating: number;
+    total_spent: number;
+  };
+  created_at: string; // ISO timestamp
+  updated_at: string; // ISO timestamp
+}
+
+// Mock Collaboration interface - matches DB schema exactly
+export interface MockCollaboration {
+  id: string; // UUID
+  title: string;
+  description: string;
+  business_id: string; // Foreign key to business_profiles
+  creator_id: string; // Foreign key to creator_profiles
+  status: 'proposed' | 'accepted' | 'in_progress' | 'completed' | 'cancelled' | 'rejected';
+  collaboration_type: 'sponsored_post' | 'product_review' | 'brand_partnership' | 'event_coverage' | 'ugc_creation';
+  platform: 'instagram' | 'tiktok' | 'youtube' | 'multi_platform';
+  compensation_amount: number; // Amount in cents
+  compensation_type: 'fixed' | 'per_post' | 'commission' | 'product_exchange';
+  deliverables: {
+    posts: number;
+    stories: number;
+    reels: number;
+    videos: number;
+    usage_rights: boolean;
+    exclusivity_period: number; // days
+    revisions_included: number;
+  };
+  requirements: {
+    hashtags: string[];
+    mentions: string[];
+    content_guidelines: string;
+    posting_schedule: string;
+    approval_required: boolean;
+  };
+  timeline: {
+    start_date: string;
+    end_date: string;
+    content_due_date: string;
+    posting_start_date: string;
+    posting_end_date: string;
+  };
+  created_at: string; // ISO timestamp
+  updated_at: string;
+  accepted_at: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  cancelled_at: string | null;
+  // Related data (joins)
+  business_profile?: MockBusinessProfile;
+  creator_profile?: MockCreatorProfile;
+  // Performance metrics
+  performance?: {
+    total_reach: number;
+    total_impressions: number;
+    total_engagement: number;
+    clicks: number;
+    conversions: number;
+    roi: number;
+  };
+  // Communication
+  creator_response: string | null;
+  business_feedback: string | null;
+  rating_by_business: number | null; // 1-5 stars
+  rating_by_creator: number | null; // 1-5 stars
+}
+
+// Mock Analytics Data interface
+export interface MockAnalyticsData {
+  id: string;
+  user_id: string;
+  period: 'daily' | 'weekly' | 'monthly';
+  date: string;
+  metrics: {
+    // Creator metrics
+    follower_growth?: number;
+    engagement_rate?: number;
+    reach?: number;
+    impressions?: number;
+    profile_views?: number;
+    // Business metrics
+    campaign_reach?: number;
+    conversion_rate?: number;
+    roi?: number;
+    cost_per_engagement?: number;
+    brand_mentions?: number;
+  };
+  created_at: string;
 }
 
 export const mockUsers: MockUser[] = [
   {
     id: 'creator-user-001',
-    email: 'creator@urcontent.com',
+    email: 'sofia.martinez@example.com',
     password: 'creator123',
     full_name: 'Sofia Martinez',
     role: 'creator',
     username: 'sofia_creator',
     avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b332f1c5?w=150&h=150&fit=crop&crop=face',
-    phone: '+1 555-0101',
+    phone: '+34 665 123 456',
     location: 'Barcelona, Spain',
     timezone: 'Europe/Madrid',
     language: 'es',
@@ -41,29 +240,81 @@ export const mockUsers: MockUser[] = [
     updated_at: '2024-07-29T10:00:00Z',
     last_seen_at: '2024-07-29T10:00:00Z',
     metadata: {
-      specialties: ['Fashion', 'Lifestyle', 'Travel'],
-      followers: 15000,
-      engagement_rate: 4.2,
-      portfolio_items: 45,
-      total_campaigns: 23,
-      rating: 4.8,
-      bio: 'Creative content creator specializing in fashion and lifestyle photography. Based in Barcelona, available for collaborations worldwide.',
-      social_links: {
-        instagram: '@sofia_creator',
-        tiktok: '@sofiacreative',
-        youtube: 'Sofia Martinez'
-      }
+      specialties: ['Fashion', 'Lifestyle', 'Travel', 'Beauty'],
+      total_followers: 145000,
+      engagement_rate: 6.8,
+      portfolio_items: 67,
+      total_campaigns: 34,
+      rating: 4.9,
+      verified_creator: true,
+      premium_member: true
+    }
+  },
+  {
+    id: 'creator-user-002',
+    email: 'marco.lifestyle@example.com',
+    password: 'creator456',
+    full_name: 'Marco Rodriguez',
+    role: 'creator',
+    username: 'marco_lifestyle',
+    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    phone: '+34 677 987 654',
+    location: 'Madrid, Spain',
+    timezone: 'Europe/Madrid',
+    language: 'es',
+    is_verified: true,
+    verification_status: 'verified',
+    created_at: '2024-02-10T08:30:00Z',
+    updated_at: '2024-07-29T08:30:00Z',
+    last_seen_at: '2024-07-29T08:30:00Z',
+    metadata: {
+      specialties: ['Fitness', 'Lifestyle', 'Technology'],
+      total_followers: 78000,
+      engagement_rate: 5.2,
+      portfolio_items: 42,
+      total_campaigns: 18,
+      rating: 4.7,
+      verified_creator: true,
+      premium_member: false
+    }
+  },
+  {
+    id: 'creator-user-003',
+    email: 'elena.food@example.com',
+    password: 'creator789',
+    full_name: 'Elena Garcia',
+    role: 'creator',
+    username: 'elena_foodie',
+    avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+    phone: '+34 689 456 123',
+    location: 'Valencia, Spain',
+    timezone: 'Europe/Madrid',
+    language: 'es',
+    is_verified: false,
+    verification_status: 'pending',
+    created_at: '2024-03-20T14:15:00Z',
+    updated_at: '2024-07-29T14:15:00Z',
+    last_seen_at: '2024-07-29T14:15:00Z',
+    metadata: {
+      specialties: ['Food', 'Travel', 'Photography'],
+      total_followers: 32000,
+      engagement_rate: 8.1,
+      portfolio_items: 28,
+      total_campaigns: 8,
+      rating: 4.5,
+      verified_creator: false,
+      premium_member: false
     }
   },
   {
     id: 'business-user-001',
-    email: 'venue@urcontent.com',
-    password: 'venue123',
-    full_name: 'Restaurant La Plaza',
+    email: 'contact@laplazarestaurant.com',
+    password: 'business123',
+    full_name: 'Restaurant La Plaza Manager',
     role: 'business',
     username: 'restaurant_laplaza',
     avatar_url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=150&h=150&fit=crop',
-    phone: '+34 93 123 4567',
+    phone: '+34 91 234 5678',
     location: 'Madrid, Spain',
     timezone: 'Europe/Madrid',
     language: 'es',
@@ -74,23 +325,93 @@ export const mockUsers: MockUser[] = [
     last_seen_at: '2024-07-29T09:00:00Z',
     metadata: {
       business_type: 'Restaurant',
-      cuisine_type: 'Mediterranean',
-      capacity: 80,
-      price_range: '€€€',
-      rating: 4.6,
-      total_campaigns: 12,
-      active_offers: 3,
-      description: 'Authentic Mediterranean restaurant in the heart of Madrid. Specializing in traditional Spanish cuisine with a modern twist.',
-      amenities: ['Outdoor Seating', 'Wine Bar', 'Private Events', 'Vegan Options'],
-      operating_hours: {
-        monday: '12:00-24:00',
-        tuesday: '12:00-24:00',
-        wednesday: '12:00-24:00',
-        thursday: '12:00-24:00',
-        friday: '12:00-01:00',
-        saturday: '12:00-01:00',
-        sunday: '12:00-23:00'
-      }
+      industry: 'Food & Beverage',
+      total_campaigns: 24,
+      successful_campaigns: 22,
+      average_rating: 4.7,
+      total_spent: 18500,
+      verified_business: true
+    }
+  },
+  {
+    id: 'business-user-002',
+    email: 'marketing@bellafashion.com',
+    password: 'business456',
+    full_name: 'Bella Fashion Marketing Manager',
+    role: 'business',
+    username: 'bella_fashion',
+    avatar_url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=150&h=150&fit=crop',
+    phone: '+34 93 456 7890',
+    location: 'Barcelona, Spain',
+    timezone: 'Europe/Madrid',
+    language: 'es',
+    is_verified: true,
+    verification_status: 'verified',
+    created_at: '2024-01-20T11:30:00Z',
+    updated_at: '2024-07-29T11:30:00Z',
+    last_seen_at: '2024-07-29T11:30:00Z',
+    metadata: {
+      business_type: 'Fashion Brand',
+      industry: 'Fashion & Apparel',
+      total_campaigns: 45,
+      successful_campaigns: 41,
+      average_rating: 4.8,
+      total_spent: 67800,
+      verified_business: true
+    }
+  },
+  {
+    id: 'business-user-003',
+    email: 'partnerships@paradiseresort.com',
+    password: 'business789',
+    full_name: 'Paradise Resort Partnership Manager',
+    role: 'business',
+    username: 'paradise_resort',
+    avatar_url: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=150&h=150&fit=crop',
+    phone: '+34 971 123 456',
+    location: 'Palma, Balearic Islands',
+    timezone: 'Europe/Madrid',
+    language: 'es',
+    is_verified: true,
+    verification_status: 'verified',
+    created_at: '2024-03-05T16:45:00Z',
+    updated_at: '2024-07-29T16:45:00Z',
+    last_seen_at: '2024-07-29T16:45:00Z',
+    metadata: {
+      business_type: 'Hotel & Resort',
+      industry: 'Hospitality & Travel',
+      total_campaigns: 18,
+      successful_campaigns: 16,
+      average_rating: 4.9,
+      total_spent: 42300,
+      verified_business: true
+    }
+  },
+  {
+    id: 'business-user-004',
+    email: 'influencer@glowupcosmetics.com',
+    password: 'business321',
+    full_name: 'GlowUp Cosmetics Brand Manager',
+    role: 'business',
+    username: 'glowup_cosmetics',
+    avatar_url: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=150&h=150&fit=crop',
+    phone: '+34 96 789 0123',
+    location: 'Valencia, Spain',
+    timezone: 'Europe/Madrid',
+    language: 'es',
+    is_verified: false,
+    verification_status: 'pending',
+    created_at: '2024-05-12T13:20:00Z',
+    updated_at: '2024-07-29T13:20:00Z',
+    last_seen_at: '2024-07-29T13:20:00Z',
+    metadata: {
+      business_type: 'Beauty Brand',
+      industry: 'Beauty & Cosmetics',
+      total_campaigns: 6,
+      successful_campaigns: 5,
+      average_rating: 4.4,
+      total_spent: 8900,
+      verified_business: false
     }
   },
   {
@@ -181,3 +502,10 @@ export const createMockSession = (user: MockUser): MockSession => {
     }
   };
 };
+
+// Export all mock data collections for easy import
+export { mockBusinessProfiles } from './mockBusinessProfiles';
+export { mockCreatorProfiles } from './mockCreatorProfiles';
+export { mockPortfolioItems } from './mockPortfolio';
+export { mockCollaborations } from './mockCollaborations';
+export { mockAnalyticsData } from './mockAnalytics';

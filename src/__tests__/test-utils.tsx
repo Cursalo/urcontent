@@ -240,6 +240,29 @@ export const createMockPaymentPreference = () => ({
   sandbox_init_point: 'https://sandbox.mercadopago.com.ar/checkout/v1/redirect?pref_id=mock-preference-id',
 })
 
+export const createMockPayment = (overrides = {}) => ({
+  id: 'payment-test-id',
+  user_id: 'user-test-id',
+  type: 'membership',
+  status: 'pending',
+  amount: 29990,
+  currency: 'ARS',
+  description: 'Test Payment',
+  payment_method: 'MercadoPago',
+  transaction_id: 'TXN-123456789',
+  mercadopago_payment_id: null,
+  reference_id: null,
+  reference_type: null,
+  metadata: null,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  processed_at: null,
+  failed_at: null,
+  refunded_at: null,
+  failure_reason: null,
+  ...overrides,
+})
+
 // File upload helpers
 export const createMockFile = (
   name = 'test.jpg',

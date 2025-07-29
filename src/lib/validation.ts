@@ -183,13 +183,11 @@ export const validateStep = <T>(schema: z.ZodSchema<T>, data: unknown): { succes
 
 // CUIT validation function
 export const validateCuit = (cuit: string): boolean => {
-  // First check if it matches the regex format
-  if (!cuitRegex.test(cuit)) return false;
-  
-  // Remove hyphens and spaces
+  // Remove hyphens and spaces to normalize format
   const cleanCuit = cuit.replace(/[-\s]/g, '');
   
-  if (cleanCuit.length !== 11) return false;
+  // Check if it's exactly 11 digits
+  if (!/^\d{11}$/.test(cleanCuit)) return false;
   
   // CUIT validation algorithm
   const weights = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Mock Supabase before importing the service
 vi.mock('@/integrations/supabase/client', () => {
-  const (mockSupabase.from as any)() = {
+  const mockFromChain = () => ({
     select: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
     update: vi.fn().mockReturnThis(),
@@ -13,10 +13,10 @@ vi.mock('@/integrations/supabase/client', () => {
     order: vi.fn().mockReturnThis(),
     range: vi.fn().mockReturnThis(),
     single: vi.fn(),
-  }
+  })
 
   const mockSupabase = {
-    from: vi.fn(() => (mockSupabase.from as any)()),
+    from: vi.fn(() => mockFromChain()),
   }
 
   return {
@@ -25,7 +25,7 @@ vi.mock('@/integrations/supabase/client', () => {
 })
 
 import { paymentsService } from '../payments'
-import { createMockPayment } from '@/test-setup'
+import { createMockPayment } from '@/__tests__/test-utils'
 import { supabase } from '@/integrations/supabase/client'
 
 // Get the mocked supabase instance
