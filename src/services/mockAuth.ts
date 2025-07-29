@@ -227,9 +227,10 @@ export const mockAuthService = new MockAuthService();
 
 // Helper function to check if we should use mock auth
 export const shouldUseMockAuth = (): boolean => {
-  // Check if we're in development mode or if mock auth is explicitly enabled
-  return process.env.NODE_ENV === 'development' || 
-         process.env.REACT_APP_USE_MOCK_AUTH === 'true' ||
-         // For immediate testing, always use mock auth to bypass Supabase issues
-         true;
+  // Check environment variables
+  return import.meta.env.VITE_USE_MOCK_DATA === 'true' || 
+         window.location.hostname === 'localhost' ||
+         !import.meta.env.VITE_SUPABASE_URL ||
+         // For immediate testing, always use mock auth to bypass Supabase issues  
+         import.meta.env.MODE === 'development';
 };

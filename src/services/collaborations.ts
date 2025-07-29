@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, TablesInsert, TablesUpdate, Enums } from '@/integrations/supabase/types';
+import { mockCollaborations, MockCollaboration } from '@/data/mockUsers';
 
 export type Collaboration = Tables<'collaborations'> & {
   business_profile: Tables<'business_profiles'> & {
@@ -9,6 +10,11 @@ export type Collaboration = Tables<'collaborations'> & {
     user: Tables<'users'>;
   }) | null;
 };
+
+// Environment flag for using mock data
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true' || 
+                      window.location.hostname === 'localhost' ||
+                      !import.meta.env.VITE_SUPABASE_URL;
 
 export type CollaborationFilters = {
   status?: Enums<'collaboration_status'>;
@@ -23,64 +29,124 @@ export type CollaborationFilters = {
 
 class CollaborationService {
   // Get all collaborations with filters
-  async getCollaborations(filters: CollaborationFilters = {}): Promise<Collaboration[]> {
-    let query = supabase
-      .from('collaborations')
-      .select(`
-        *,
-        business_profile:business_profiles(
-          *,
-          user:users(*)
-        ),
-        creator_profile:creator_profiles(
-          *,
-          user:users(*)
-        )
-      `);
-
-    // Apply filters
-    if (filters.status) {
-      query = query.eq('status', filters.status);
-    }
-
-    if (filters.collaboration_type) {
-      query = query.eq('collaboration_type', filters.collaboration_type);
-    }
-
-    if (filters.platform) {
-      query = query.eq('platform', filters.platform);
-    }
-
-    if (filters.business_id) {
-      query = query.eq('business_id', filters.business_id);
-    }
-
-    if (filters.creator_id) {
-      query = query.eq('creator_id', filters.creator_id);
-    }
-
-    if (filters.search) {
-      query = query.or(
-        `title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`
+  async getCollaborations(filters: CollaborationFilters = {}): Promise<Collaboration[] | MockCollaboration[]> {
+    if (USE_MOCK_DATA) {
+      console.log('Using mock data for getCollaborations with filters:', filters);
+      
+      let filteredCollaborations = [...mockCollaborations];
+      
+      // Apply filters
+      if (filters.status) {
+        filteredCollaborations = filteredCollaborations.filter(c => c.status === filters.status);
+      }
+      
+      if (filters.business_id) {
+        filteredCollaborations = filteredCollaborations.filter(c => c.business_id === filters.business_id);
+      }
+      
+      if (filters.creator_id) {
+        filteredCollaborations = filteredCollaborations.filter(c => c.creator_id === filters.creator_id);
+      }
+      
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        filteredCollaborations = filteredCollaborations.filter(c => 
+          c.title.toLowerCase().includes(searchLower) ||
+          c.description.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      if (filters.date_from) {
+        filteredCollaborations = filteredCollaborations.filter(c => 
+          new Date(c.created_at) >= new Date(filters.date_from!)
+        );
+      }
+      
+      if (filters.date_to) {
+        filteredCollaborations = filteredCollaborations.filter(c => 
+          new Date(c.created_at) <= new Date(filters.date_to!)
+        );
+      }
+      
+      // Sort by created_at descending
+      filteredCollaborations.sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
+      
+      console.log('Mock collaborations found:', filteredCollaborations);
+      return filteredCollaborations;
     }
 
-    if (filters.date_from) {
-      query = query.gte('created_at', filters.date_from);
+    try {
+      let query = supabase
+        .from('collaborations')
+        .select(`
+          *,
+          business_profile:business_profiles(
+            *,
+            user:users(*)
+          ),
+          creator_profile:creator_profiles(
+            *,
+            user:users(*)
+          )
+        `);
+
+      // Apply filters
+      if (filters.status) {
+        query = query.eq('status', filters.status);
+      }
+
+      if (filters.collaboration_type) {
+        query = query.eq('collaboration_type', filters.collaboration_type);
+      }
+
+      if (filters.platform) {
+        query = query.eq('platform', filters.platform);
+      }
+
+      if (filters.business_id) {
+        query = query.eq('business_id', filters.business_id);
+      }
+
+      if (filters.creator_id) {
+        query = query.eq('creator_id', filters.creator_id);
+      }
+
+      if (filters.search) {
+        query = query.or(
+          `title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`
+        );
+      }
+
+      if (filters.date_from) {
+        query = query.gte('created_at', filters.date_from);
+      }
+
+      if (filters.date_to) {
+        query = query.lte('created_at', filters.date_to);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching collaborations:', error);
+        throw error;
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Supabase error, falling back to mock data:', error);
+      
+      // Fallback to mock data
+      let filteredCollaborations = [...mockCollaborations];
+      
+      if (filters.creator_id) {
+        filteredCollaborations = filteredCollaborations.filter(c => c.creator_id === filters.creator_id);
+      }
+      
+      return filteredCollaborations;
     }
-
-    if (filters.date_to) {
-      query = query.lte('created_at', filters.date_to);
-    }
-
-    const { data, error } = await query.order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching collaborations:', error);
-      throw error;
-    }
-
-    return data || [];
   }
 
   // Get single collaboration by ID

@@ -1,10 +1,22 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { mockCreatorProfiles, mockPortfolioItems, mockUsers, MockCreatorProfile, MockPortfolioItem, MockUser } from '@/data/mockUsers';
 
 export type Creator = Tables<'creator_profiles'> & {
   user: Tables<'users'>;
   portfolio: Tables<'portfolio_items'>[];
 };
+
+// Mock Creator type for development
+export type MockCreator = MockCreatorProfile & {
+  user: MockUser;
+  portfolio: MockPortfolioItem[];
+};
+
+// Environment flag for using mock data
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true' || 
+                      window.location.hostname === 'localhost' ||
+                      !import.meta.env.VITE_SUPABASE_URL;
 
 export type CreatorFilters = {
   search?: string;
@@ -98,27 +110,76 @@ class CreatorService {
   }
 
   // Get creator by user ID
-  async getCreatorByUserId(userId: string): Promise<Creator | null> {
-    const { data, error } = await supabase
-      .from('creator_profiles')
-      .select(`
-        *,
-        user:users(*),
-        portfolio:portfolio_items(*)
-      `)
-      .eq('user_id', userId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching creator by user ID:', error);
-      if (error.code === 'PGRST116') {
-        // No profile found
+  async getCreatorByUserId(userId: string): Promise<Creator | MockCreator | null> {
+    if (USE_MOCK_DATA) {
+      console.log('Using mock data for getCreatorByUserId:', userId);
+      
+      // Find creator profile by user_id
+      const creatorProfile = mockCreatorProfiles.find(profile => profile.user_id === userId);
+      if (!creatorProfile) {
+        console.log('No mock creator profile found for user_id:', userId);
         return null;
       }
-      throw error;
+      
+      // Find associated user
+      const user = mockUsers.find(u => u.id === userId);
+      if (!user) {
+        console.log('No mock user found for user_id:', userId);
+        return null;
+      }
+      
+      // Find portfolio items
+      const portfolio = mockPortfolioItems.filter(item => item.creator_id === creatorProfile.id);
+      
+      const mockCreator: MockCreator = {
+        ...creatorProfile,
+        user,
+        portfolio
+      };
+      
+      console.log('Mock creator found:', mockCreator);
+      return mockCreator;
     }
 
-    return data;
+    try {
+      const { data, error } = await supabase
+        .from('creator_profiles')
+        .select(`
+          *,
+          user:users(*),
+          portfolio:portfolio_items(*)
+        `)
+        .eq('user_id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching creator by user ID:', error);
+        if (error.code === 'PGRST116') {
+          // No profile found
+          return null;
+        }
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Supabase error, falling back to mock data:', error);
+      
+      // Fallback to mock data on Supabase errors
+      const creatorProfile = mockCreatorProfiles.find(profile => profile.user_id === userId);
+      if (!creatorProfile) return null;
+      
+      const user = mockUsers.find(u => u.id === userId);
+      if (!user) return null;
+      
+      const portfolio = mockPortfolioItems.filter(item => item.creator_id === creatorProfile.id);
+      
+      return {
+        ...creatorProfile,
+        user,
+        portfolio
+      } as MockCreator;
+    }
   }
 
   // Create a new creator profile

@@ -178,7 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             id: authUser.user.id,
             email: authUser.user.email!,
             full_name: userMetadata.full_name || 'User',
-            role: (userMetadata.role as UserRole) || 'creator',
+            role: String(userMetadata.role || 'creator') as UserRole,
             username: null,
             avatar_url: null,
             phone: null,

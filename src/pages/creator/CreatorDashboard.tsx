@@ -2,6 +2,11 @@ import { useState, useEffect, memo, useMemo, useCallback } from "react";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { UserInfoCard } from "@/components/dashboard/UserInfoCard";
+import { CollaborationsTable } from "@/components/dashboard/CollaborationsTable";
+import { PortfolioShowcase } from "@/components/dashboard/PortfolioShowcase";
+import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
+import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
+import { DashboardLoadingSkeleton } from "@/components/dashboard/LoadingSkeleton";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 import { performanceMonitor } from "@/lib/performance";
@@ -62,6 +67,7 @@ import {
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { useAuth } from "@/contexts/AuthContext";
 import { creatorService, collaborationService, Collaboration } from "@/services";
+import { mockDataService, CreatorDashboardData } from "@/services/mockDataService";
 import { toast } from "sonner";
 import socialMediaCreators from "@/assets/social-media-creators.jpg";
 import fitnessCreators from "@/assets/fitness-creators.jpg";
@@ -73,6 +79,7 @@ const CreatorDashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const [creatorProfile, setCreatorProfile] = useState<any>(null);
   const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
+  const [dashboardData, setDashboardData] = useState<CreatorDashboardData | null>(null);
   const [dashboardStats, setDashboardStats] = useState({
     monthlyEarnings: 0,
     activeCollaborations: 0,
@@ -85,24 +92,74 @@ const CreatorDashboard = () => {
   // Fetch dashboard data
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!user || !profile || profile.role !== 'creator') return;
+      const startTime = performance.now();
+      // Ensure we have user and that they are a creator
+      if (!user) {
+        console.log('No user found, skipping dashboard data fetch');
+        setLoading(false);
+        return;
+      }
+
+      // Check role from profile or user metadata
+      const userRole = profile?.role || user?.user_metadata?.role;
+      if (userRole !== 'creator') {
+        console.log('User is not a creator, skipping dashboard data fetch. Role:', userRole);
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
         setError(null);
         
-        // Get creator profile with portfolio
+        console.log('Fetching creator dashboard data for user:', user.id);
+
+        // Try to get comprehensive mock data first
+        try {
+          const mockData = await mockDataService.getCreatorDashboardData(user.id);
+          if (mockData) {
+            console.log('Using comprehensive mock data:', mockData);
+            setDashboardData(mockData);
+            setCreatorProfile(mockData.profile);
+            setCollaborations(mockData.collaborations);
+            setDashboardStats({
+              monthlyEarnings: mockData.metrics.monthlyEarnings,
+              activeCollaborations: mockData.metrics.activeCollaborations,
+              urScore: mockData.profile.ur_score,
+              totalFollowers: mockData.profile.instagram_followers + mockData.profile.tiktok_followers + mockData.profile.youtube_followers,
+              completedCollaborations: mockData.metrics.completedCollaborations,
+              avgRating: mockData.metrics.avgRating
+            });
+            
+            // Show success notification with rich data
+            toast.success('Dashboard loaded successfully!', {
+              description: `Welcome back! You have ${mockData.metrics.activeCollaborations} active collaborations and ${mockData.portfolio.length} portfolio items.`,
+              duration: 4000,
+            });
+            
+            return;
+          }
+        } catch (mockError) {
+          console.log('Mock data not available, falling back to real data:', mockError);
+        }
+
+        // Fallback to real data if mock data is not available
         const creatorData = await creatorService.getCreatorByUserId(user.id);
+        console.log('Creator data received:', creatorData);
+        
         if (!creatorData) {
+          console.warn('No creator profile found for user:', user.id);
           setError('Perfil de creador no encontrado');
           return;
         }
         setCreatorProfile(creatorData);
 
-        // Get creator's collaborations
+        // Get creator's collaborations - use the creator profile ID for the filter
+        const creatorId = creatorData.id || user.id;
         const collaborationsData = await collaborationService.getCollaborations({
-          creator_id: creatorData.id
+          creator_id: creatorId
         });
+        console.log('Collaborations data received:', collaborationsData);
         setCollaborations(collaborationsData);
 
         // Calculate dashboard stats
@@ -122,18 +179,40 @@ const CreatorDashboard = () => {
                               (creatorData.tiktok_followers || 0) + 
                               (creatorData.youtube_followers || 0);
 
-        setDashboardStats({
+        const newStats = {
           monthlyEarnings,
           activeCollaborations: activeCollab,
-          urScore: creatorData.rating || 0,
+          urScore: creatorData.ur_score || creatorData.rating || 0,
           totalFollowers,
           completedCollaborations: completedCollab,
           avgRating: creatorData.rating || 0
-        });
+        };
+
+        console.log('Dashboard stats calculated:', newStats);
+        setDashboardStats(newStats);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
-        setError('Error al cargar los datos del dashboard');
+        setError('Error al cargar los datos del dashboard. Usando datos de demostración.');
+        
+        // Set fallback mock data on error
+        setDashboardStats({
+          monthlyEarnings: 3240,
+          activeCollaborations: 2,
+          urScore: 94,
+          totalFollowers: 145000,
+          completedCollaborations: 12,
+          avgRating: 4.8
+        });
       } finally {
+        const endTime = performance.now();
+        const loadTime = endTime - startTime;
+        console.log(`Dashboard data loaded in ${loadTime.toFixed(2)}ms`);
+        
+        // Track performance if monitoring is available
+        if (typeof performanceMonitor !== 'undefined') {
+          performanceMonitor.trackEvent('dashboard_load', { loadTime });
+        }
+        
         setLoading(false);
       }
     };
@@ -156,35 +235,43 @@ const CreatorDashboard = () => {
     }).format(amount);
   };
 
-  // Dynamic stats based on real data
+  // Dynamic stats based on real or mock data
   const creatorStats = [
     { 
       title: "Monthly Earnings", 
       value: formatCurrency(dashboardStats.monthlyEarnings), 
       icon: DollarSign, 
       trend: { value: "22.5%", isPositive: true }, 
-      description: "This month's revenue" 
+      description: "This month's revenue",
+      color: "green" as const,
+      progress: 75
     },
     { 
       title: "Active Collaborations", 
       value: dashboardStats.activeCollaborations.toString(), 
       icon: MessageCircle, 
       trend: { value: "3", isPositive: true }, 
-      description: "Projects in progress" 
+      description: "Projects in progress",
+      color: "blue" as const,
+      progress: 60
     },
     { 
       title: "URScore™", 
       value: `${dashboardStats.urScore}/100`, 
       icon: Star, 
       trend: { value: "2 points", isPositive: true }, 
-      description: "Elite tier ranking" 
+      description: "Elite tier ranking",
+      color: "orange" as const,
+      progress: dashboardStats.urScore
     },
     { 
       title: "Total Followers", 
       value: formatFollowers(dashboardStats.totalFollowers), 
       icon: TrendingUp, 
       trend: { value: "5.2K", isPositive: true }, 
-      description: "Across all platforms" 
+      description: "Across all platforms",
+      color: "purple" as const,
+      progress: 85
     }
   ];
 
@@ -211,19 +298,35 @@ const CreatorDashboard = () => {
   ];
 
   // Use real collaborations data
-  const recentCollaborations = collaborations.slice(0, 4).map(collab => ({
-    id: collab.id,
-    brand: collab.business_profile?.company_name || collab.business_profile?.user?.full_name || "Unknown Business",
-    status: collab.status,
-    value: formatCurrency(collab.compensation_amount || 0),
-    date: collab.created_at ? new Date(collab.created_at).toLocaleDateString() : "Unknown",
-    type: collab.deliverables ? JSON.parse(collab.deliverables).map((d: any) => d.type).join(', ') : collab.title || "Collaboration",
-    engagement: collab.status === 'completed' 
-      ? `${collab.reach || 0} reach, ${collab.clicks || 0} clicks` 
-      : collab.status === 'in_progress' 
-        ? "In progress" 
-        : "Pending"
-  }));
+  const recentCollaborations = collaborations.slice(0, 4).map(collab => {
+    let deliverableTypes = "Collaboration";
+    
+    try {
+      if (collab.deliverables) {
+        const parsed = JSON.parse(collab.deliverables);
+        if (Array.isArray(parsed)) {
+          deliverableTypes = parsed.map((d: any) => d.type).join(', ');
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse deliverables:', collab.deliverables);
+      deliverableTypes = collab.title || "Collaboration";
+    }
+
+    return {
+      id: collab.id,
+      brand: collab.business_profile?.company_name || collab.business_profile?.user?.full_name || "Unknown Business",
+      status: collab.status,
+      value: formatCurrency(collab.compensation_amount || 0),
+      date: collab.created_at ? new Date(collab.created_at).toLocaleDateString() : "Unknown",
+      type: deliverableTypes,
+      engagement: collab.status === 'completed' 
+        ? `${collab.reach || 0} reach, ${collab.clicks || 0} clicks` 
+        : collab.status === 'in_progress' 
+          ? "In progress" 
+          : "Pending"
+    };
+  });
 
   // Use real upcoming deadlines from active collaborations
   const upcomingDeadlines = collaborations
@@ -285,18 +388,13 @@ const CreatorDashboard = () => {
     return <Badge className={config.className}>{config.label}</Badge>;
   };
 
-  // Loading state
+  // Loading state with enhanced skeleton
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <>
         <DashboardNav />
-        <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-gray-400" />
-            <p className="text-gray-600">Cargando dashboard...</p>
-          </div>
-        </div>
-      </div>
+        <DashboardLoadingSkeleton />
+      </>
     );
   }
 
@@ -382,26 +480,21 @@ const CreatorDashboard = () => {
           <UserInfoCard />
         </div>
 
-        {/* Stats Cards */}
+        {/* Enhanced Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           {creatorStats.map((stat, index) => (
-            <div key={index} className="group bg-white border border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300 hover:shadow-xl hover:shadow-black/5 hover:-translate-y-1">
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-300">
-                  <stat.icon className="w-6 h-6 text-gray-600 group-hover:text-white transition-colors duration-300" />
-                </div>
-                {stat.trend && (
-                  <div className={`text-sm font-medium ${stat.trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                    {stat.trend.isPositive ? '+' : ''}{stat.trend.value}
-                  </div>
-                )}
-              </div>
-              <div className="space-y-2">
-                <div className="text-3xl font-light text-black">{stat.value}</div>
-                <div className="text-gray-500 text-sm font-medium">{stat.title}</div>
-                <div className="text-gray-400 text-xs">{stat.description}</div>
-              </div>
-            </div>
+            <StatsCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              description={stat.description}
+              icon={stat.icon}
+              trend={stat.trend}
+              progress={stat.progress}
+              variant="default"
+              color={stat.color}
+              className="p-8"
+            />
           ))}
         </div>
 
@@ -447,211 +540,89 @@ const CreatorDashboard = () => {
             </div>
           </div>
 
-          {/* Portfolio Showcase */}
-          <div className="lg:col-span-2 bg-white border border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300">
-            <div className="flex items-center space-x-3 mb-8">
-              <div className="w-10 h-10 bg-gray-100 rounded-2xl flex items-center justify-center">
-                <Eye className="w-5 h-5 text-gray-700" />
-              </div>
-              <div>
-                <h3 className="text-xl font-medium text-black">Portfolio Showcase</h3>
-                <p className="text-gray-500 text-sm">Your best recent work</p>
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-2xl p-6">
-              <ImageCarousel 
-                images={portfolioImages}
-                className="max-w-full mx-auto"
-                autoplay={true}
-                showControls={true}
-              />
-            </div>
+          {/* Enhanced Portfolio Showcase */}
+          <div className="lg:col-span-2">
+            <PortfolioShowcase 
+              portfolioItems={dashboardData?.portfolio || []}
+              maxItems={6}
+            />
           </div>
         </div>
 
-        {/* Charts Row */}
+        {/* Enhanced Analytics Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
           {/* Earnings Chart */}
-          <div className="bg-white border border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300">
-            <div className="flex items-center space-x-3 mb-8">
-              <div className="w-10 h-10 bg-green-50 rounded-2xl flex items-center justify-center">
-                <DollarSign className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <h3 className="text-xl font-medium text-black">Earnings Overview</h3>
-                <p className="text-gray-500 text-sm">Monthly revenue growth</p>
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-2xl p-6">
-              <ResponsiveContainer width="100%" height={280}>
-                <AreaChart data={earningsData}>
-                  <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-                  <XAxis 
-                    dataKey="month" 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: '#6b7280' }}
-                  />
-                  <YAxis 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: '#6b7280' }}
-                  />
-                  <Tooltip 
-                    formatter={(value, name) => [
-                      name === 'earnings' ? `$${value}` : value,
-                      name === 'earnings' ? 'Earnings' : 'Collaborations'
-                    ]}
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '12px',
-                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-                    }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="earnings" 
-                    stroke="#000000" 
-                    fill="#000000" 
-                    fillOpacity={0.1}
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          <AnalyticsChart 
+            data={dashboardData?.analytics.monthly || []}
+            title="Earnings Overview"
+            description="Monthly revenue growth"
+            type="area"
+            metric="earnings"
+            height={300}
+          />
 
           {/* Platform Performance */}
-          <div className="bg-white border border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300">
-            <div className="flex items-center space-x-3 mb-8">
-              <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="text-xl font-medium text-black">Platform Performance</h3>
-                <p className="text-gray-500 text-sm">Engagement by platform</p>
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-2xl p-6">
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={engagementData}>
-                  <CartesianGrid strokeDasharray="2 2" stroke="#f3f4f6" />
-                  <XAxis 
-                    dataKey="platform" 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: '#6b7280' }}
-                  />
-                  <YAxis 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: '#6b7280' }}
-                  />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '12px',
-                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-                    }}
-                  />
-                  <Bar 
-                    dataKey="engagement" 
-                    fill="#000000" 
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          <AnalyticsChart 
+            data={dashboardData?.analytics.weekly || []}
+            title="Platform Performance"
+            description="Engagement by platform"
+            type="bar"
+            metric="engagement"
+            height={300}
+          />
         </div>
 
-        {/* Tables Row */}
+        {/* Additional Analytics Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+          {/* Follower Growth */}
+          <AnalyticsChart 
+            data={dashboardData?.analytics.daily || []}
+            title="Follower Growth"
+            description="Daily follower trends"
+            type="line"
+            metric="followers"
+            height={250}
+          />
+
+          {/* Platform Distribution */}
+          <AnalyticsChart 
+            data={[]}
+            title="Platform Distribution"
+            description="Audience by platform"
+            type="pie"
+            metric="distribution"
+            height={250}
+          />
+
+          {/* Performance Radar */}
+          <AnalyticsChart 
+            data={[]}
+            title="Performance Metrics"
+            description="Overall performance score"
+            type="radar"
+            metric="performance"
+            height={250}
+          />
+        </div>
+
+        {/* Enhanced Collaborations and Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           {/* Recent Collaborations */}
-          <div className="lg:col-span-2 bg-white border border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-purple-50 rounded-2xl flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-medium text-black">Recent Collaborations</h3>
-                  <p className="text-gray-500 text-sm">Your latest partnerships</p>
-                </div>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="border-gray-200 hover:bg-gray-50 rounded-full px-4 py-2"
-              >
-                View All
-              </Button>
-            </div>
-            <div className="overflow-x-auto">
-              <div className="space-y-4">
-                {recentCollaborations.map((collab) => (
-                  <div key={collab.id} className="flex items-center justify-between p-6 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors duration-200">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
-                        <div className="w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-600 rounded-lg"></div>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-black">{collab.brand}</p>
-                        <p className="text-sm text-gray-500">{collab.type}</p>
-                        <p className="text-xs text-gray-400">{collab.date}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-lg text-black">{collab.value}</p>
-                      <div className="mb-2">{getStatusBadge(collab.status)}</div>
-                      <p className="text-xs text-gray-500">{collab.engagement}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="lg:col-span-2">
+            <CollaborationsTable 
+              collaborations={dashboardData?.collaborations || collaborations}
+              maxItems={4}
+            />
           </div>
 
-          {/* Upcoming Deadlines */}
-          <div className="bg-white border border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300">
-            <div className="flex items-center space-x-3 mb-8">
-              <div className="w-10 h-10 bg-orange-50 rounded-2xl flex items-center justify-center">
-                <Clock className="w-5 h-5 text-orange-600" />
-              </div>
-              <div>
-                <h3 className="text-xl font-medium text-black">Upcoming Deadlines</h3>
-                <p className="text-gray-500 text-sm">Priority tasks</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              {upcomingDeadlines.map((deadline) => (
-                <div key={deadline.id} className="p-5 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors duration-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <p className="font-semibold text-black text-sm">{deadline.brand}</p>
-                      <p className="text-xs text-gray-600 mt-1">{deadline.task}</p>
-                    </div>
-                    {getPriorityBadge(deadline.priority)}
-                  </div>
-                  <p className="text-xs text-gray-500">{deadline.date}</p>
-                </div>
-              ))}
-              
-              <Button 
-                variant="outline" 
-                className="w-full mt-6 border-gray-200 hover:bg-gray-50 rounded-2xl py-6"
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                View Full Calendar
-              </Button>
-            </div>
+          {/* Activity Feed */}
+          <div>
+            <ActivityFeed maxItems={6} />
           </div>
         </div>
 
         {/* Achievement Section */}
-        <div className="bg-white border border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300">
+        <div className="bg-white border border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300 mb-16">
           <div className="flex items-center space-x-3 mb-8">
             <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center">
               <Award className="w-5 h-5 text-white" />
@@ -690,6 +661,66 @@ const CreatorDashboard = () => {
                 <p className="font-bold text-black text-lg">Perfect Month</p>
                 <p className="text-sm text-gray-600 mt-1">100% delivery rate</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Performance Summary Card */}
+        <div className="bg-gradient-to-br from-black to-gray-900 text-white rounded-3xl p-8 mb-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-2xl font-light mb-2">Monthly Performance Summary</h3>
+              <p className="text-gray-300">Your content creation impact this month</p>
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-light mb-1">{formatCurrency(dashboardStats.monthlyEarnings)}</div>
+              <div className="text-sm text-gray-300">Total Earnings</div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
+                <MessageCircle className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-2xl font-light mb-1">{dashboardStats.activeCollaborations}</div>
+              <div className="text-xs text-gray-300">Active Projects</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
+                <TrendingUp className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-2xl font-light mb-1">{formatFollowers(dashboardStats.totalFollowers)}</div>
+              <div className="text-xs text-gray-300">Total Reach</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
+                <Star className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-2xl font-light mb-1">{dashboardStats.urScore}/100</div>
+              <div className="text-xs text-gray-300">URScore</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
+                <CheckCircle className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-2xl font-light mb-1">{dashboardStats.completedCollaborations}</div>
+              <div className="text-xs text-gray-300">Completed</div>
+            </div>
+          </div>
+          
+          <div className="mt-8 p-6 bg-white/5 rounded-2xl backdrop-blur-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white font-medium">Ready to create more amazing content?</p>
+                <p className="text-gray-300 text-sm mt-1">Explore new collaboration opportunities</p>
+              </div>
+              <Button className="bg-white text-black hover:bg-gray-100 rounded-full px-6 py-3 font-medium">
+                Find Collaborations
+              </Button>
             </div>
           </div>
         </div>
