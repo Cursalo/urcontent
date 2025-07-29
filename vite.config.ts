@@ -33,6 +33,17 @@ export default defineConfig(({ mode }) => {
       target: 'es2015',
       
       rollupOptions: {
+        // Ensure proper external handling for platform-specific binaries
+        external: (id) => {
+          // Don't bundle platform-specific Rollup binaries
+          if (id.includes('@rollup/rollup-')) return true
+          return false
+        },
+        // Additional configuration for better Vercel compatibility
+        treeshake: {
+          preset: 'smallest',
+          manualPureFunctions: ['console.log', 'console.info']
+        },
         output: {
           // Optimize bundle splitting
           manualChunks: {

@@ -1,0 +1,10 @@
+# Vercel ignore file
+node_modules
+.env.local
+.env.*.local
+*.log
+.DS_Store
+coverage/
+.nyc_output/
+# Keep dist folder for build verification
+# dist/
