@@ -219,7 +219,14 @@ const BusinessDashboard = () => {
         
         <div className="p-8">
           <DashboardErrorBoundary componentName={`BusinessDashboard-${tabActiva}`}>
-            {renderContenido()}
+            {user || dashboardData ? renderContenido() : (
+              <div className="flex items-center justify-center h-[60vh]">
+                <div className="text-center">
+                  <p className="text-lg text-gray-600 mb-4">Cargando dashboard...</p>
+                  <p className="text-sm text-gray-500">Por favor espera mientras cargamos tu información</p>
+                </div>
+              </div>
+            )}
           </DashboardErrorBoundary>
         </div>
       </div>

@@ -54,7 +54,7 @@ export function useHybridDashboard(userRole?: string) {
   // Fetch dashboard data
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!user || !user.id) {
+      if (!user || !user?.id) {
         console.log('🔄 No user found, creating anonymous access with demo data');
         
         // Get role-specific demo data
@@ -170,19 +170,19 @@ export function useHybridDashboard(userRole?: string) {
         setError(null);
 
         console.log(`📊 Fetching ${authType} dashboard data for user:`, {
-          id: user.id,
-          email: user.email,
+          id: user?.id,
+          email: user?.email,
           role: profile?.role || userRole
         });
 
-        const data = await hybridDataService.getDashboardData(user.id, user.email || '');
+        const data = await hybridDataService.getDashboardData(user?.id || '', user?.email || '');
 
         if (!data) {
           console.log('⚠️ No dashboard data found, creating robust emergency fallback');
           // Create comprehensive emergency fallback data
           const emergencyData = {
             profile: {
-              id: user.id || 'emergency-user',
+              id: user?.id || 'emergency-user',
               display_name: user?.user_metadata?.full_name || 'Emergency User',
               bio: 'Welcome! Your dashboard is loading with default data.',
               specialties: ['Content Creation'],
@@ -194,13 +194,13 @@ export function useHybridDashboard(userRole?: string) {
               role: profile?.role || userRole || 'creator',
               is_verified: false,
               user: {
-                id: user.id || 'emergency-user',
+                id: user?.id || 'emergency-user',
                 email: user?.email || 'user@example.com',
                 full_name: user?.user_metadata?.full_name || 'Emergency User'
               }
             },
             user: {
-              id: user.id || 'emergency-user',
+              id: user?.id || 'emergency-user',
               email: user?.email || 'user@example.com',
               full_name: user?.user_metadata?.full_name || 'Emergency User',
               role: profile?.role || userRole || 'creator'
@@ -250,7 +250,7 @@ export function useHybridDashboard(userRole?: string) {
           formattedData = {
             profile: {
               ...creatorProfile,
-              id: creatorProfile.id || user.id || 'creator-profile',
+              id: creatorProfile.id || user?.id || 'creator-profile',
               display_name: creatorProfile.display_name || creatorUser.full_name || user?.user_metadata?.full_name || 'Creator',
               bio: creatorProfile.bio || 'Content creator',
               avatar_url: creatorProfile.avatar_url || null,
@@ -259,7 +259,7 @@ export function useHybridDashboard(userRole?: string) {
               role: creatorProfile.role || 'creator',
               is_verified: creatorProfile.is_verified || false,
               user: {
-                id: creatorUser.id || user.id || 'creator-user',
+                id: creatorUser.id || user?.id || 'creator-user',
                 email: creatorUser.email || user?.email || 'creator@example.com',
                 full_name: creatorUser.full_name || user?.user_metadata?.full_name || 'Creator'
               }
@@ -301,7 +301,7 @@ export function useHybridDashboard(userRole?: string) {
           formattedData = {
             profile: {
               ...businessProfile,
-              id: businessProfile.id || user.id || 'business-profile',
+              id: businessProfile.id || user?.id || 'business-profile',
               display_name: businessProfile.display_name || businessProfile.company_name || businessUser.full_name || user?.user_metadata?.full_name || 'Business',
               bio: businessProfile.bio || 'Business profile',
               avatar_url: businessProfile.avatar_url || null,
@@ -310,13 +310,13 @@ export function useHybridDashboard(userRole?: string) {
               role: businessProfile.role || 'business',
               is_verified: businessProfile.is_verified || false,
               user: {
-                id: businessUser.id || user.id || 'business-user',
+                id: businessUser.id || user?.id || 'business-user',
                 email: businessUser.email || user?.email || 'business@example.com',
                 full_name: businessUser.full_name || user?.user_metadata?.full_name || 'Business'
               }
             },
             user: {
-              id: businessUser.id || user.id || 'business-user',
+              id: businessUser.id || user?.id || 'business-user',
               email: businessUser.email || user?.email || 'business@example.com',
               full_name: businessUser.full_name || user?.user_metadata?.full_name || 'Business',
               role: businessUser.role || 'business'
@@ -355,7 +355,7 @@ export function useHybridDashboard(userRole?: string) {
           formattedData = {
             profile: {
               ...fallbackProfile,
-              id: fallbackProfile.id || user.id || 'fallback-profile',
+              id: fallbackProfile.id || user?.id || 'fallback-profile',
               display_name: fallbackProfile.display_name || fallbackUser.full_name || user?.user_metadata?.full_name || 'User',
               bio: fallbackProfile.bio || 'User profile',
               avatar_url: fallbackProfile.avatar_url || null,
@@ -364,7 +364,7 @@ export function useHybridDashboard(userRole?: string) {
               role: fallbackProfile.role || finalRole,
               is_verified: fallbackProfile.is_verified || false,
               user: {
-                id: fallbackUser.id || user.id || 'fallback-user',
+                id: fallbackUser.id || user?.id || 'fallback-user',
                 email: fallbackUser.email || user?.email || 'user@example.com',
                 full_name: fallbackUser.full_name || user?.user_metadata?.full_name || 'User'
               }
@@ -422,7 +422,7 @@ export function useHybridDashboard(userRole?: string) {
         console.log('🚨 All retries exhausted, creating comprehensive emergency fallback');
         const emergencyFallback = {
           profile: {
-            id: user.id || 'emergency-user',
+            id: user?.id || 'emergency-user',
             display_name: user?.user_metadata?.full_name || 'User',
             bio: 'Welcome! We\'re having trouble loading your data, but you can still explore.',
             avatar_url: null,
@@ -431,13 +431,13 @@ export function useHybridDashboard(userRole?: string) {
             role: profile?.role || userRole || 'creator',
             is_verified: false,
             user: {
-              id: user.id || 'emergency-user',
+              id: user?.id || 'emergency-user',
               email: user?.email || 'user@example.com',
               full_name: user?.user_metadata?.full_name || 'User'
             }
           },
           user: {
-            id: user.id || 'emergency-user',
+            id: user?.id || 'emergency-user',
             email: user?.email || 'user@example.com',
             full_name: user?.user_metadata?.full_name || 'User',
             role: profile?.role || userRole || 'creator'
@@ -470,10 +470,10 @@ export function useHybridDashboard(userRole?: string) {
 
   // Helper functions for specific data types
   const getCollaborations = async (filters?: any) => {
-    if (!user || !user.id) return [];
+    if (!user || !user?.id) return [];
     
     try {
-      return await hybridDataService.getCollaborations(user.id, user.email || '', filters);
+      return await hybridDataService.getCollaborations(user?.id || '', user?.email || '', filters);
     } catch (error) {
       console.error('Error fetching collaborations:', error);
       return [];
@@ -481,10 +481,10 @@ export function useHybridDashboard(userRole?: string) {
   };
 
   const getPortfolio = async () => {
-    if (!user || !user.id || !dashboardData?.profile?.id) return [];
+    if (!user || !user?.id || !dashboardData?.profile?.id) return [];
     
     try {
-      return await hybridDataService.getPortfolioItems(dashboardData.profile.id, user.email || '');
+      return await hybridDataService.getPortfolioItems(dashboardData.profile.id, user?.email || '');
     } catch (error) {
       console.error('Error fetching portfolio:', error);
       return [];
@@ -492,10 +492,10 @@ export function useHybridDashboard(userRole?: string) {
   };
 
   const getAnalytics = async (period?: 'daily' | 'weekly' | 'monthly') => {
-    if (!user || !user.id) return [];
+    if (!user || !user?.id) return [];
     
     try {
-      return await hybridDataService.getAnalytics(user.id, user.email || '', period);
+      return await hybridDataService.getAnalytics(user?.id || '', user?.email || '', period);
     } catch (error) {
       console.error('Error fetching analytics:', error);
       return [];
@@ -503,10 +503,10 @@ export function useHybridDashboard(userRole?: string) {
   };
 
   const createCollaboration = async (data: any) => {
-    if (!user || !user.id) throw new Error('User not authenticated');
+    if (!user || !user?.id) throw new Error('User not authenticated');
     
     try {
-      return await hybridDataService.createCollaboration(data, user.email || '');
+      return await hybridDataService.createCollaboration(data, user?.email || '');
     } catch (error) {
       console.error('Error creating collaboration:', error);
       throw error;
@@ -514,10 +514,10 @@ export function useHybridDashboard(userRole?: string) {
   };
 
   const updateCollaboration = async (id: string, updates: any) => {
-    if (!user || !user.id) throw new Error('User not authenticated');
+    if (!user || !user?.id) throw new Error('User not authenticated');
     
     try {
-      return await hybridDataService.updateCollaboration(id, updates, user.email || '');
+      return await hybridDataService.updateCollaboration(id, updates, user?.email || '');
     } catch (error) {
       console.error('Error updating collaboration:', error);
       throw error;
@@ -526,11 +526,11 @@ export function useHybridDashboard(userRole?: string) {
 
   // Refresh dashboard data
   const refresh = async () => {
-    if (!user || !user.id) return;
+    if (!user || !user?.id) return;
     
     setLoading(true);
     try {
-      const data = await hybridDataService.getDashboardData(user.id, user.email || '');
+      const data = await hybridDataService.getDashboardData(user?.id || '', user?.email || '');
       if (data) {
         // Re-format data using the same logic as above
         const finalRole = profile?.role || userRole || 'creator';
