@@ -60,31 +60,66 @@ class HybridAuthService {
     }
   }
 
-  // Smart session retrieval
+  // Smart session retrieval with emergency timeouts
   async getSession(): Promise<HybridAuthResult> {
-    // First try to get any existing session
-    const mockSession = await this.getMockSession();
-    const supabaseSession = await this.getSupabaseSession();
-
-    // Prioritize mock session if it exists and is valid
-    if (mockSession.session && mockSession.user) {
-      console.log('🔐 Hybrid Auth: Using mock session');
-      return {
-        ...mockSession,
-        authType: 'mock'
-      };
+    console.log('🔐 EMERGENCY AUTH: Starting session retrieval with timeout protection');
+    
+    try {
+      // Create timeout promises for both session types
+      const mockSessionPromise = Promise.race([
+        this.getMockSession(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Mock session timeout')), 800))
+      ]);
+      
+      const supabaseSessionPromise = Promise.race([
+        this.getSupabaseSession(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase session timeout')), 800))
+      ]);
+      
+      // Try both session types with timeout protection
+      const [mockResult, supabaseResult] = await Promise.allSettled([
+        mockSessionPromise,
+        supabaseSessionPromise
+      ]);
+      
+      // Check mock session first
+      if (mockResult.status === 'fulfilled') {
+        const mockSession = mockResult.value as any;
+        if (mockSession.session && mockSession.user) {
+          console.log('✅ EMERGENCY AUTH: Using mock session');
+          return {
+            ...mockSession,
+            authType: 'mock'
+          };
+        }
+      }
+      
+      // Check Supabase session
+      if (supabaseResult.status === 'fulfilled') {
+        const supabaseSession = supabaseResult.value as any;
+        if (supabaseSession.session && supabaseSession.user) {
+          console.log('✅ EMERGENCY AUTH: Using Supabase session');
+          return {
+            ...supabaseSession,
+            authType: 'supabase'
+          };
+        }
+      }
+      
+      // Log any failures for debugging
+      if (mockResult.status === 'rejected') {
+        console.warn('⚠️ EMERGENCY AUTH: Mock session failed:', mockResult.reason);
+      }
+      if (supabaseResult.status === 'rejected') {
+        console.warn('⚠️ EMERGENCY AUTH: Supabase session failed:', supabaseResult.reason);
+      }
+      
+    } catch (error) {
+      console.warn('⚠️ EMERGENCY AUTH: Session retrieval error:', error);
     }
 
-    // Use Supabase session if available
-    if (supabaseSession.session && supabaseSession.user) {
-      console.log('🔐 Hybrid Auth: Using Supabase session');
-      return {
-        ...supabaseSession,
-        authType: 'supabase'
-      };
-    }
-
-    // No valid session found
+    // No valid session found - return safe defaults
+    console.log('🔐 EMERGENCY AUTH: No session found, returning defaults');
     return {
       user: null,
       session: null,
@@ -389,44 +424,93 @@ class HybridAuthService {
     }
   }
 
-  // Auth state change listener for compatibility
+  // Auth state change listener with emergency timeout protection
   onAuthStateChange(callback: (state: HybridAuthState) => void) {
+    console.log('🔐 EMERGENCY AUTH: Setting up state change listener with timeout protection');
     this.listeners.push(callback);
 
-    // Initial state
-    this.getSession().then(result => {
+    // Initial state with timeout protection
+    const initialStatePromise = Promise.race([
+      this.getSession(),
+      new Promise((resolve) => 
+        setTimeout(() => {
+          console.warn('⚠️ EMERGENCY AUTH: Initial state timeout, using defaults');
+          resolve({
+            user: null,
+            session: null,
+            profile: null,
+            authType: 'supabase'
+          });
+        }, 1500)
+      )
+    ]);
+    
+    initialStatePromise.then((result: any) => {
       callback({
         user: result.user || null,
         profile: result.profile || null,
         session: result.session || null,
         loading: false,
-        authType: result.authType
+        authType: result.authType || 'supabase'
+      });
+    }).catch((error) => {
+      console.warn('⚠️ EMERGENCY AUTH: Initial state error, using defaults:', error);
+      callback({
+        user: null,
+        profile: null,
+        session: null,
+        loading: false,
+        authType: 'supabase'
       });
     });
 
-    // Listen to Supabase changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (this.currentAuthType === 'supabase') {
-        const profile = session?.user ? await this.fetchUserProfile(session.user.id) : null;
-        
-        callback({
-          user: session?.user || null,
-          profile,
-          session,
-          loading: false,
-          authType: 'supabase'
-        });
-      }
-    });
+    // Listen to Supabase changes with timeout protection
+    let subscription: any;
+    try {
+      const { data: { subscription: sub } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (this.currentAuthType === 'supabase') {
+          console.log('🔐 EMERGENCY AUTH: Supabase state change:', event);
+          
+          // Fetch profile with timeout
+          let profile = null;
+          if (session?.user) {
+            try {
+              const profilePromise = this.fetchUserProfile(session.user.id);
+              const timeoutPromise = new Promise((resolve) => 
+                setTimeout(() => resolve(null), 1000)
+              );
+              profile = await Promise.race([profilePromise, timeoutPromise]);
+            } catch (error) {
+              console.warn('⚠️ EMERGENCY AUTH: Profile fetch error:', error);
+            }
+          }
+          
+          callback({
+            user: session?.user || null,
+            profile,
+            session,
+            loading: false,
+            authType: 'supabase'
+          });
+        }
+      });
+      subscription = sub;
+    } catch (error) {
+      console.warn('⚠️ EMERGENCY AUTH: Failed to set up Supabase listener:', error);
+    }
 
     // Return unsubscribe function
     return {
       unsubscribe: () => {
-        const index = this.listeners.indexOf(callback);
-        if (index > -1) {
-          this.listeners.splice(index, 1);
+        try {
+          const index = this.listeners.indexOf(callback);
+          if (index > -1) {
+            this.listeners.splice(index, 1);
+          }
+          subscription?.unsubscribe();
+        } catch (error) {
+          console.warn('⚠️ EMERGENCY AUTH: Unsubscribe error:', error);
         }
-        subscription.unsubscribe();
       }
     };
   }

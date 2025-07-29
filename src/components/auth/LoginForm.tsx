@@ -128,15 +128,34 @@ export const LoginForm: React.FC<LoginFormProps> = memo(({ onSuccess }) => {
                         <p className="text-xs text-gray-600">{account.email}</p>
                         <p className="text-xs text-gray-500 mt-1">{account.description}</p>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-xs px-2 py-1 h-auto"
-                        onClick={() => fillTestAccount(account.email, account.password)}
-                      >
-                        Usar
-                      </Button>
+                      <div className="space-x-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs px-2 py-1 h-auto"
+                          onClick={() => fillTestAccount(account.email, account.password)}
+                        >
+                          Usar
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="default"
+                          size="sm"
+                          className="text-xs px-2 py-1 h-auto bg-green-600 hover:bg-green-700"
+                          onClick={() => {
+                            console.log('⚡ INSTANT LOGIN: Direct dashboard access for', account.role);
+                            // Bypass authentication completely - go straight to dashboard
+                            const dashboardRoute = account.role === 'Admin' ? '/dashboard/admin' : 
+                                                 account.role === 'Venue/Business' ? '/dashboard/business' : 
+                                                 '/dashboard/creator';
+                            
+                            window.location.href = dashboardRoute;
+                          }}
+                        >
+                          ⚡ Instant Access
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}

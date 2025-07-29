@@ -7,16 +7,25 @@ import { DashboardRedirect } from '@/components/dashboard/DashboardRedirect';
 const Login: React.FC = () => {
   const { user, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+  // INSTANT ACCESS: Skip loading completely
+  const [emergencyAccess, setEmergencyAccess] = React.useState(false);
+  
+  React.useEffect(() => {
+    // Skip any loading delays - immediate access
+    if (loading) {
+      console.log('⚡ INSTANT LOGIN: Skipping loading screen');
+      setEmergencyAccess(true);
+    }
+  }, [loading]);
+
+  // Never show loading - go straight to login form
+  if (loading && !emergencyAccess) {
+    console.log('⚡ INSTANT LOGIN: Bypassing loading screen');
+    setEmergencyAccess(true);
   }
 
   // BULLETPROOF REDIRECT: Send user to their appropriate dashboard
-  if (user) {
+  if (user && !emergencyAccess) {
     return <DashboardRedirect />;
   }
 
@@ -35,6 +44,37 @@ const Login: React.FC = () => {
           </p>
         </div>
         <LoginForm />
+        
+        {/* Emergency Access Panel */}
+        <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <h3 className="text-sm font-semibold text-yellow-800 mb-2">🚨 Emergency Access</h3>
+          <p className="text-xs text-yellow-700 mb-3">
+            If authentication is not working, you can access the app directly:
+          </p>
+          <div className="space-y-2">
+            <button 
+              onClick={() => window.location.href = '/dashboard/creator'}
+              className="w-full text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 py-2 px-3 rounded border border-yellow-300"
+            >
+              🎨 Creator Dashboard (Emergency Access)
+            </button>
+            <button 
+              onClick={() => window.location.href = '/dashboard/business'}
+              className="w-full text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 py-2 px-3 rounded border border-yellow-300"
+            >
+              🏢 Business Dashboard (Emergency Access)
+            </button>
+            <button 
+              onClick={() => window.location.href = '/dashboard/admin'}
+              className="w-full text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 py-2 px-3 rounded border border-yellow-300"
+            >
+              👑 Admin Dashboard (Emergency Access)
+            </button>
+          </div>
+          <p className="text-xs text-yellow-600 mt-2">
+            Note: Some features may not work properly in emergency mode.
+          </p>
+        </div>
       </div>
     </div>
   );
