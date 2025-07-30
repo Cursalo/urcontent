@@ -75,9 +75,9 @@ export const CreatorDashboardNav: React.FC<CreatorDashboardNavProps> = ({
             >
               {menuAbierto ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
-            
+
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
                 <Camera className="w-4 h-4 text-white" />
               </div>
               <span className="font-semibold text-xl hidden sm:block">URContent</span>
@@ -89,12 +89,13 @@ export const CreatorDashboardNav: React.FC<CreatorDashboardNavProps> = ({
             {navegacionItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
+              
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    "flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all",
                     isActive
                       ? "bg-black text-white"
                       : "text-gray-600 hover:bg-gray-100"
@@ -114,7 +115,7 @@ export const CreatorDashboardNav: React.FC<CreatorDashboardNavProps> = ({
               <Input
                 type="text"
                 placeholder="Buscar colaboraciones, contenido..."
-                className="pl-10 pr-4 py-2 w-full rounded-full bg-gray-50 border-gray-200 focus:bg-white"
+                className="pl-10 pr-4 py-2 w-full rounded bg-gray-50 border-gray-200 focus:bg-white"
               />
             </div>
           </div>
@@ -122,17 +123,17 @@ export const CreatorDashboardNav: React.FC<CreatorDashboardNavProps> = ({
           {/* Acciones del usuario */}
           <div className="flex items-center gap-3">
             {/* Botón de búsqueda móvil */}
-            <Button variant="ghost" size="icon" className="md:hidden rounded-full">
+            <Button variant="ghost" size="icon" className="md:hidden rounded">
               <Search className="w-5 h-5" />
             </Button>
 
             {/* Notificaciones */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative rounded-full">
+                <Button variant="ghost" size="icon" className="relative rounded">
                   <Bell className="w-5 h-5" />
                   {notificaciones > 0 && (
-                    <Badge className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs bg-red-500 text-white">
+                    <Badge className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs bg-black text-white">
                       {notificaciones > 9 ? '9+' : notificaciones}
                     </Badge>
                   )}
@@ -150,7 +151,7 @@ export const CreatorDashboardNav: React.FC<CreatorDashboardNavProps> = ({
                   <>
                     <DropdownMenuItem className="p-4">
                       <div className="flex gap-3">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5" />
+                        <div className="w-2 h-2 bg-black rounded-full mt-1.5" />
                         <div className="flex-1">
                           <p className="text-sm font-medium">Nueva colaboración disponible</p>
                           <p className="text-xs text-gray-500 mt-1">Nike está buscando creators como tú</p>
@@ -160,7 +161,7 @@ export const CreatorDashboardNav: React.FC<CreatorDashboardNavProps> = ({
                     </DropdownMenuItem>
                     <DropdownMenuItem className="p-4">
                       <div className="flex gap-3">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5" />
+                        <div className="w-2 h-2 bg-gray-700 rounded-full mt-1.5" />
                         <div className="flex-1">
                           <p className="text-sm font-medium">Pago recibido</p>
                           <p className="text-xs text-gray-500 mt-1">$15,000 MXN de Starbucks México</p>
@@ -172,7 +173,7 @@ export const CreatorDashboardNav: React.FC<CreatorDashboardNavProps> = ({
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-center">
-                  <Link to="/notificaciones" className="text-sm text-blue-600 hover:underline">
+                  <Link to="/notificaciones" className="text-sm text-gray-700 hover:underline">
                     Ver todas las notificaciones
                   </Link>
                 </DropdownMenuItem>
@@ -185,7 +186,7 @@ export const CreatorDashboardNav: React.FC<CreatorDashboardNavProps> = ({
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
-                    <AvatarFallback>
+                    <AvatarFallback className="bg-gray-200 text-gray-700">
                       {profile?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
@@ -212,7 +213,7 @@ export const CreatorDashboardNav: React.FC<CreatorDashboardNavProps> = ({
                   <span>Ayuda y Soporte</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+                <DropdownMenuItem onClick={handleSignOut} className="text-gray-700">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar Sesión</span>
                 </DropdownMenuItem>
@@ -229,12 +230,13 @@ export const CreatorDashboardNav: React.FC<CreatorDashboardNavProps> = ({
             {navegacionItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
+              
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg text-base font-medium",
+                    "flex items-center gap-3 px-3 py-2 rounded text-base font-medium",
                     isActive
                       ? "bg-black text-white"
                       : "text-gray-600 hover:bg-gray-100"

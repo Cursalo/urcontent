@@ -1,0 +1,263 @@
+/* Global Grayscale Override - URContent Strict Monochrome Design */
+
+/* Remove all color properties and enforce grayscale */
+*, *::before, *::after {
+  /* Force grayscale for any remaining colored elements */
+  filter: grayscale(100%) !important;
+  -webkit-filter: grayscale(100%) !important;
+}
+
+/* Override ALL border radius to exactly 4px */
+*, *::before, *::after {
+  border-radius: 4px !important;
+}
+
+/* Specific overrides for elements that must remain circular */
+.rounded-full,
+[class*="avatar"],
+[class*="circle"] {
+  border-radius: 9999px !important; /* Keep circles circular */
+}
+
+/* Remove ALL gradients and replace with solid colors */
+[class*="gradient"],
+[class*="bg-gradient"],
+[style*="gradient"],
+[style*="linear-gradient"],
+[style*="radial-gradient"] {
+  background: #000000 !important;
+  background-image: none !important;
+}
+
+/* Remove gradient text effects */
+.text-gradient,
+[class*="text-gradient"] {
+  background: none !important;
+  background-clip: unset !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: #000000 !important;
+  color: #000000 !important;
+}
+
+/* Override primary colors with black */
+[class*="bg-primary"],
+[class*="bg-secondary"],
+[class*="bg-success"],
+[class*="bg-warning"],
+[class*="bg-danger"],
+[class*="bg-info"] {
+  background-color: #000000 !important;
+}
+
+/* Override text colors */
+[class*="text-primary"],
+[class*="text-secondary"],
+[class*="text-success"],
+[class*="text-warning"],
+[class*="text-danger"],
+[class*="text-info"] {
+  color: #000000 !important;
+}
+
+/* Override border colors */
+[class*="border-primary"],
+[class*="border-secondary"],
+[class*="border-success"],
+[class*="border-warning"],
+[class*="border-danger"],
+[class*="border-info"] {
+  border-color: #e5e5e5 !important;
+}
+
+/* Ensure all backgrounds are either white, black, or gray */
+.bg-white { background-color: #ffffff !important; }
+.bg-black { background-color: #000000 !important; }
+.bg-gray-50 { background-color: #f9f9f9 !important; }
+.bg-gray-100 { background-color: #f3f3f3 !important; }
+.bg-gray-200 { background-color: #e5e5e5 !important; }
+.bg-gray-300 { background-color: #d4d4d4 !important; }
+.bg-gray-400 { background-color: #a3a3a3 !important; }
+.bg-gray-500 { background-color: #737373 !important; }
+.bg-gray-600 { background-color: #525252 !important; }
+.bg-gray-700 { background-color: #404040 !important; }
+.bg-gray-800 { background-color: #262626 !important; }
+.bg-gray-900 { background-color: #171717 !important; }
+
+/* Text colors */
+.text-white { color: #ffffff !important; }
+.text-black { color: #000000 !important; }
+.text-gray-50 { color: #f9f9f9 !important; }
+.text-gray-100 { color: #f3f3f3 !important; }
+.text-gray-200 { color: #e5e5e5 !important; }
+.text-gray-300 { color: #d4d4d4 !important; }
+.text-gray-400 { color: #a3a3a3 !important; }
+.text-gray-500 { color: #737373 !important; }
+.text-gray-600 { color: #525252 !important; }
+.text-gray-700 { color: #404040 !important; }
+.text-gray-800 { color: #262626 !important; }
+.text-gray-900 { color: #171717 !important; }
+
+/* Remove all shadows and replace with subtle gray ones */
+[class*="shadow"] {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Disable all animations that involve color changes */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 0% 50%; }
+}
+
+/* Override glass effects */
+.glass-card,
+.glass-button {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: none !important;
+  border: 1px solid #e5e5e5 !important;
+}
+
+/* Ensure hover states are grayscale */
+*:hover {
+  filter: grayscale(100%) !important;
+  -webkit-filter: grayscale(100%) !important;
+}
+
+/* Override button styles - maintain distinction */
+.btn-primary {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #000000 !important;
+  background-image: none !important;
+}
+
+.btn-primary:hover {
+  background: #262626 !important;
+  border-color: #262626 !important;
+}
+
+.btn-secondary {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #d4d4d4 !important;
+  background-image: none !important;
+}
+
+.btn-secondary:hover {
+  background: #f9f9f9 !important;
+  border-color: #a3a3a3 !important;
+}
+
+/* Remove ALL gradient buttons */
+.btn-gradient,
+[class*="gradient-button"],
+[class*="button-gradient"] {
+  background: #000000 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border: 1px solid #000000 !important;
+}
+
+.btn-gradient:hover {
+  background: #262626 !important;
+  border-color: #262626 !important;
+}
+
+/* Ensure inputs and form elements are grayscale */
+input, textarea, select {
+  background-color: #ffffff !important;
+  border: 1px solid #d4d4d4 !important;
+  color: #000000 !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #000000 !important;
+  outline: 2px solid transparent !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px #e5e5e5 !important;
+}
+
+/* Minimalistic scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f3f3f3;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #737373;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #525252;
+}
+
+/* Additional overrides for complete monochrome conversion */
+
+/* Remove all backdrop filters and blurs */
+[class*="backdrop"],
+[class*="blur"],
+[style*="backdrop-filter"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Enforce 4px radius on common components */
+.card, .panel, .modal, .dialog, .dropdown, .popover, .tooltip {
+  border-radius: 4px !important;
+}
+
+/* Remove all color transitions */
+* {
+  transition-property: transform, opacity, visibility, height, width, margin, padding, border-width !important;
+}
+
+/* Disable color animations */
+@keyframes * {
+  color: inherit !important;
+  background-color: inherit !important;
+  border-color: inherit !important;
+}
+
+/* Final override for any missed color classes */
+[class*="text-red"],
+[class*="text-orange"],
+[class*="text-yellow"],
+[class*="text-green"],
+[class*="text-blue"],
+[class*="text-indigo"],
+[class*="text-purple"],
+[class*="text-pink"] {
+  color: #000000 !important;
+}
+
+[class*="bg-red"],
+[class*="bg-orange"],
+[class*="bg-yellow"],
+[class*="bg-green"],
+[class*="bg-blue"],
+[class*="bg-indigo"],
+[class*="bg-purple"],
+[class*="bg-pink"] {
+  background-color: #737373 !important;
+}
+
+[class*="border-red"],
+[class*="border-orange"],
+[class*="border-yellow"],
+[class*="border-green"],
+[class*="border-blue"],
+[class*="border-indigo"],
+[class*="border-purple"],
+[class*="border-pink"] {
+  border-color: #d4d4d4 !important;
+}
+
+/* Ensure no element can have color */
+html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, button, input, textarea, select {
+  filter: grayscale(100%) !important;
+  -webkit-filter: grayscale(100%) !important;
+}

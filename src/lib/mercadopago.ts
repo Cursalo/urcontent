@@ -1,285 +1,34 @@
 // MercadoPago Configuration and Service
-import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
-
-// MercadoPago Credentials - SECURE VERSION
+import { MercadoPagoConfig, Payment, Preference } from 'mercadopago'; // MercadoPago Credentials - SECURE VERSION
 // These credentials are now loaded from environment variables
-export const MERCADOPAGO_CONFIG = {
-  publicKey: import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY || '',
-  // Access token should NEVER be exposed in client-side code
-  // This will be handled server-side only via Supabase Edge Functions
-};
-
-// Validate that required credentials are present
-if (!MERCADOPAGO_CONFIG.publicKey) {
-  console.warn('VITE_MERCADOPAGO_PUBLIC_KEY is not configured. Payment functionality will be limited.');
-}
-
-// CLIENT-SIDE: Only use public key for frontend operations
+export const MERCADOPAGO_CONFIG = { publicKey: import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY || '', // Access token should NEVER be exposed in client-side code // This will be handled server-side only via Supabase Edge Functions
+}; // Validate that required credentials are present
+if (!MERCADOPAGO_CONFIG.publicKey) { console.warn('VITE_MERCADOPAGO_PUBLIC_KEY is not configured. Payment functionality will be limited.');
+} // CLIENT-SIDE: Only use public key for frontend operations
 // This is safe to expose as it's designed for client-side use
-export const getPublicKey = () => MERCADOPAGO_CONFIG.publicKey;
-
-// Payment types
-export type PaymentType = 'membership' | 'collaboration' | 'experience' | 'campaign_deposit';
-
-export interface PaymentData {
-  amount: number;
-  description: string;
-  paymentType: PaymentType;
-  userId: string;
-  userEmail: string;
-  userName: string;
-  metadata?: Record<string, any>;
-  successUrl?: string;
-  failureUrl?: string;
-  pendingUrl?: string;
-}
-
-export interface MembershipPaymentData extends PaymentData {
-  membershipTier: 'basic' | 'premium' | 'vip';
-  billingPeriod: 'monthly' | 'yearly';
-}
-
-export interface CollaborationPaymentData extends PaymentData {
-  collaborationId: string;
-  creatorId: string;
-  brandId: string;
-  paymentSplit?: {
-    creatorAmount: number;
-    platformFee: number;
-  };
-}
-
-// Input validation and sanitization
-const sanitizeString = (input: string): string => {
-  return input.replace(/[<>"'&]/g, '').trim();
-};
-
-const validatePaymentData = (paymentData: PaymentData): { isValid: boolean; errors: string[] } => {
-  const errors: string[] = [];
-  
-  if (!paymentData.amount || paymentData.amount <= 0) {
-    errors.push('Invalid payment amount');
-  }
-  
-  if (paymentData.amount > 999999999) {
-    errors.push('Payment amount exceeds maximum limit');
-  }
-  
-  if (!paymentData.description || paymentData.description.length < 3) {
-    errors.push('Payment description is required');
-  }
-  
-  if (!paymentData.userId || !paymentData.userEmail || !paymentData.userName) {
-    errors.push('User information is required');
-  }
-  
-  // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (paymentData.userEmail && !emailRegex.test(paymentData.userEmail)) {
-    errors.push('Invalid email format');
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-};
-
-// SECURE: Create payment preference via server-side API
-export const createPaymentPreference = async (paymentData: PaymentData) => {
-  try {
-    // Validate input data
-    const validation = validatePaymentData(paymentData);
-    if (!validation.isValid) {
-      return {
-        success: false,
-        error: 'Validation failed: ' + validation.errors.join(', ')
-      };
-    }
-    
-    // Sanitize input data
-    const sanitizedData = {
-      ...paymentData,
-      description: sanitizeString(paymentData.description),
-      userName: sanitizeString(paymentData.userName),
-      userEmail: sanitizeString(paymentData.userEmail)
-    };
-    
-    // Call secure server-side API endpoint
-    const response = await fetch('/api/secure-payments/create-preference', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(sanitizedData)
-    });
-    
-    if (!response.ok) {
-      throw new Error('HTTP error! status: ' + response.status);
-    }
-    
-    const result = await response.json();
-    
-    return {
-      success: true,
-      preferenceId: result.preferenceId,
-      initPoint: result.initPoint,
-      sandboxInitPoint: result.sandboxInitPoint
-    };
-  } catch (error) {
-    console.error('Error creating payment preference:', error);
-    return {
-      success: false,
-      error: 'Error creating payment preference. Please try again.'
-    };
-  }
-};
-
-// Create membership payment
-export const createMembershipPayment = async (membershipData: MembershipPaymentData) => {
-  const membershipPrices = {
-    basic: { monthly: 2999, yearly: 29990 },
-    premium: { monthly: 8999, yearly: 89990 },
-    vip: { monthly: 19999, yearly: 199990 }
-  };
-
-  const amount = membershipPrices[membershipData.membershipTier][membershipData.billingPeriod];
-  const description = 'URContent ' + membershipData.membershipTier.toUpperCase() + ' - ' + (membershipData.billingPeriod === 'monthly' ? 'Mensual' : 'Anual');
-
-  return createPaymentPreference({
-    ...membershipData,
-    amount,
-    description,
-    successUrl: window.location.origin + '/membership/success',
-    failureUrl: window.location.origin + '/membership/failure',
-    metadata: {
-      membership_tier: membershipData.membershipTier,
-      billing_period: membershipData.billingPeriod
-    }
-  });
-};
-
-// Create collaboration payment
-export const createCollaborationPayment = async (collaborationData: CollaborationPaymentData) => {
-  const platformFeePercentage = 0.15; // 15% platform fee
-  const creatorAmount = collaborationData.amount * (1 - platformFeePercentage);
-  const platformFee = collaborationData.amount * platformFeePercentage;
-
-  return createPaymentPreference({
-    ...collaborationData,
-    successUrl: window.location.origin + '/collaboration/success',
-    failureUrl: window.location.origin + '/collaboration/failure',
-    metadata: {
-      collaboration_id: collaborationData.collaborationId,
-      creator_id: collaborationData.creatorId,
-      brand_id: collaborationData.brandId,
-      creator_amount: creatorAmount,
-      platform_fee: platformFee
-    }
-  });
-};
-
-// SECURE: Get payment status via server-side API
-export const getPaymentStatus = async (paymentId: string) => {
-  try {
-    // Validate payment ID format
-    if (!paymentId || paymentId.length < 8) {
-      return {
-        success: false,
-        error: 'Invalid payment ID'
-      };
-    }
-    
-    const response = await fetch('/api/secure-payments/status/' + encodeURIComponent(paymentId), {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error('HTTP error! status: ' + response.status);
-    }
-    
-    const result = await response.json();
-    
-    return {
-      success: true,
-      status: result.status,
-      statusDetail: result.statusDetail,
-      amount: result.amount,
-      externalReference: result.externalReference
-    };
-  } catch (error) {
-    console.error('Error getting payment status:', error);
-    return {
-      success: false,
-      error: 'Error retrieving payment status'
-    };
-  }
-};
-
-// Payment status types
-export type PaymentStatus = 'approved' | 'pending' | 'in_process' | 'rejected' | 'cancelled';
-
-// Format currency for display
-export const formatCurrency = (amount: number): string => {
-  // Input validation
-  if (typeof amount !== 'number' || isNaN(amount)) {
-    return '$0';
-  }
-  
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(Math.abs(amount)); // Use absolute value to prevent negative currency display
-};
-
-// Calculate platform fee
-export const calculatePlatformFee = (amount: number, feePercentage: number = 0.15): { creatorAmount: number; platformFee: number } => {
-  // Input validation
-  if (typeof amount !== 'number' || amount < 0 || typeof feePercentage !== 'number' || feePercentage < 0 || feePercentage > 1) {
-    return { creatorAmount: 0, platformFee: 0 };
-  }
-  
-  const platformFee = amount * feePercentage;
-  const creatorAmount = amount - platformFee;
-  
-  return {
-    creatorAmount: Math.round(creatorAmount),
-    platformFee: Math.round(platformFee)
-  };
-};
-
-// Validate payment amount
-export const validatePaymentAmount = (amount: number, minAmount: number = 100): boolean => {
-  return typeof amount === 'number' && 
-         !isNaN(amount) && 
-         amount >= minAmount && 
-         amount <= 999999999;
-};
-
-// Create installment options
-export const getInstallmentOptions = (amount: number) => {
-  if (!validatePaymentAmount(amount)) return [1];
-  
-  if (amount >= 50000) return [1, 3, 6, 9, 12];
-  if (amount >= 20000) return [1, 3, 6, 9];
-  if (amount >= 10000) return [1, 3, 6];
-  if (amount >= 5000) return [1, 3];
-  return [1];
-};
-
-export default {
-  createPaymentPreference,
-  createMembershipPayment,
-  createCollaborationPayment,
-  getPaymentStatus,
-  formatCurrency,
-  calculatePlatformFee,
-  validatePaymentAmount,
-  getInstallmentOptions,
-  getPublicKey
+export const getPublicKey = () => MERCADOPAGO_CONFIG.publicKey; // Payment types
+export type PaymentType = 'membership' | 'collaboration' | 'experience' | 'campaign_deposit'; export interface PaymentData { amount: number; description: string; paymentType: PaymentType; userId: string; userEmail: string; userName: string; metadata?: Record<string, any>; successUrl?: string; failureUrl?: string; pendingUrl?: string;
+} export interface MembershipPaymentData extends PaymentData { membershipTier: 'basic' | 'premium' | 'vip'; billingPeriod: 'monthly' | 'yearly';
+} export interface CollaborationPaymentData extends PaymentData { collaborationId: string; creatorId: string; brandId: string; paymentSplit?: { creatorAmount: number; platformFee: number; };
+} // Input validation and sanitization
+const sanitizeString = (input: string): string => { return input.replace(/[<>"'&]/g, '').trim();
+}; const validatePaymentData = (paymentData: PaymentData): { isValid: boolean; errors: string[] } => { const errors: string[] = []; if (!paymentData.amount || paymentData.amount <= 0) { errors.push('Invalid payment amount'); } if (paymentData.amount > 999999999) { errors.push('Payment amount exceeds maximum limit'); } if (!paymentData.description || paymentData.description.length < 3) { errors.push('Payment description is required'); } if (!paymentData.userId || !paymentData.userEmail || !paymentData.userName) { errors.push('User information is required'); } // Validate email format const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; if (paymentData.userEmail && !emailRegex.test(paymentData.userEmail)) { errors.push('Invalid email format'); } return { isValid: errors.length === 0, errors };
+}; // SECURE: Create payment preference via server-side API
+export const createPaymentPreference = async (paymentData: PaymentData) => { try { // Validate input data const validation = validatePaymentData(paymentData); if (!validation.isValid) { return { success: false, error: 'Validation failed: ' + validation.errors.join(', ') }; } // Sanitize input data const sanitizedData = { ...paymentData, description: sanitizeString(paymentData.description), userName: sanitizeString(paymentData.userName), userEmail: sanitizeString(paymentData.userEmail) }; // Call secure server-side API endpoint const response = await fetch('/api/secure-payments/create-preference', { method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(sanitizedData) }); if (!response.ok) { throw new Error('HTTP error! status: ' + response.status); } const result = await response.json(); return { success: true, preferenceId: result.preferenceId, initPoint: result.initPoint, sandboxInitPoint: result.sandboxInitPoint }; } catch (error) { console.error('Error creating payment preference:', error); return { success: false, error: 'Error creating payment preference. Please try again.' }; }
+}; // Create membership payment
+export const createMembershipPayment = async (membershipData: MembershipPaymentData) => { const membershipPrices = { basic: { monthly: 2999, yearly: 29990 }, premium: { monthly: 8999, yearly: 89990 }, vip: { monthly: 19999, yearly: 199990 } }; const amount = membershipPrices[membershipData.membershipTier][membershipData.billingPeriod]; const description = 'URContent ' + membershipData.membershipTier.toUpperCase() + ' - ' + (membershipData.billingPeriod === 'monthly' ? 'Mensual' : 'Anual'); return createPaymentPreference({ ...membershipData, amount, description, successUrl: window.location.origin + '/membership/success', failureUrl: window.location.origin + '/membership/failure', metadata: { membership_tier: membershipData.membershipTier, billing_period: membershipData.billingPeriod } });
+}; // Create collaboration payment
+export const createCollaborationPayment = async (collaborationData: CollaborationPaymentData) => { const platformFeePercentage = 0.15; // 15% platform fee const creatorAmount = collaborationData.amount * (1 - platformFeePercentage); const platformFee = collaborationData.amount * platformFeePercentage; return createPaymentPreference({ ...collaborationData, successUrl: window.location.origin + '/collaboration/success', failureUrl: window.location.origin + '/collaboration/failure', metadata: { collaboration_id: collaborationData.collaborationId, creator_id: collaborationData.creatorId, brand_id: collaborationData.brandId, creator_amount: creatorAmount, platform_fee: platformFee } });
+}; // SECURE: Get payment status via server-side API
+export const getPaymentStatus = async (paymentId: string) => { try { // Validate payment ID format if (!paymentId || paymentId.length < 8) { return { success: false, error: 'Invalid payment ID' }; } const response = await fetch('/api/secure-payments/status/' + encodeURIComponent(paymentId), { method: 'GET', headers: { 'Content-Type': 'application/json', } }); if (!response.ok) { throw new Error('HTTP error! status: ' + response.status); } const result = await response.json(); return { success: true, status: result.status, statusDetail: result.statusDetail, amount: result.amount, externalReference: result.externalReference }; } catch (error) { console.error('Error getting payment status:', error); return { success: false, error: 'Error retrieving payment status' }; }
+}; // Payment status types
+export type PaymentStatus = 'approved' | 'pending' | 'in_process' | 'rejected' | 'cancelled'; // Format currency for display
+export const formatCurrency = (amount: number): string => { // Input validation if (typeof amount !== 'number' || isNaN(amount)) { return '$0'; } return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.abs(amount)); // Use absolute value to prevent negative currency display
+}; // Calculate platform fee
+export const calculatePlatformFee = (amount: number, feePercentage: number = 0.15): { creatorAmount: number; platformFee: number } => { // Input validation if (typeof amount !== 'number' || amount < 0 || typeof feePercentage !== 'number' || feePercentage < 0 || feePercentage > 1) { return { creatorAmount: 0, platformFee: 0 }; } const platformFee = amount * feePercentage; const creatorAmount = amount - platformFee; return { creatorAmount: Math.round(creatorAmount), platformFee: Math.round(platformFee) };
+}; // Validate payment amount
+export const validatePaymentAmount = (amount: number, minAmount: number = 100): boolean => { return typeof amount === 'number' && !isNaN(amount) && amount >= minAmount && amount <= 999999999;
+}; // Create installment options
+export const getInstallmentOptions = (amount: number) => { if (!validatePaymentAmount(amount)) return [1]; if (amount >= 50000) return [1, 3, 6, 9, 12]; if (amount >= 20000) return [1, 3, 6, 9]; if (amount >= 10000) return [1, 3, 6]; if (amount >= 5000) return [1, 3]; return [1];
+}; export default { createPaymentPreference, createMembershipPayment, createCollaborationPayment, getPaymentStatus, formatCurrency, calculatePlatformFee, validatePaymentAmount, getInstallmentOptions, getPublicKey
 };

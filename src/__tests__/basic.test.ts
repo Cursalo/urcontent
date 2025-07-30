@@ -1,19 +1,2 @@
-import { describe, it, expect } from 'vitest'
-
-describe('Basic Test Suite', () => {
-  it('should run a basic test', () => {
-    expect(1 + 1).toBe(2)
-  })
-
-  it('should test string operations', () => {
-    const message = 'Content Weave Platform'
-    expect(message).toContain('Weave')
-    expect(message.length).toBeGreaterThan(5)
-  })
-
-  it('should test array operations', () => {
-    const frameworks = ['React', 'TypeScript', 'Vite', 'Supabase']
-    expect(frameworks).toHaveLength(4)
-    expect(frameworks).toContain('React')
-  })
+import { describe, it, expect } from 'vitest' describe('Basic Test Suite', () => { it('should run a basic test', () => { expect(1 + 1).toBe(2) }) it('should test string operations', () => { const message = 'Content Weave Platform' expect(message).toContain('Weave') expect(message.length).toBeGreaterThan(5) }) it('should test array operations', () => { const frameworks = ['React', 'TypeScript', 'Vite', 'Supabase'] expect(frameworks).toHaveLength(4) expect(frameworks).toContain('React') })
 })

@@ -73,10 +73,14 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'alert': return <AlertCircle className="w-4 h-4 text-red-500" />;
-      case 'success': return <CheckCircle2 className="w-4 h-4 text-green-500" />;
-      case 'warning': return <AlertCircle className="w-4 h-4 text-yellow-500" />;
-      default: return <Bell className="w-4 h-4" />;
+      case 'alert':
+        return <AlertCircle className="w-4 h-4 text-gray-600"/>;
+      case 'success':
+        return <CheckCircle2 className="w-4 h-4 text-gray-600"/>;
+      case 'warning':
+        return <AlertCircle className="w-4 h-4 text-gray-600"/>;
+      default:
+        return <Bell className="w-4 h-4"/>;
     }
   };
 
@@ -92,12 +96,12 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="lg:hidden"
             >
-              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {sidebarOpen ? <X className="w-5 h-5"/> : <Menu className="w-5 h-5"/>}
             </Button>
             
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg">
-                <Shield className="w-6 h-6 text-white" />
+              <div className="p-2 bg-black rounded">
+                <Shield className="w-6 h-6 text-white"/>
               </div>
               <div>
                 <h1 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -113,10 +117,10 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
           <div className="flex items-center space-x-4">
             {/* Search Bar */}
             <div className="hidden md:flex items-center space-x-2 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"/>
               <Input
                 placeholder="Buscar usuarios, colaboraciones..."
-                className="pl-10 w-64"
+                className="pl-10 w-64 rounded"
               />
             </div>
 
@@ -124,9 +128,7 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
             <div className="hidden lg:flex items-center space-x-3">
               {systemStats.map((stat, index) => (
                 <div key={index} className="flex items-center space-x-2">
-                  <stat.icon className={`w-4 h-4 ${
-                    stat.status === 'success' ? 'text-green-500' : 'text-yellow-500'
-                  }`} />
+                  <stat.icon className="w-4 h-4 text-gray-600" />
                   <div className="text-sm">
                     <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
                       {stat.label}:
@@ -139,7 +141,7 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
               ))}
             </div>
 
-            <Separator orientation="vertical" className="h-8" />
+            <Separator orientation="vertical" className="h-8"/>
 
             {/* Dark Mode Toggle */}
             {toggleDarkMode && (
@@ -147,26 +149,26 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={toggleDarkMode}
-                className="rounded-full"
+                className="rounded"
               >
-                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {darkMode ? <Sun className="w-5 h-5"/> : <Moon className="w-5 h-5"/>}
               </Button>
             )}
 
             {/* Notifications */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="relative">
-                  <Bell className="w-5 h-5" />
+                <Button variant="ghost" size="sm" className="relative rounded">
+                  <Bell className="w-5 h-5"/>
                   {notifications.filter(n => n.unread).length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-black rounded-full"/>
                   )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
                 <DropdownMenuLabel className="flex items-center justify-between">
                   <span>Notificaciones</span>
-                  <Badge variant="secondary">
+                  <Badge variant="secondary" className="bg-gray-200 text-gray-700">
                     {notifications.filter(n => n.unread).length} nuevas
                   </Badge>
                 </DropdownMenuLabel>
@@ -193,7 +195,7 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-medium">
+                  <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white font-medium">
                     SA
                   </div>
                   <span className="hidden md:inline">Super Admin</span>
@@ -203,16 +205,16 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
                 <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <Settings className="w-4 h-4 mr-2" />
+                  <Settings className="w-4 h-4 mr-2"/>
                   Configuración
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <FileText className="w-4 h-4 mr-2" />
+                  <FileText className="w-4 h-4 mr-2"/>
                   Logs de Auditoría
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">
-                  <LogOut className="w-4 h-4 mr-2" />
+                <DropdownMenuItem className="text-gray-700">
+                  <LogOut className="w-4 h-4 mr-2"/>
                   Cerrar Sesión
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -232,20 +234,23 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
               <Button
                 key={item.id}
                 variant={activeSection === item.id ? "secondary" : "ghost"}
-                className={`w-full justify-start ${
+                className={`w-full justify-start rounded ${
                   activeSection === item.id 
-                    ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 border-l-4 border-purple-600' 
-                    : ''
+                    ? 'bg-black text-white border-l-4 border-black' 
+                    : 'hover:bg-gray-100'
                 }`}
                 onClick={() => {
                   setActiveSection(item.id);
                   if (window.innerWidth < 1024) setSidebarOpen(false);
                 }}
               >
-                <item.icon className="w-5 h-5 mr-3" />
+                <item.icon className="w-5 h-5 mr-3"/>
                 <span className="flex-1 text-left">{item.label}</span>
                 {item.badge && (
-                  <Badge variant="secondary" className="ml-auto">
+                  <Badge 
+                    variant="secondary" 
+                    className={activeSection === item.id ? "bg-white text-black" : "bg-gray-200 text-gray-700"}
+                  >
                     {item.badge}
                   </Badge>
                 )}
@@ -254,7 +259,7 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
           </nav>
 
           {/* Quick Stats */}
-          <div className={`p-4 m-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+          <div className={`p-4 m-4 rounded ${darkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
             <h3 className="text-sm font-medium mb-3">Resumen Rápido</h3>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
@@ -263,11 +268,11 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600">Revenue Hoy</span>
-                <span className="font-medium text-green-600">$12,485</span>
+                <span className="font-medium">$12,485</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600">Tickets Abiertos</span>
-                <span className="font-medium text-yellow-600">45</span>
+                <span className="font-medium">45</span>
               </div>
             </div>
           </div>
@@ -275,7 +280,7 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
           {/* Footer */}
           <div className={`p-4 border-t ${darkMode ? 'border-gray-800' : 'border-gray-200'}`}>
             <div className="flex items-center space-x-2 text-xs text-gray-500">
-              <Activity className="w-4 h-4" />
+              <Activity className="w-4 h-4"/>
               <span>Sistema actualizado hace 2 min</span>
             </div>
           </div>

@@ -28,7 +28,7 @@ class PerformanceMonitor {
 
     const endTime = performance.now();
     const duration = endTime - metric.startTime;
-    
+
     this.metrics.set(name, {
       ...metric,
       endTime,
@@ -103,15 +103,7 @@ export const measureWebVitals = () => {
   fidObserver.observe({ entryTypes: ['first-input'] });
 };
 
-// React component performance measurement hook
-export const usePerformanceMetric = (name: string) => {
-  // This would need React import, removing for now to avoid dependency issues
-  // Will be implemented when React is properly imported
-  performanceMonitor.start(name);
-  return () => performanceMonitor.end(name);
-};
-
-// Simple performance tracking without React dependencies
+// Simple performance tracking
 export const trackComponentRender = (componentName: string) => {
   const start = performance.now();
   return () => {
@@ -123,23 +115,9 @@ export const trackComponentRender = (componentName: string) => {
 };
 
 // Bundle loading performance
-export const trackBundleLoading = () => {
-  // Track resource loading times
+export const measureBundleLoadTime = () => {
   window.addEventListener('load', () => {
-    const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-    const resources = performance.getEntriesByType('resource');
-    
-    if (import.meta.env.DEV) {
-      console.log('📦 Bundle Performance:');
-      console.log(`  DOM Content Loaded: ${navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart}ms`);
-      console.log(`  Load Complete: ${navigation.loadEventEnd - navigation.loadEventStart}ms`);
-      
-      // Log slow resources
-      resources
-        .filter((resource: PerformanceResourceTiming) => resource.duration > 100)
-        .forEach((resource: PerformanceResourceTiming) => {
-          console.log(`  Slow resource: ${resource.name} - ${resource.duration.toFixed(2)}ms`);
-        });
-    }
+    const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+    console.log(`📦 Bundle load time: ${loadTime}ms`);
   });
 };

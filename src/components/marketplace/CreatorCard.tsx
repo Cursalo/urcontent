@@ -74,14 +74,14 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
             <div className="md:w-48 md:flex-shrink-0">
               <AspectRatio ratio={16/9} className="md:aspect-square">
                 {coverImage ? (
-                  <OptimizedImage
-                    src={coverImage}
-                    alt={`${name} cover`}
+                  <OptimizedImage 
+                    src={coverImage} 
+                    alt={`${name} cover`} 
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                    <Users className="h-12 w-12 text-primary/40" />
+                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                    <Users className="h-12 w-12 text-gray-400"/>
                   </div>
                 )}
               </AspectRatio>
@@ -103,17 +103,17 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
                           <h3 className="font-semibold text-lg text-foreground">{name}</h3>
                         </Link>
                         {verified && (
-                          <CheckCircle className="h-4 w-4 text-blue-500" />
+                          <CheckCircle className="h-4 w-4 text-gray-500"/>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">@{username}</p>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                         <div className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
+                          <MapPin className="h-3 w-3"/>
                           <span>{location}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-current text-yellow-400" />
+                          <Star className="h-3 w-3 fill-current text-gray-400"/>
                           <span>{rating}</span>
                           <span>({reviewCount})</span>
                         </div>
@@ -146,15 +146,15 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
                   {/* Stats */}
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
-                      <Users className="h-3 w-3" />
+                      <Users className="h-3 w-3"/>
                       <span>{formatNumber(followerCount)} seguidores</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
+                      <Clock className="h-3 w-3"/>
                       <span>Responde en {responseTime}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Zap className="h-3 w-3" />
+                      <Zap className="h-3 w-3"/>
                       <span>{completionRate}% completado</span>
                     </div>
                   </div>
@@ -165,11 +165,11 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
                   {/* Availability */}
                   <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                     availableForBooking 
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      ? 'bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-200' 
                       : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
                   }`}>
                     <div className={`w-2 h-2 rounded-full mr-2 ${
-                      availableForBooking ? 'bg-green-500' : 'bg-gray-400'
+                      availableForBooking ? 'bg-gray-500' : 'bg-gray-400'
                     }`} />
                     {availableForBooking ? 'Disponible' : 'Ocupado'}
                   </div>
@@ -186,13 +186,13 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
                   <div className="flex items-center gap-2 justify-end">
                     {socialStats.instagram && (
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Instagram className="h-3 w-3" />
+                        <Instagram className="h-3 w-3"/>
                         <span>{formatNumber(socialStats.instagram)}</span>
                       </div>
                     )}
                     {socialStats.youtube && (
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Youtube className="h-3 w-3" />
+                        <Youtube className="h-3 w-3"/>
                         <span>{formatNumber(socialStats.youtube)}</span>
                       </div>
                     )}
@@ -206,7 +206,7 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
                       disabled={!availableForBooking}
                       onClick={handleContactClick}
                     >
-                      <MessageCircle className="h-4 w-4 mr-2" />
+                      <MessageCircle className="h-4 w-4 mr-2"/>
                       Contactar
                     </Button>
                     <Button 
@@ -241,14 +241,14 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
         <div className="relative">
           <AspectRatio ratio={16/9}>
             {coverImage ? (
-              <OptimizedImage
-                src={coverImage}
-                alt={`${name} cover`}
+              <OptimizedImage 
+                src={coverImage} 
+                alt={`${name} cover`} 
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <Users className="h-12 w-12 text-primary/40" />
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                <Users className="h-12 w-12 text-gray-400"/>
               </div>
             )}
           </AspectRatio>
@@ -257,7 +257,7 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
           <div className="absolute top-3 right-3">
             <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
               availableForBooking 
-                ? 'bg-green-500/90 text-white'
+                ? 'bg-gray-500/90 text-white' 
                 : 'bg-gray-500/90 text-white'
             }`}>
               <div className={`w-2 h-2 rounded-full mr-1 ${
@@ -272,9 +272,9 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
             <div className="absolute bottom-3 left-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               {portfolio.slice(0, 3).map((item, index) => (
                 <div key={item.id} className="w-8 h-8 rounded overflow-hidden border-2 border-white shadow-sm">
-                  <OptimizedImage
-                    src={item.url}
-                    alt={item.title}
+                  <OptimizedImage 
+                    src={item.url} 
+                    alt={item.title} 
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -301,7 +301,7 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
                   <h3 className="font-semibold text-foreground truncate">{name}</h3>
                 </Link>
                 {verified && (
-                  <CheckCircle className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                  <CheckCircle className="h-4 w-4 text-gray-500 flex-shrink-0"/>
                 )}
               </div>
               <p className="text-xs text-muted-foreground">@{username}</p>
@@ -311,11 +311,11 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
           {/* Location & Rating */}
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
             <div className="flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
+              <MapPin className="h-3 w-3"/>
               <span className="truncate">{location}</span>
             </div>
             <div className="flex items-center gap-1">
-              <Star className="h-3 w-3 fill-current text-yellow-400" />
+              <Star className="h-3 w-3 fill-current text-gray-400"/>
               <span>{rating}</span>
               <span>({reviewCount})</span>
             </div>
@@ -341,15 +341,15 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
           {/* Stats */}
           <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground mb-4">
             <div className="flex items-center gap-1">
-              <Users className="h-3 w-3" />
+              <Users className="h-3 w-3"/>
               <span>{formatNumber(followerCount)}</span>
             </div>
             <div className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
+              <Clock className="h-3 w-3"/>
               <span>{responseTime}</span>
             </div>
             <div className="flex items-center gap-1">
-              <Zap className="h-3 w-3" />
+              <Zap className="h-3 w-3"/>
               <span>{completionRate}%</span>
             </div>
             <div className="text-right font-medium text-foreground">
@@ -365,7 +365,7 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({
               disabled={!availableForBooking}
               onClick={handleContactClick}
             >
-              <MessageCircle className="h-4 w-4 mr-1" />
+              <MessageCircle className="h-4 w-4 mr-1"/>
               Contactar
             </Button>
             <Button 

@@ -1,25 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Camera, 
-  Upload, 
-  Save, 
-  X,
-  Instagram,
-  Youtube,
-  Twitter,
-  Globe,
-  Building,
-  Tag,
-  DollarSign,
-  Star,
-  Shield,
-  Eye,
-  EyeOff
+  User, Mail, Phone, MapPin, Camera, Upload, Save, X, Instagram, 
+  Youtube, Twitter, Globe, Building, Tag, DollarSign, Star, Shield, Eye, EyeOff
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,6 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 export interface UserProfile {
   id: string;
   type: 'creator' | 'business';
+  
   // Basic Info
   firstName: string;
   lastName: string;
@@ -104,7 +88,8 @@ interface ProfileEditorProps {
 const profileSchema = z.object({
   firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   lastName: z.string().min(2, 'El apellido debe tener al menos 2 caracteres'),
-  username: z.string().min(3, 'El username debe tener al menos 3 caracteres').regex(/^[a-zA-Z0-9_]+$/, 'Solo letras, números y guiones bajos'),
+  username: z.string().min(3, 'El username debe tener al menos 3 caracteres')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Solo letras, números y guiones bajos'),
   email: z.string().email('Email inválido'),
   phone: z.string().optional(),
   bio: z.string().max(500, 'La biografía no puede exceder 500 caracteres'),
@@ -259,7 +244,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
 
   const handleSubmit = async (data: ProfileFormData) => {
     setIsLoading(true);
-    
     try {
       const updatedProfile: Partial<UserProfile> = {
         firstName: data.firstName,
@@ -277,10 +261,9 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
         specialties: selectedSpecialties,
         languages: selectedLanguages,
         experience: data.experience,
-        priceRange: data.priceMin && data.priceMax ? {
-          min: data.priceMin,
-          max: data.priceMax
-        } : undefined,
+        priceRange: data.priceMin && data.priceMax 
+          ? { min: data.priceMin, max: data.priceMax }
+          : undefined,
         socialMedia: data.socialMedia,
         isPublic: data.isPublic,
         allowMessages: data.allowMessages,
@@ -291,7 +274,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
       };
 
       await onSave(updatedProfile);
-      
       toast({
         title: 'Perfil actualizado',
         description: 'Los cambios han sido guardados exitosamente.'
@@ -318,7 +300,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
+              <User className="h-5 w-5"/>
               Editar perfil
             </CardTitle>
           </CardHeader>
@@ -346,16 +328,16 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                     {/* Cover Image */}
                     <div className="space-y-4">
                       <Label>Imagen de portada</Label>
-                      <div className="relative h-48 bg-gradient-to-r from-primary/20 to-primary/5 rounded-lg overflow-hidden">
+                      <div className="relative h-48 bg-gray-100 rounded overflow-hidden">
                         {coverImagePreview ? (
-                          <OptimizedImage
-                            src={coverImagePreview}
-                            alt="Cover"
+                          <OptimizedImage 
+                            src={coverImagePreview} 
+                            alt="Cover" 
                             className="w-full h-full object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                            <Camera className="h-12 w-12" />
+                            <Camera className="h-12 w-12"/>
                           </div>
                         )}
                         <div className="absolute bottom-4 right-4">
@@ -373,7 +355,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                               input.click();
                             }}
                           >
-                            <Upload className="h-4 w-4 mr-2" />
+                            <Upload className="h-4 w-4 mr-2"/>
                             Cambiar
                           </Button>
                         </div>
@@ -404,7 +386,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                             input.click();
                           }}
                         >
-                          <Camera className="h-4 w-4" />
+                          <Camera className="h-4 w-4"/>
                         </Button>
                       </div>
                       <div className="space-y-1">
@@ -429,7 +411,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                           </FormItem>
                         )}
                       />
-
                       <FormField
                         control={form.control}
                         name="lastName"
@@ -454,7 +435,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                           <FormControl>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">@</span>
-                              <Input {...field} className="pl-8" />
+                              <Input {...field} className="pl-8"/>
                             </div>
                           </FormControl>
                           <FormDescription>
@@ -473,13 +454,12 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                           <FormItem>
                             <FormLabel>Email *</FormLabel>
                             <FormControl>
-                              <Input {...field} type="email" />
+                              <Input {...field} type="email"/>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-
                       <FormField
                         control={form.control}
                         name="phone"
@@ -487,7 +467,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                           <FormItem>
                             <FormLabel>Teléfono</FormLabel>
                             <FormControl>
-                              <Input {...field} type="tel" />
+                              <Input {...field} type="tel"/>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -524,13 +504,12 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                           <FormItem>
                             <FormLabel>Ubicación *</FormLabel>
                             <FormControl>
-                              <Input {...field} placeholder="Buenos Aires, Argentina" />
+                              <Input {...field} placeholder="Buenos Aires, Argentina"/>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-
                       <FormField
                         control={form.control}
                         name="website"
@@ -538,7 +517,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                           <FormItem>
                             <FormLabel>Sitio web</FormLabel>
                             <FormControl>
-                              <Input {...field} placeholder="https://tusitio.com" />
+                              <Input {...field} placeholder="https://tusitio.com"/>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -574,7 +553,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                             </FormItem>
                           )}
                         />
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
@@ -585,7 +563,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Seleccionar industria" />
+                                      <SelectValue placeholder="Seleccionar industria"/>
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -600,7 +578,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                               </FormItem>
                             )}
                           />
-
                           <FormField
                             control={form.control}
                             name="companySize"
@@ -610,7 +587,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Seleccionar tamaño" />
+                                      <SelectValue placeholder="Seleccionar tamaño"/>
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -691,7 +668,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Seleccionar experiencia" />
+                                    <SelectValue placeholder="Seleccionar experiencia"/>
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
@@ -718,8 +695,8 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                                 <FormItem>
                                   <FormLabel>Mínimo</FormLabel>
                                   <FormControl>
-                                    <Input
-                                      {...field}
+                                    <Input 
+                                      {...field} 
                                       type="number"
                                       min="0"
                                       onChange={(e) => field.onChange(Number(e.target.value))}
@@ -729,7 +706,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                                 </FormItem>
                               )}
                             />
-
                             <FormField
                               control={form.control}
                               name="priceMax"
@@ -737,8 +713,8 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                                 <FormItem>
                                   <FormLabel>Máximo</FormLabel>
                                   <FormControl>
-                                    <Input
-                                      {...field}
+                                    <Input 
+                                      {...field} 
                                       type="number"
                                       min="0"
                                       onChange={(e) => field.onChange(Number(e.target.value))}
@@ -769,79 +745,75 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2">
-                            <Instagram className="h-4 w-4 text-pink-600" />
+                            <Instagram className="h-4 w-4 text-gray-700"/>
                             Instagram
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="@usuario" />
+                            <Input {...field} placeholder="@usuario"/>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={form.control}
                       name="socialMedia.tiktok"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2">
-                            <div className="h-4 w-4 bg-black rounded" />
+                            <div className="h-4 w-4 bg-black rounded"/>
                             TikTok
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="@usuario" />
+                            <Input {...field} placeholder="@usuario"/>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={form.control}
                       name="socialMedia.youtube"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2">
-                            <Youtube className="h-4 w-4 text-red-600" />
+                            <Youtube className="h-4 w-4 text-gray-700"/>
                             YouTube
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="@canal" />
+                            <Input {...field} placeholder="@canal"/>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={form.control}
                       name="socialMedia.twitter"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2">
-                            <Twitter className="h-4 w-4 text-blue-400" />
+                            <Twitter className="h-4 w-4 text-gray-400"/>
                             Twitter
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="@usuario" />
+                            <Input {...field} placeholder="@usuario"/>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={form.control}
                       name="socialMedia.linkedin"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-2">
-                            <Building className="h-4 w-4 text-blue-700" />
+                            <Building className="h-4 w-4 text-gray-800"/>
                             LinkedIn
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="perfil-linkedin" />
+                            <Input {...field} placeholder="perfil-linkedin"/>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -866,7 +838,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
                           <FormItem className="flex items-center justify-between">
                             <div className="space-y-0.5">
                               <FormLabel className="flex items-center gap-2">
-                                {field.value ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                                {field.value ? <Eye className="h-4 w-4"/> : <EyeOff className="h-4 w-4"/>}
                                 Perfil público
                               </FormLabel>
                               <FormDescription>
@@ -952,7 +924,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
 
                       <div className="space-y-4">
                         <h4 className="font-medium">Notificaciones</h4>
-                        
                         <FormField
                           control={form.control}
                           name="emailNotifications"
@@ -1020,12 +991,12 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
               >
                 {isLoading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"/>
                     Guardando...
                   </>
                 ) : (
                   <>
-                    <Save className="h-4 w-4 mr-2" />
+                    <Save className="h-4 w-4 mr-2"/>
                     Guardar cambios
                   </>
                 )}

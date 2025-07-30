@@ -86,11 +86,7 @@ const MOCK_CREATORS: Creator[] = [
       { id: '1', url: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=200&fit=crop', type: 'image', title: 'Skincare Routine' },
       { id: '2', url: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=300&h=200&fit=crop', type: 'image', title: 'Natural Beauty' }
     ],
-    socialStats: {
-      instagram: 85000,
-      tiktok: 45000,
-      youtube: 12000
-    },
+    socialStats: { instagram: 85000, tiktok: 45000, youtube: 12000 },
     availableForBooking: true,
     lastActive: '2 horas',
     languages: ['Español', 'English'],
@@ -117,11 +113,7 @@ const MOCK_CREATORS: Creator[] = [
       { id: '3', url: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=300&h=200&fit=crop', type: 'image', title: 'Home Workout' },
       { id: '4', url: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=300&h=200&fit=crop', type: 'image', title: 'Gym Training' }
     ],
-    socialStats: {
-      instagram: 120000,
-      tiktok: 75000,
-      youtube: 25000
-    },
+    socialStats: { instagram: 120000, tiktok: 75000, youtube: 25000 },
     availableForBooking: true,
     lastActive: '1 hora',
     languages: ['Español', 'English'],
@@ -148,11 +140,7 @@ const MOCK_CREATORS: Creator[] = [
       { id: '5', url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=200&fit=crop', type: 'image', title: 'Gourmet Dish' },
       { id: '6', url: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=300&h=200&fit=crop', type: 'image', title: 'Food Styling' }
     ],
-    socialStats: {
-      instagram: 95000,
-      tiktok: 30000,
-      youtube: 18000
-    },
+    socialStats: { instagram: 95000, tiktok: 30000, youtube: 18000 },
     availableForBooking: false,
     lastActive: '1 día',
     languages: ['Español'],
@@ -192,7 +180,7 @@ export const CreatorMarketplace: React.FC = () => {
     // Search filter
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
-      filtered = filtered.filter(creator => 
+      filtered = filtered.filter(creator =>
         creator.name.toLowerCase().includes(searchTerm) ||
         creator.bio.toLowerCase().includes(searchTerm) ||
         creator.categories.some(cat => cat.toLowerCase().includes(searchTerm)) ||
@@ -202,20 +190,20 @@ export const CreatorMarketplace: React.FC = () => {
 
     // Category filter
     if (filters.categories.length > 0) {
-      filtered = filtered.filter(creator => 
+      filtered = filtered.filter(creator =>
         creator.categories.some(cat => filters.categories.includes(cat))
       );
     }
 
     // Location filter
     if (filters.location) {
-      filtered = filtered.filter(creator => 
+      filtered = filtered.filter(creator =>
         creator.location.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
 
     // Price range filter
-    filtered = filtered.filter(creator => 
+    filtered = filtered.filter(creator =>
       creator.priceRange.min >= filters.priceRange[0] &&
       creator.priceRange.max <= filters.priceRange[1]
     );
@@ -227,14 +215,14 @@ export const CreatorMarketplace: React.FC = () => {
 
     // Specialty filter
     if (filters.specialties.length > 0) {
-      filtered = filtered.filter(creator => 
+      filtered = filtered.filter(creator =>
         creator.specialties.some(spec => filters.specialties.includes(spec))
       );
     }
 
     // Language filter
     if (filters.languages.length > 0) {
-      filtered = filtered.filter(creator => 
+      filtered = filtered.filter(creator =>
         creator.languages.some(lang => filters.languages.includes(lang))
       );
     }
@@ -312,7 +300,7 @@ export const CreatorMarketplace: React.FC = () => {
     <ErrorBoundary>
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b">
+        <div className="bg-white border-b">
           <div className="container mx-auto px-4 py-8">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -327,15 +315,15 @@ export const CreatorMarketplace: React.FC = () => {
               </p>
               <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
+                  <Users className="h-4 w-4"/>
                   <span>1,000+ Creators</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4" />
+                  <Star className="h-4 w-4"/>
                   <span>4.8 Rating promedio</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Zap className="h-4 w-4" />
+                  <Zap className="h-4 w-4"/>
                   <span>Respuesta en 24hs</span>
                 </div>
               </div>
@@ -377,7 +365,7 @@ export const CreatorMarketplace: React.FC = () => {
                       <Sheet>
                         <SheetTrigger asChild>
                           <Button variant="outline" size="sm">
-                            <Filter className="h-4 w-4 mr-2" />
+                            <Filter className="h-4 w-4 mr-2"/>
                             Filtros
                           </Button>
                         </SheetTrigger>
@@ -401,14 +389,14 @@ export const CreatorMarketplace: React.FC = () => {
                     )}
 
                     {/* Sort */}
-                    <Select 
-                      value={filters.sortBy} 
+                    <Select
+                      value={filters.sortBy}
                       onValueChange={(sortBy: MarketplaceFilters['sortBy']) => 
                         handleFilterChange({ sortBy })
                       }
                     >
                       <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Ordenar por" />
+                        <SelectValue placeholder="Ordenar por"/>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="relevance">Relevancia</SelectItem>
@@ -421,7 +409,7 @@ export const CreatorMarketplace: React.FC = () => {
                     </Select>
 
                     {/* View Mode */}
-                    <div className="flex rounded-md border">
+                    <div className="flex rounded border">
                       <Button
                         variant={viewMode === 'grid' ? 'default' : 'ghost'}
                         size="sm"
@@ -447,34 +435,60 @@ export const CreatorMarketplace: React.FC = () => {
                 </div>
 
                 {/* Active Filters */}
-                {(filters.categories.length > 0 || filters.specialties.length > 0 || filters.languages.length > 0 || filters.location) && (
+                {(filters.categories.length > 0 || filters.specialties.length > 0 || 
+                  filters.languages.length > 0 || filters.location) && (
                   <div className="flex flex-wrap gap-2">
                     {filters.categories.map(category => (
-                      <Badge key={category} variant="secondary" className="cursor-pointer" onClick={() => {
-                        handleFilterChange({ categories: filters.categories.filter(c => c !== category) });
-                      }}>
+                      <Badge 
+                        key={category} 
+                        variant="secondary" 
+                        className="cursor-pointer"
+                        onClick={() => {
+                          handleFilterChange({
+                            categories: filters.categories.filter(c => c !== category)
+                          });
+                        }}
+                      >
                         {category} ×
                       </Badge>
                     ))}
                     {filters.specialties.map(specialty => (
-                      <Badge key={specialty} variant="secondary" className="cursor-pointer" onClick={() => {
-                        handleFilterChange({ specialties: filters.specialties.filter(s => s !== specialty) });
-                      }}>
+                      <Badge 
+                        key={specialty} 
+                        variant="secondary" 
+                        className="cursor-pointer"
+                        onClick={() => {
+                          handleFilterChange({
+                            specialties: filters.specialties.filter(s => s !== specialty)
+                          });
+                        }}
+                      >
                         {specialty} ×
                       </Badge>
                     ))}
                     {filters.languages.map(language => (
-                      <Badge key={language} variant="secondary" className="cursor-pointer" onClick={() => {
-                        handleFilterChange({ languages: filters.languages.filter(l => l !== language) });
-                      }}>
+                      <Badge 
+                        key={language} 
+                        variant="secondary" 
+                        className="cursor-pointer"
+                        onClick={() => {
+                          handleFilterChange({
+                            languages: filters.languages.filter(l => l !== language)
+                          });
+                        }}
+                      >
                         {language} ×
                       </Badge>
                     ))}
                     {filters.location && (
-                      <Badge variant="secondary" className="cursor-pointer" onClick={() => {
-                        handleFilterChange({ location: '' });
-                      }}>
-                        <MapPin className="h-3 w-3 mr-1" />
+                      <Badge 
+                        variant="secondary" 
+                        className="cursor-pointer"
+                        onClick={() => {
+                          handleFilterChange({ location: '' });
+                        }}
+                      >
+                        <MapPin className="h-3 w-3 mr-1"/>
                         {filters.location} ×
                       </Badge>
                     )}
@@ -514,8 +528,8 @@ export const CreatorMarketplace: React.FC = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className={`grid gap-6 ${
-                      viewMode === 'grid'
-                        ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                      viewMode === 'grid' 
+                        ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' 
                         : 'grid-cols-1'
                     }`}
                   >
@@ -526,8 +540,8 @@ export const CreatorMarketplace: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                       >
-                        <CreatorCard 
-                          creator={creator} 
+                        <CreatorCard
+                          creator={creator}
                           viewMode={viewMode}
                         />
                       </motion.div>
@@ -547,7 +561,7 @@ export const CreatorMarketplace: React.FC = () => {
                   >
                     {loading ? (
                       <>
-                        <LoadingSpinner className="mr-2" />
+                        <LoadingSpinner className="mr-2"/>
                         Cargando...
                       </>
                     ) : (

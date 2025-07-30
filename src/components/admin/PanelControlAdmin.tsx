@@ -3,46 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-  RadialBarChart,
-  RadialBar,
+  LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  RadialBarChart, RadialBar,
 } from 'recharts';
 import {
-  Users,
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
-  Activity,
-  Globe,
-  Calendar,
-  ArrowUp,
-  ArrowDown,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Zap,
-  Target,
-  Award,
-  ShoppingCart,
-  CreditCard,
-  UserCheck,
-  UserX,
-  MessageCircle,
-  Star,
+  Users, DollarSign, TrendingUp, TrendingDown, Activity, Globe, Calendar,
+  ArrowUp, ArrowDown, AlertTriangle, CheckCircle, Clock, Zap, Target,
+  Award, ShoppingCart, CreditCard, UserCheck, UserX, MessageCircle, Star,
 } from "lucide-react";
 
 export const PanelControlAdmin = () => {
@@ -54,12 +22,7 @@ export const PanelControlAdmin = () => {
       change: "+12.5%",
       trend: "up",
       icon: Users,
-      color: "bg-blue-500",
-      details: {
-        nuevosHoy: 45,
-        activosHoy: 1234,
-        promedioSesion: "8.5 min"
-      }
+      details: { nuevosHoy: 45, activosHoy: 1234, promedioSesion: "8.5 min" }
     },
     {
       title: "Ingresos del Mes",
@@ -68,12 +31,7 @@ export const PanelControlAdmin = () => {
       change: "+18.2%",
       trend: "up",
       icon: DollarSign,
-      color: "bg-green-500",
-      details: {
-        ingresosBrutos: "$16.568.800",
-        comision: "15%",
-        transacciones: 847
-      }
+      details: { ingresosBrutos: "$16.568.800", comision: "15%", transacciones: 847 }
     },
     {
       title: "Colaboraciones Activas",
@@ -81,12 +39,7 @@ export const PanelControlAdmin = () => {
       change: "+25.3%",
       trend: "up",
       icon: MessageCircle,
-      color: "bg-purple-500",
-      details: {
-        completadasHoy: 23,
-        enProgreso: 156,
-        pendientesRevision: 12
-      }
+      details: { completadasHoy: 23, enProgreso: 156, pendientesRevision: 12 }
     },
     {
       title: "Tasa de Éxito",
@@ -94,12 +47,7 @@ export const PanelControlAdmin = () => {
       change: "+2.1%",
       trend: "up",
       icon: Target,
-      color: "bg-orange-500",
-      details: {
-        aTiempo: "94.2%",
-        calidad: "98.5%",
-        satisfaccion: "97.3%"
-      }
+      details: { aTiempo: "94.2%", calidad: "98.5%", satisfaccion: "97.3%" }
     }
   ];
 
@@ -132,11 +80,11 @@ export const PanelControlAdmin = () => {
 
   // Actividad reciente
   const recentActivity = [
-    { tipo: 'nuevo_usuario', mensaje: 'María García se registró como creadora', tiempo: 'Hace 2 min', icono: UserCheck, color: 'text-green-500' },
-    { tipo: 'colaboracion', mensaje: 'Nueva colaboración: TechStore x Carlos Tech', tiempo: 'Hace 5 min', icono: MessageCircle, color: 'text-blue-500' },
-    { tipo: 'pago', mensaje: 'Pago procesado: $15,500 MXN', tiempo: 'Hace 8 min', icono: CreditCard, color: 'text-purple-500' },
-    { tipo: 'alerta', mensaje: 'Disputa abierta en colaboración #8834', tiempo: 'Hace 15 min', icono: AlertTriangle, color: 'text-yellow-500' },
-    { tipo: 'verificacion', mensaje: 'Fitness Pro verificado exitosamente', tiempo: 'Hace 20 min', icono: CheckCircle, color: 'text-green-500' },
+    { tipo: 'nuevo_usuario', mensaje: 'María García se registró como creadora', tiempo: 'Hace 2 min', icono: UserCheck, color: 'text-gray-600' },
+    { tipo: 'colaboracion', mensaje: 'Nueva colaboración: TechStore x Carlos Tech', tiempo: 'Hace 5 min', icono: MessageCircle, color: 'text-gray-600' },
+    { tipo: 'pago', mensaje: 'Pago procesado: $15,500 MXN', tiempo: 'Hace 8 min', icono: CreditCard, color: 'text-gray-600' },
+    { tipo: 'alerta', mensaje: 'Disputa abierta en colaboración #8834', tiempo: 'Hace 15 min', icono: AlertTriangle, color: 'text-gray-700' },
+    { tipo: 'verificacion', mensaje: 'Fitness Pro verificado exitosamente', tiempo: 'Hace 20 min', icono: CheckCircle, color: 'text-gray-600' },
   ];
 
   // Top performers
@@ -147,17 +95,17 @@ export const PanelControlAdmin = () => {
     { nombre: 'Laura Fashion', tipo: 'Creadora', colaboraciones: 26, ingresos: '$41,600', rating: 4.7 },
   ];
 
-  const COLORS = ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
+  const COLORS = ['#000', '#333', '#666', '#999', '#ccc', '#eee'];
 
   return (
     <div className="space-y-6">
       {/* Alertas del Sistema */}
-      <div className="bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-200 rounded-2xl p-4 shadow-lg transform hover:scale-[1.01] transition-transform duration-300">
+      <div className="bg-white border border-gray-200 rounded p-4 shadow-sm">
         <div className="flex items-start space-x-3">
-          <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-gray-700 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-medium text-yellow-900">Alertas del Sistema</h4>
-            <p className="text-sm text-yellow-700 mt-1">
+            <h4 className="font-medium text-gray-900">Alertas del Sistema</h4>
+            <p className="text-sm text-gray-600 mt-1">
               3 disputas pendientes de revisión • Actualización de sistema programada para el domingo 2:00 AM
             </p>
           </div>
@@ -167,24 +115,24 @@ export const PanelControlAdmin = () => {
       {/* Métricas Principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {metricsData.map((metric, index) => (
-          <Card key={index} className="hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden relative border-gray-100 hover:border-purple-200">
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-50/10 via-transparent to-pink-50/10 pointer-events-none" />
-            <CardHeader className="relative pb-3 bg-gradient-to-r from-gray-50/50 to-transparent">
+          <Card key={index} className="hover:shadow-lg transition-all duration-300 border-gray-200 hover:border-gray-400">
+            <CardHeader className="pb-3 bg-gray-50">
               <div className="flex items-center justify-between">
-                <div className={`p-3 ${metric.color} bg-opacity-10 rounded-xl shadow-sm transform transition-transform hover:scale-110`}>
-                  <metric.icon className={`w-6 h-6 ${metric.color.replace('bg-', 'text-')}`} />
+                <div className="p-3 bg-gray-100 rounded">
+                  <metric.icon className="w-6 h-6 text-gray-700" />
                 </div>
                 <Badge 
-                  variant={metric.trend === 'up' ? 'default' : 'destructive'}
-                  className="flex items-center space-x-1 rounded-full"
+                  variant={metric.trend === 'up' ? 'default' : 'destructive'} 
+                  className={`flex items-center space-x-1 rounded ${
+                    metric.trend === 'up' ? 'bg-black text-white' : 'bg-gray-500 text-white'
+                  }`}
                 >
                   {metric.trend === 'up' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                   <span>{metric.change}</span>
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="relative">
+            <CardContent>
               <div className="space-y-2">
                 <div>
                   <p className="text-3xl font-bold">{metric.value}</p>
@@ -194,7 +142,21 @@ export const PanelControlAdmin = () => {
                 <div className="pt-3 border-t space-y-1">
                   {Object.entries(metric.details).map(([key, value]) => (
                     <div key={key} className="flex justify-between text-xs">
-                      <span className="text-gray-500 capitalize">{key.replace(/([A-Z])/g, ' $1').trim().replace('nuevos Hoy', 'Nuevos hoy').replace('activos Hoy', 'Activos hoy').replace('promedio Sesion', 'Promedio sesión').replace('ingresos Brutos', 'Ingresos brutos').replace('comision', 'Comisión').replace('transacciones', 'Transacciones').replace('completadas Hoy', 'Completadas hoy').replace('en Progreso', 'En progreso').replace('pendientes Revision', 'Pendientes revisión').replace('a Tiempo', 'A tiempo').replace('calidad', 'Calidad').replace('satisfaccion', 'Satisfacción')}:</span>
+                      <span className="text-gray-500 capitalize">
+                        {key.replace(/([A-Z])/g, ' $1').trim()
+                          .replace('nuevos Hoy', 'Nuevos hoy')
+                          .replace('activos Hoy', 'Activos hoy')
+                          .replace('promedio Sesion', 'Promedio sesión')
+                          .replace('ingresos Brutos', 'Ingresos brutos')
+                          .replace('comision', 'Comisión')
+                          .replace('transacciones', 'Transacciones')
+                          .replace('completadas Hoy', 'Completadas hoy')
+                          .replace('en Progreso', 'En progreso')
+                          .replace('pendientes Revision', 'Pendientes revisión')
+                          .replace('a Tiempo', 'A tiempo')
+                          .replace('calidad', 'Calidad')
+                          .replace('satisfaccion', 'Satisfacción')}:
+                      </span>
                       <span className="font-medium">{value}</span>
                     </div>
                   ))}
@@ -208,17 +170,15 @@ export const PanelControlAdmin = () => {
       {/* Gráficos de Análisis */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Actividad en Tiempo Real */}
-        <Card className="border-gray-100 hover:border-purple-200 transition-all duration-300 hover:shadow-xl overflow-hidden relative">
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-50/10 via-transparent to-pink-50/10 pointer-events-none" />
-          <CardHeader className="relative bg-gradient-to-r from-gray-50/50 to-transparent">
+        <Card className="border-gray-200 hover:border-gray-400 transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="bg-gray-50">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center space-x-2">
                 <Activity className="w-5 h-5" />
                 <span>Actividad en Tiempo Real (24h)</span>
               </span>
-              <Badge variant="outline" className="animate-pulse rounded-full bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+              <Badge variant="outline" className="animate-pulse rounded bg-white border-gray-300">
+                <span className="w-2 h-2 bg-gray-600 rounded-full mr-2 animate-pulse"></span>
                 En vivo
               </Badge>
             </CardTitle>
@@ -229,35 +189,45 @@ export const PanelControlAdmin = () => {
               <AreaChart data={hourlyData}>
                 <defs>
                   <linearGradient id="colorUsuarios" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#000" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#000" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorIngresos" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#666" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#666" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="hora" />
                 <YAxis />
-                <Tooltip 
+                <Tooltip
                   formatter={(value: number, name: string) => [
                     name === 'usuarios' ? value : `$${value.toLocaleString('es-MX')}`,
                     name === 'usuarios' ? 'Usuarios' : 'Ingresos'
                   ]}
                 />
-                <Area type="monotone" dataKey="usuarios" stroke="#8B5CF6" fillOpacity={1} fill="url(#colorUsuarios)" />
-                <Area type="monotone" dataKey="ingresos" stroke="#10B981" fillOpacity={1} fill="url(#colorIngresos)" />
+                <Area
+                  type="monotone"
+                  dataKey="usuarios"
+                  stroke="#000"
+                  fillOpacity={1}
+                  fill="url(#colorUsuarios)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="ingresos"
+                  stroke="#666"
+                  fillOpacity={1}
+                  fill="url(#colorIngresos)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         {/* Distribución Geográfica */}
-        <Card className="border-gray-100 hover:border-purple-200 transition-all duration-300 hover:shadow-xl overflow-hidden relative">
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-50/10 via-transparent to-pink-50/10 pointer-events-none" />
-          <CardHeader className="relative bg-gradient-to-r from-gray-50/50 to-transparent">
+        <Card className="border-gray-200 hover:border-gray-400 transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="bg-gray-50">
             <CardTitle className="flex items-center space-x-2">
               <Globe className="w-5 h-5" />
               <span>Distribución Geográfica</span>
@@ -288,7 +258,10 @@ export const PanelControlAdmin = () => {
               {geoData.map((region, index) => (
                 <div key={index} className="flex items-center justify-between text-sm">
                   <div className="flex items-center space-x-2">
-                    <div className={`w-3 h-3 rounded-full`} style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                    <div 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: COLORS[index % COLORS.length] }} 
+                    />
                     <span>{region.region}</span>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -305,10 +278,8 @@ export const PanelControlAdmin = () => {
       {/* Performance y Actividad */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Salud del Sistema */}
-        <Card className="border-gray-100 hover:border-purple-200 transition-all duration-300 hover:shadow-xl overflow-hidden relative">
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-50/10 via-transparent to-pink-50/10 pointer-events-none" />
-          <CardHeader className="relative bg-gradient-to-r from-gray-50/50 to-transparent">
+        <Card className="border-gray-200 hover:border-gray-400 transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="bg-gray-50">
             <CardTitle className="flex items-center space-x-2">
               <Zap className="w-5 h-5" />
               <span>Salud del Sistema</span>
@@ -323,10 +294,7 @@ export const PanelControlAdmin = () => {
                     <span>{system.nombre}</span>
                     <span className="font-medium">{system.valor}%</span>
                   </div>
-                  <Progress 
-                    value={system.valor} 
-                    className="h-2"
-                  />
+                  <Progress value={system.valor} className="h-2" />
                 </div>
               ))}
             </div>
@@ -334,10 +302,8 @@ export const PanelControlAdmin = () => {
         </Card>
 
         {/* Actividad Reciente */}
-        <Card className="border-gray-100 hover:border-purple-200 transition-all duration-300 hover:shadow-xl overflow-hidden relative">
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-50/10 via-transparent to-pink-50/10 pointer-events-none" />
-          <CardHeader className="relative bg-gradient-to-r from-gray-50/50 to-transparent">
+        <Card className="border-gray-200 hover:border-gray-400 transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="bg-gray-50">
             <CardTitle className="flex items-center space-x-2">
               <Clock className="w-5 h-5" />
               <span>Actividad Reciente</span>
@@ -360,10 +326,8 @@ export const PanelControlAdmin = () => {
         </Card>
 
         {/* Top Performers */}
-        <Card className="border-gray-100 hover:border-purple-200 transition-all duration-300 hover:shadow-xl overflow-hidden relative">
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-50/10 via-transparent to-pink-50/10 pointer-events-none" />
-          <CardHeader className="relative bg-gradient-to-r from-gray-50/50 to-transparent">
+        <Card className="border-gray-200 hover:border-gray-400 transition-all duration-300 hover:shadow-lg">
+          <CardHeader className="bg-gray-50">
             <CardTitle className="flex items-center space-x-2">
               <Award className="w-5 h-5" />
               <span>Mejores Usuarios</span>
@@ -376,10 +340,10 @@ export const PanelControlAdmin = () => {
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                      index === 0 ? 'bg-yellow-100 text-yellow-700' :
-                      index === 1 ? 'bg-gray-100 text-gray-700' :
-                      index === 2 ? 'bg-orange-100 text-orange-700' :
-                      'bg-gray-50 text-gray-600'
+                      index === 0 ? 'bg-black text-white' :
+                      index === 1 ? 'bg-gray-700 text-white' :
+                      index === 2 ? 'bg-gray-500 text-white' :
+                      'bg-gray-200 text-gray-700'
                     }`}>
                       {index + 1}
                     </div>
@@ -393,7 +357,7 @@ export const PanelControlAdmin = () => {
                       {performer.ingresos || performer.gastos}
                     </p>
                     <div className="flex items-center space-x-1 text-xs">
-                      <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                      <Star className="w-3 h-3 text-gray-600 fill-current" />
                       <span>{performer.rating}</span>
                     </div>
                   </div>

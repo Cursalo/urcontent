@@ -10,8 +10,19 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Camera, Instagram, Users, TrendingUp } from "lucide-react";
 
 const categorias = [
-  "Lifestyle", "Gastronomía", "Belleza", "Fitness", "Moda", "Tecnología",
-  "Viajes", "Humor", "Educación", "Gaming", "Arte", "Música", "Fotografía"
+  "Lifestyle",
+  "Gastronomía",
+  "Belleza",
+  "Fitness",
+  "Moda",
+  "Tecnología",
+  "Viajes",
+  "Humor",
+  "Educación",
+  "Gaming",
+  "Arte",
+  "Música",
+  "Fotografía"
 ];
 
 export default function RegistroCreador() {
@@ -52,7 +63,7 @@ export default function RegistroCreador() {
             Volver al inicio
           </Link>
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 bg-gradient-primary rounded-full flex items-center justify-center">
+            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
               <Camera className="w-3 h-3 text-white" />
             </div>
             <span className="font-poppins font-semibold">Registro Creador</span>
@@ -65,7 +76,7 @@ export default function RegistroCreador() {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-poppins">
               Monetizá tu{" "}
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <span className="text-black font-bold">
                 creatividad
               </span>
             </CardTitle>
@@ -73,13 +84,12 @@ export default function RegistroCreador() {
               Únete a más de 1,250 comercios esperando tu contenido auténtico
             </CardDescription>
           </CardHeader>
-
+          
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Información personal */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Información Personal</h3>
-                
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="nombre">Nombre Completo *</Label>
@@ -91,7 +101,6 @@ export default function RegistroCreador() {
                       required
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="username">Nombre Artístico *</Label>
                     <Input
@@ -103,7 +112,6 @@ export default function RegistroCreador() {
                     />
                   </div>
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email *</Label>
@@ -116,7 +124,6 @@ export default function RegistroCreador() {
                       required
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="telefono">Teléfono *</Label>
                     <Input
@@ -133,7 +140,6 @@ export default function RegistroCreador() {
               {/* Perfil en redes */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Perfil en Redes Sociales</h3>
-                
                 <div className="space-y-2">
                   <Label htmlFor="instagram">Usuario de Instagram *</Label>
                   <div className="relative">
@@ -151,13 +157,15 @@ export default function RegistroCreador() {
                     Verificaremos tu cuenta automáticamente
                   </p>
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="followers">Seguidores Aprox.</Label>
                     <div className="relative">
                       <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Select value={formData.followers} onValueChange={(value) => setFormData({...formData, followers: value})}>
+                      <Select 
+                        value={formData.followers} 
+                        onValueChange={(value) => setFormData({...formData, followers: value})}
+                      >
                         <SelectTrigger className="pl-10">
                           <SelectValue placeholder="Cantidad de seguidores" />
                         </SelectTrigger>
@@ -171,12 +179,14 @@ export default function RegistroCreador() {
                       </Select>
                     </div>
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="engagement">Engagement Rate</Label>
                     <div className="relative">
                       <TrendingUp className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Select value={formData.engagement} onValueChange={(value) => setFormData({...formData, engagement: value})}>
+                      <Select 
+                        value={formData.engagement} 
+                        onValueChange={(value) => setFormData({...formData, engagement: value})}
+                      >
                         <SelectTrigger className="pl-10">
                           <SelectValue placeholder="% de engagement" />
                         </SelectTrigger>
@@ -198,7 +208,6 @@ export default function RegistroCreador() {
                 <p className="text-sm text-muted-foreground">
                   Selecciona hasta 5 categorías que mejor describan tu contenido
                 </p>
-                
                 <div className="flex flex-wrap gap-2">
                   {categorias.map((categoria) => (
                     <Badge
@@ -206,8 +215,8 @@ export default function RegistroCreador() {
                       variant={formData.categorias.includes(categoria) ? "default" : "outline"}
                       className={`cursor-pointer transition-all ${
                         formData.categorias.includes(categoria)
-                          ? "bg-primary hover:bg-primary/90"
-                          : "hover:bg-primary/10"
+                          ? "bg-black hover:bg-gray-800 text-white border-black"
+                          : "hover:bg-gray-100 border-gray-300"
                       }`}
                       onClick={() => {
                         if (formData.categorias.length < 5 || formData.categorias.includes(categoria)) {
@@ -229,7 +238,7 @@ export default function RegistroCreador() {
                 <Label htmlFor="biografia">Cuéntanos sobre ti</Label>
                 <textarea
                   id="biografia"
-                  className="w-full min-h-[100px] px-3 py-2 border border-input rounded-md bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  className="w-full min-h-[100px] px-3 py-2 border border-input rounded bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                   placeholder="Describe tu estilo, experiencia y lo que te hace único como creador..."
                   value={formData.biografia}
                   onChange={(e) => setFormData({...formData, biografia: e.target.value})}
@@ -241,24 +250,26 @@ export default function RegistroCreador() {
                 <Checkbox
                   id="terminos"
                   checked={formData.aceptaTerminos}
-                  onCheckedChange={(checked) => setFormData({...formData, aceptaTerminos: !!checked})}
+                  onCheckedChange={(checked) => 
+                    setFormData({...formData, aceptaTerminos: !!checked})
+                  }
                 />
                 <Label htmlFor="terminos" className="text-sm">
                   Acepto los{" "}
-                  <Link to="/terminos" className="text-primary hover:underline">
+                  <Link to="/terminos" className="text-black hover:underline font-medium">
                     Términos de Uso
                   </Link>{" "}
                   y la{" "}
-                  <Link to="/privacidad" className="text-primary hover:underline">
+                  <Link to="/privacidad" className="text-black hover:underline font-medium">
                     Política de Privacidad
                   </Link>
                 </Label>
               </div>
 
               {/* Submit */}
-              <Button 
-                type="submit" 
-                className="w-full btn-gradient text-lg py-3 h-auto"
+              <Button
+                type="submit"
+                className="w-full bg-black hover:bg-gray-800 text-white text-lg py-3 h-auto transition-colors"
                 disabled={!formData.aceptaTerminos}
               >
                 Crear Cuenta Creador
@@ -266,7 +277,7 @@ export default function RegistroCreador() {
 
               <div className="text-center text-sm text-muted-foreground">
                 ¿Ya tienes cuenta?{" "}
-                <Link to="/login" className="text-primary hover:underline font-medium">
+                <Link to="/login" className="text-black hover:underline font-bold">
                   Iniciar Sesión
                 </Link>
               </div>

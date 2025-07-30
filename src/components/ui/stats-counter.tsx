@@ -9,11 +9,11 @@ interface StatsCounterProps {
   className?: string;
 }
 
-export const StatsCounter = ({ 
-  endValue, 
-  duration = 2000, 
-  label = "", 
-  prefix = "", 
+export const StatsCounter = ({
+  endValue,
+  duration = 2000,
+  label = "",
+  prefix = "",
   suffix = "",
   className = ""
 }: StatsCounterProps) => {
@@ -26,25 +26,26 @@ export const StatsCounter = ({
     const updateValue = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
+
       // Ease out animation
       const easeOut = 1 - Math.pow(1 - progress, 3);
       const current = Math.floor(startValue + (endValue - startValue) * easeOut);
-      
+
       setCurrentValue(current);
-      
+
       if (progress < 1) {
         requestAnimationFrame(updateValue);
       }
     };
 
     const timer = setTimeout(updateValue, 100);
+
     return () => clearTimeout(timer);
   }, [endValue, duration]);
 
   return (
     <div className={`text-center ${className}`}>
-      <div className="text-3xl md:text-4xl font-poppins font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+      <div className="text-3xl md:text-4xl font-poppins font-bold text-black">
         {prefix}{currentValue.toLocaleString()}{suffix}
       </div>
       {label && (

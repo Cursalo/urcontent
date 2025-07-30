@@ -103,7 +103,7 @@ const BusinessDashboardNav: React.FC<BusinessDashboardNavProps> = ({
       {/* Header */}
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-black rounded-2xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-black rounded flex items-center justify-center">
             <Building2 className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -122,7 +122,7 @@ const BusinessDashboardNav: React.FC<BusinessDashboardNavProps> = ({
                 <button
                   onClick={() => onTabChange(item.id)}
                   className={cn(
-                    "w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                    "w-full flex items-center justify-between px-4 py-3 rounded text-sm font-medium transition-all duration-200",
                     activeTab === item.id
                       ? "bg-black text-white"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -133,11 +133,15 @@ const BusinessDashboardNav: React.FC<BusinessDashboardNavProps> = ({
                     <span>{item.label}</span>
                   </div>
                   {item.badge && (
-                    <Badge 
+                    <Badge
                       variant={item.badgeVariant || "secondary"}
                       className={cn(
                         "ml-auto",
-                        activeTab === item.id && "bg-white text-black"
+                        activeTab === item.id 
+                          ? "bg-white text-black" 
+                          : item.badgeVariant === 'destructive'
+                          ? "bg-black text-white"
+                          : "bg-gray-200 text-gray-700"
                       )}
                     >
                       {item.badge}
@@ -155,11 +159,11 @@ const BusinessDashboardNav: React.FC<BusinessDashboardNavProps> = ({
 
       {/* Quick Stats */}
       <div className="px-6 py-4">
-        <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+        <div className="bg-gray-50 rounded p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500">ROI Promedio</span>
             <div className="flex items-center space-x-1">
-              <TrendingUp className="w-3 h-3 text-green-500" />
+              <TrendingUp className="w-3 h-3 text-gray-500" />
               <span className="text-sm font-semibold text-gray-900">4.2x</span>
             </div>
           </div>
@@ -185,7 +189,7 @@ const BusinessDashboardNav: React.FC<BusinessDashboardNavProps> = ({
                 <button
                   onClick={() => onTabChange(item.id)}
                   className={cn(
-                    "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                    "w-full flex items-center space-x-3 px-4 py-3 rounded text-sm font-medium transition-all duration-200",
                     activeTab === item.id
                       ? "bg-black text-white"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -205,7 +209,7 @@ const BusinessDashboardNav: React.FC<BusinessDashboardNavProps> = ({
 
       {/* User Profile */}
       <div className="p-4 border-t border-gray-100">
-        <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
+        <div className="flex items-center space-x-3 p-3 rounded hover:bg-gray-50 cursor-pointer transition-colors">
           <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
             <span className="text-sm font-semibold text-gray-600">MN</span>
           </div>
@@ -214,11 +218,10 @@ const BusinessDashboardNav: React.FC<BusinessDashboardNavProps> = ({
             <p className="text-xs text-gray-500">Plan Premium</p>
           </div>
         </div>
-        
         <Button
           variant="ghost"
           size="sm"
-          className="w-full mt-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+          className="w-full mt-2 text-gray-700 hover:text-gray-800 hover:bg-gray-50"
           onClick={() => navigate('/logout')}
         >
           <LogOut className="w-4 h-4 mr-2" />

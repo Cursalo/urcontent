@@ -22,44 +22,105 @@ export default {
         heading: ['Poppins', 'system-ui', 'sans-serif'],
       },
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        // Strict grayscale palette - no colors allowed
+        transparent: 'transparent',
+        current: 'currentColor',
+        black: '#000000',
+        white: '#ffffff',
+        
+        // System colors - all mapped to grayscale
+        border: "#e5e5e5",
+        input: "#e5e5e5",
+        ring: "#a3a3a3",
+        background: "#ffffff",
+        foreground: "#000000",
+        
+        // Primary - Pure black
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#000000",
+          foreground: "#ffffff",
         },
+        
+        // Secondary - Medium gray
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#737373",
+          foreground: "#ffffff",
         },
+        
+        // Destructive - Dark gray
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "#525252",
+          foreground: "#ffffff",
         },
+        
+        // Muted - Light gray
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#f3f3f3",
+          foreground: "#737373",
         },
+        
+        // Accent - Light gray
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#f3f3f3",
+          foreground: "#000000",
         },
+        
+        // Popover - White
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "#ffffff",
+          foreground: "#000000",
         },
+        
+        // Card - White
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#ffffff",
+          foreground: "#000000",
         },
+        
+        // Grayscale spectrum
+        gray: {
+          50: '#f9f9f9',
+          100: '#f3f3f3',
+          200: '#e5e5e5',
+          300: '#d4d4d4',
+          400: '#a3a3a3',
+          500: '#737373',
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717',
+          950: '#0a0a0a',
+        },
+        
+        // Disable all other colors by mapping them to grayscale
+        red: { DEFAULT: '#525252', 500: '#525252' },
+        orange: { DEFAULT: '#737373', 500: '#737373' },
+        amber: { DEFAULT: '#737373', 500: '#737373' },
+        yellow: { DEFAULT: '#a3a3a3', 500: '#a3a3a3' },
+        lime: { DEFAULT: '#a3a3a3', 500: '#a3a3a3' },
+        green: { DEFAULT: '#737373', 500: '#737373' },
+        emerald: { DEFAULT: '#737373', 500: '#737373' },
+        teal: { DEFAULT: '#737373', 500: '#737373' },
+        cyan: { DEFAULT: '#737373', 500: '#737373' },
+        sky: { DEFAULT: '#a3a3a3', 500: '#a3a3a3' },
+        blue: { DEFAULT: '#525252', 500: '#525252' },
+        indigo: { DEFAULT: '#404040', 500: '#404040' },
+        violet: { DEFAULT: '#404040', 500: '#404040' },
+        purple: { DEFAULT: '#404040', 500: '#404040' },
+        fuchsia: { DEFAULT: '#525252', 500: '#525252' },
+        pink: { DEFAULT: '#737373', 500: '#737373' },
+        rose: { DEFAULT: '#737373', 500: '#737373' },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        DEFAULT: '4px',
+        'none': '0px',
+        'sm': '4px',
+        'md': '4px',
+        'lg': '4px',
+        'xl': '4px',
+        '2xl': '4px',
+        '3xl': '4px',
+        'full': '9999px', // Keep for avatar circles only
       },
       keyframes: {
         "accordion-down": {

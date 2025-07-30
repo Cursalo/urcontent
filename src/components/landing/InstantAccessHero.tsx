@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  Camera, 
-  Store, 
-  Shield, 
-  ArrowRight, 
+import {
+  Camera,
+  Store,
+  Shield,
+  ArrowRight,
   Sparkles,
   TrendingUp,
   Users,
@@ -24,7 +24,6 @@ interface AccessCard {
   subtitle: string;
   description: string;
   icon: React.ReactNode;
-  color: string;
   features: string[];
   route: string;
 }
@@ -32,7 +31,7 @@ interface AccessCard {
 export const InstantAccessHero = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<string | null>(null);
-
+  
   const accessCards: AccessCard[] = [
     {
       id: "creator",
@@ -40,7 +39,6 @@ export const InstantAccessHero = () => {
       subtitle: "Panel de Creador de Contenido",
       description: "Explora herramientas profesionales para crear y monetizar tu contenido",
       icon: <Camera className="w-6 h-6" />,
-      color: "from-purple-500 to-pink-500",
       features: [
         "Brand Kit personalizado",
         "Analytics en tiempo real",
@@ -55,7 +53,6 @@ export const InstantAccessHero = () => {
       subtitle: "Panel de Gestión Empresarial",
       description: "Administra tu negocio y conecta con creadores de contenido",
       icon: <Store className="w-6 h-6" />,
-      color: "from-blue-500 to-cyan-500",
       features: [
         "Búsqueda de creadores",
         "Gestión de campañas",
@@ -70,7 +67,6 @@ export const InstantAccessHero = () => {
       subtitle: "Panel de Administración",
       description: "Control total de la plataforma y gestión de usuarios",
       icon: <Shield className="w-6 h-6" />,
-      color: "from-gray-700 to-gray-900",
       features: [
         "Gestión de usuarios",
         "Analytics de plataforma",
@@ -113,17 +109,17 @@ export const InstantAccessHero = () => {
         transition={{ duration: 0.6 }}
         className="text-center mb-12"
       >
-        <Badge className="mb-4 px-4 py-1 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border-0">
+        <Badge className="mb-4 px-4 py-1 bg-black text-white border-0">
           <Sparkles className="w-3 h-3 mr-1" />
           Acceso Instantáneo
         </Badge>
         
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
           Prueba la plataforma sin registro
         </h2>
         
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Explora todas las funcionalidades de URContent con acceso demo completo. 
+          Explora todas las funcionalidades de URContent con acceso demo completo.
           Sin tarjetas de crédito, sin compromisos.
         </p>
       </motion.div>
@@ -137,31 +133,31 @@ export const InstantAccessHero = () => {
             transition={{ duration: 0.6, delay: index * 0.1 }}
           >
             <Card 
-              className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer"
+              className="group relative overflow-hidden border border-gray-200 shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer hover:border-black"
               onClick={() => handleAccessClick(card)}
             >
-              {/* Background gradient */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`} />
+              {/* Background */}
+              <div className="absolute inset-0 bg-gray-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
               {/* Animated border */}
-              <div className={`absolute inset-0 bg-gradient-to-r ${card.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
-                <div className="absolute inset-[1px] bg-white rounded-lg" />
+              <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute inset-[1px] bg-white rounded" />
               </div>
               
               <CardContent className="relative p-6 space-y-4">
                 {/* Header */}
                 <div className="flex items-start justify-between">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${card.color} text-white shadow-lg`}>
+                  <div className="p-3 rounded bg-black text-white shadow-lg">
                     {card.icon}
                   </div>
                   <Badge variant="secondary" className="text-xs">
                     Demo
                   </Badge>
                 </div>
-
+                
                 {/* Title and description */}
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  <h3 className="text-xl font-bold text-black mb-1">
                     {card.title}
                   </h3>
                   <p className="text-sm text-gray-600 mb-3">
@@ -171,20 +167,20 @@ export const InstantAccessHero = () => {
                     {card.description}
                   </p>
                 </div>
-
+                
                 {/* Features */}
                 <div className="space-y-2">
                   {card.features.map((feature, idx) => (
                     <div key={idx} className="flex items-center text-sm text-gray-600">
-                      <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${card.color} mr-2`} />
+                      <div className="w-1.5 h-1.5 rounded-full bg-black mr-2" />
                       {feature}
                     </div>
                   ))}
                 </div>
-
+                
                 {/* Action button */}
-                <Button
-                  className={`w-full bg-gradient-to-r ${card.color} text-white border-0 hover:opacity-90 transition-all duration-300 group`}
+                <Button 
+                  className="w-full bg-black text-white border-0 hover:bg-gray-800 transition-all duration-300 group"
                   disabled={isLoading === card.id}
                 >
                   {isLoading === card.id ? (
@@ -214,11 +210,11 @@ export const InstantAccessHero = () => {
       >
         <div className="inline-flex items-center justify-center space-x-6 text-sm text-gray-600">
           <div className="flex items-center">
-            <Users className="w-4 h-4 mr-1 text-purple-500" />
+            <Users className="w-4 h-4 mr-1 text-gray-500" />
             <span>Sin registro requerido</span>
           </div>
           <div className="flex items-center">
-            <BarChart3 className="w-4 h-4 mr-1 text-blue-500" />
+            <BarChart3 className="w-4 h-4 mr-1 text-gray-500" />
             <span>Datos de prueba incluidos</span>
           </div>
           <div className="flex items-center">

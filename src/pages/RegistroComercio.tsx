@@ -9,9 +9,18 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Store, MapPin, Phone, Globe } from "lucide-react";
 
 const categorias = [
-  "Gastronomía", "Belleza y Estética", "Fitness y Deporte", "Moda y Accesorios",
-  "Tecnología", "Hogar y Decoración", "Automotriz", "Salud y Bienestar",
-  "Entretenimiento", "Educación", "Turismo", "Otros"
+  "Gastronomía",
+  "Belleza y Estética",
+  "Fitness y Deporte",
+  "Moda y Accesorios",
+  "Tecnología",
+  "Hogar y Decoración",
+  "Automotriz",
+  "Salud y Bienestar",
+  "Entretenimiento",
+  "Educación",
+  "Turismo",
+  "Otros"
 ];
 
 export default function RegistroComercio() {
@@ -44,7 +53,7 @@ export default function RegistroComercio() {
             Volver al inicio
           </Link>
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 bg-gradient-primary rounded-full flex items-center justify-center">
+            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
               <Store className="w-3 h-3 text-white" />
             </div>
             <span className="font-poppins font-semibold">Registro Comercio</span>
@@ -57,7 +66,7 @@ export default function RegistroComercio() {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-poppins">
               Potenciá tu marca con{" "}
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <span className="text-black font-bold">
                 contenido real
               </span>
             </CardTitle>
@@ -65,13 +74,12 @@ export default function RegistroComercio() {
               Conectate con más de 5,800 creadores de contenido verificados
             </CardDescription>
           </CardHeader>
-
+          
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Información básica */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Información del Negocio</h3>
-                
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="nombreNegocio">Nombre del Negocio *</Label>
@@ -83,7 +91,6 @@ export default function RegistroComercio() {
                       required
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="cuit">CUIT *</Label>
                     <Input
@@ -95,10 +102,12 @@ export default function RegistroComercio() {
                     />
                   </div>
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="categoria">Categoría *</Label>
-                  <Select value={formData.categoria} onValueChange={(value) => setFormData({...formData, categoria: value})}>
+                  <Select 
+                    value={formData.categoria} 
+                    onValueChange={(value) => setFormData({...formData, categoria: value})}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona la categoría de tu negocio" />
                     </SelectTrigger>
@@ -114,7 +123,6 @@ export default function RegistroComercio() {
               {/* Contacto */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Información de Contacto</h3>
-                
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email *</Label>
@@ -127,7 +135,6 @@ export default function RegistroComercio() {
                       required
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="telefono">Teléfono *</Label>
                     <div className="relative">
@@ -143,7 +150,6 @@ export default function RegistroComercio() {
                     </div>
                   </div>
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="direccion">Dirección</Label>
@@ -158,7 +164,6 @@ export default function RegistroComercio() {
                       />
                     </div>
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="ciudad">Ciudad</Label>
                     <Input
@@ -174,7 +179,6 @@ export default function RegistroComercio() {
               {/* Presencia digital */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Presencia Digital</h3>
-                
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="sitioWeb">Sitio Web</Label>
@@ -189,7 +193,6 @@ export default function RegistroComercio() {
                       />
                     </div>
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="instagram">Instagram</Label>
                     <Input
@@ -207,24 +210,26 @@ export default function RegistroComercio() {
                 <Checkbox
                   id="terminos"
                   checked={formData.aceptaTerminos}
-                  onCheckedChange={(checked) => setFormData({...formData, aceptaTerminos: !!checked})}
+                  onCheckedChange={(checked) => 
+                    setFormData({...formData, aceptaTerminos: !!checked})
+                  }
                 />
                 <Label htmlFor="terminos" className="text-sm">
                   Acepto los{" "}
-                  <Link to="/terminos" className="text-primary hover:underline">
+                  <Link to="/terminos" className="text-black hover:underline font-medium">
                     Términos de Uso
                   </Link>{" "}
                   y la{" "}
-                  <Link to="/privacidad" className="text-primary hover:underline">
+                  <Link to="/privacidad" className="text-black hover:underline font-medium">
                     Política de Privacidad
                   </Link>
                 </Label>
               </div>
 
               {/* Submit */}
-              <Button 
-                type="submit" 
-                className="w-full btn-gradient text-lg py-3 h-auto"
+              <Button
+                type="submit"
+                className="w-full bg-black hover:bg-gray-800 text-white text-lg py-3 h-auto transition-colors"
                 disabled={!formData.aceptaTerminos}
               >
                 Crear Cuenta Comercio
@@ -232,7 +237,7 @@ export default function RegistroComercio() {
 
               <div className="text-center text-sm text-muted-foreground">
                 ¿Ya tienes cuenta?{" "}
-                <Link to="/login" className="text-primary hover:underline font-medium">
+                <Link to="/login" className="text-black hover:underline font-bold">
                   Iniciar Sesión
                 </Link>
               </div>
