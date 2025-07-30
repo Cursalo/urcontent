@@ -4,6 +4,7 @@ import { DashboardLoadingSkeleton } from "@/components/dashboard/LoadingSkeleton
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { MobileNav } from "@/components/navigation/MobileNav";
 import {
   Camera,
   DollarSign,
@@ -711,10 +712,10 @@ const CreatorDashboard = () => {
     <div className={cn("min-h-screen", darkMode ? "bg-gray-900" : "bg-gray-50")}>
       <DashboardNav />
       
-      <div className="flex">
-        {/* Sidebar */}
+      <div className="flex relative">
+        {/* Sidebar - Hidden on mobile */}
         <aside className={cn(
-          "fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 transition-all duration-300 z-40",
+          "fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 transition-all duration-300 z-40 hidden lg:block",
           darkMode && "bg-gray-800 border-gray-700",
           sidebarOpen ? "w-64" : "w-20"
         )}>
@@ -777,7 +778,8 @@ const CreatorDashboard = () => {
         {/* Main Content */}
         <main className={cn(
           "flex-1 transition-all duration-300",
-          sidebarOpen ? "ml-64" : "ml-20"
+          "lg:ml-20",
+          sidebarOpen && "lg:ml-64"
         )}>
           {/* Guest Mode Banner for anonymous users */}
           {!user && showGuestBanner && (
@@ -787,25 +789,34 @@ const CreatorDashboard = () => {
             />
           )}
           
-          <div className="p-8">
+          <div className="p-4 sm:p-6 lg:p-8">
             {/* Header */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900">
-                    {menuItems.find(item => item.id === activeTab)?.label || 'Dashboard'}
-                  </h1>
-                  <p className="text-gray-500 mt-1">
-                    Bienvenido de vuelta, {creatorProfile?.user?.full_name || user?.user_metadata?.full_name || 'Creator'}
-                  </p>
-                </div>
+            <div className="mb-6 lg:mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <Button variant="outline" size="icon" className="rounded-full">
+                  {/* Mobile Navigation */}
+                  <MobileNav 
+                    userRole="creator" 
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                  />
+                  <div>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                      {menuItems.find(item => item.id === activeTab)?.label || 'Dashboard'}
+                    </h1>
+                    <p className="text-sm sm:text-base text-gray-500 mt-1 hidden sm:block">
+                      Bienvenido de vuelta, {creatorProfile?.user?.full_name || user?.user_metadata?.full_name || 'Creator'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 self-end sm:self-auto">
+                  <Button variant="outline" size="icon" className="rounded-full hidden sm:flex">
                     <Bell className="w-5 h-5" />
                   </Button>
-                  <Button className="bg-black hover:bg-gray-800 text-white rounded-full">
+                  <Button className="bg-black hover:bg-gray-800 text-white rounded-full text-sm sm:text-base">
                     <Camera className="w-4 h-4 mr-2" />
-                    Subir Contenido
+                    <span className="hidden sm:inline">Subir Contenido</span>
+                    <span className="sm:hidden">Subir</span>
                   </Button>
                 </div>
               </div>

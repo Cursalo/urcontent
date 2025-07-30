@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
@@ -82,8 +82,8 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
 
   return (
     <>
-      {/* Top Navigation Bar */}
-      <div className={`fixed top-0 left-0 right-0 z-50 ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'} border-b`}>
+      {/* Top Navigation Bar - Now handled by DashboardNav */}
+      <div className={`fixed top-16 left-0 right-0 z-50 ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'} border-b hidden`}>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center space-x-4">
             <Button
@@ -222,11 +222,9 @@ export const AdminDashboardNav: React.FC<AdminDashboardNavProps> = ({
       </div>
 
       {/* Sidebar Navigation */}
-      <div className={`fixed left-0 top-[65px] bottom-0 w-64 ${
+      <div className={`fixed left-0 top-16 bottom-0 w-64 ${
         darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
-      } border-r transform transition-transform duration-300 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0 z-40`}>
+      } border-r transform transition-transform duration-300 translate-x-0 z-40`}>
         <div className="h-full flex flex-col">
           {/* Navigation Items */}
           <nav className="flex-1 p-4 space-y-1">

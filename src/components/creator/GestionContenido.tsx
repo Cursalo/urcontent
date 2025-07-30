@@ -87,72 +87,77 @@ export const GestionContenido: React.FC<GestionContenidoProps> = ({ contenidos }
   return (
     <div className="space-y-6">
       <Tabs defaultValue="biblioteca" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="biblioteca">Biblioteca</TabsTrigger>
-          <TabsTrigger value="calendario">Calendario</TabsTrigger>
-          <TabsTrigger value="templates">Templates</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6">
+          <TabsTrigger value="biblioteca" className="text-xs sm:text-sm">Biblioteca</TabsTrigger>
+          <TabsTrigger value="calendario" className="text-xs sm:text-sm">Calendario</TabsTrigger>
+          <TabsTrigger value="templates" className="text-xs sm:text-sm">Templates</TabsTrigger>
         </TabsList>
 
         <TabsContent value="biblioteca" className="space-y-6">
           {/* Barra de herramientas */}
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div className="flex flex-1 gap-4 items-center w-full sm:w-auto">
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Input
                 placeholder="Buscar contenido..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                className="max-w-xs"
+                className="flex-1"
               />
-              <Select value={filtroPlataforma} onValueChange={setFiltroPlataforma}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Plataforma" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todas">Todas</SelectItem>
-                  <SelectItem value="instagram">Instagram</SelectItem>
-                  <SelectItem value="tiktok">TikTok</SelectItem>
-                  <SelectItem value="youtube">YouTube</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={filtroEstado} onValueChange={setFiltroEstado}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Estado" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="borrador">Borradores</SelectItem>
-                  <SelectItem value="programado">Programados</SelectItem>
-                  <SelectItem value="publicado">Publicados</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select value={filtroPlataforma} onValueChange={setFiltroPlataforma}>
+                  <SelectTrigger className="w-[120px] sm:w-[140px]">
+                    <SelectValue placeholder="Plataforma" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todas">Todas</SelectItem>
+                    <SelectItem value="instagram">Instagram</SelectItem>
+                    <SelectItem value="tiktok">TikTok</SelectItem>
+                    <SelectItem value="youtube">YouTube</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={filtroEstado} onValueChange={setFiltroEstado}>
+                  <SelectTrigger className="w-[120px] sm:w-[140px]">
+                    <SelectValue placeholder="Estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    <SelectItem value="borrador">Borradores</SelectItem>
+                    <SelectItem value="programado">Programados</SelectItem>
+                    <SelectItem value="publicado">Publicados</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setVista('grid')}
-                className={vista === 'grid' ? 'bg-gray-100' : ''}
-              >
-                <Grid className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setVista('list')}
-                className={vista === 'list' ? 'bg-gray-100' : ''}
-              >
-                <List className="w-4 h-4" />
-              </Button>
-              <Button className="bg-black hover:bg-gray-800 text-white rounded-full">
+            <div className="flex items-center justify-between">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setVista('grid')}
+                  className={vista === 'grid' ? 'bg-gray-100' : ''}
+                >
+                  <Grid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setVista('list')}
+                  className={vista === 'list' ? 'bg-gray-100' : ''}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
+              <Button className="bg-black hover:bg-gray-800 text-white rounded-full text-sm">
                 <Upload className="w-4 h-4 mr-2" />
-                Subir Contenido
+                <span className="hidden sm:inline">Subir Contenido</span>
+                <span className="sm:hidden">Subir</span>
               </Button>
             </div>
           </div>
 
           {/* Vista de contenidos */}
           {vista === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {contenidosFiltrados.map((item) => (
                 <Card key={item.id} className="group hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden">
                   <div className="aspect-square bg-gray-100 relative overflow-hidden">

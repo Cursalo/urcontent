@@ -12,6 +12,8 @@ import { GuestModeInfo, adminFeatures } from "@/components/auth/GuestModeInfo";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 import { GuestModeBanner } from "@/components/auth/GuestModeBanner";
+import { MobileNav } from "@/components/navigation/MobileNav";
+import { DashboardNav } from "@/components/dashboard/DashboardNav";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -118,15 +120,21 @@ const AdminDashboard = () => {
 
   return (
     <div className={`min-h-screen ${modoOscuro ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <AdminDashboardNav 
-        activeSection={seccionActiva}
-        setActiveSection={setSeccionActiva}
-        darkMode={modoOscuro}
-        toggleDarkMode={toggleModoOscuro}
-      />
+      <DashboardNav />
       
-      {/* Main Content Area */}
-      <div className="lg:ml-64 pt-[65px]">
+      <div className="flex relative">
+        {/* Admin Navigation - Hidden on mobile */}
+        <div className="hidden lg:block">
+          <AdminDashboardNav 
+            activeSection={seccionActiva}
+            setActiveSection={setSeccionActiva}
+            darkMode={modoOscuro}
+            toggleDarkMode={toggleModoOscuro}
+          />
+        </div>
+        
+        {/* Main Content Area */}
+        <div className="flex-1 lg:ml-64 pt-16">
         {/* Guest Mode Banner for anonymous users */}
         {!user && showGuestBanner && (
           <GuestModeBanner 
@@ -135,9 +143,26 @@ const AdminDashboard = () => {
           />
         )}
         
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
+          {/* Mobile Navigation Header */}
+          <div className="flex items-center gap-3 mb-6 lg:hidden">
+            <MobileNav 
+              userRole="admin" 
+              activeTab={seccionActiva}
+              onTabChange={setSeccionActiva}
+            />
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              {seccionActiva === 'panel' && 'Panel de Control'}
+              {seccionActiva === 'usuarios' && 'Gestión de Usuarios'}
+              {seccionActiva === 'colaboraciones' && 'Colaboraciones'}
+              {seccionActiva === 'analytics' && 'Analytics'}
+              {seccionActiva === 'configuracion' && 'Configuración'}
+              {seccionActiva === 'soporte' && 'Centro de Soporte'}
+            </h1>
+          </div>
           {renderSeccion()}
         </div>
+      </div>
       </div>
     </div>
   );

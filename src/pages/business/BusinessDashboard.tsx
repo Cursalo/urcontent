@@ -17,6 +17,8 @@ import { GuestModeInfo, businessFeatures } from "@/components/auth/GuestModeInfo
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 import { GuestModeBanner } from "@/components/auth/GuestModeBanner";
+import { MobileNav } from "@/components/navigation/MobileNav";
+import { DashboardNav } from "@/components/dashboard/DashboardNav";
 
 const BusinessDashboard = () => {
   const { user, profile } = useAuth();
@@ -199,16 +201,21 @@ const BusinessDashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Navegación lateral */}
-      <BusinessDashboardNav 
-        activeTab={tabActiva} 
-        onTabChange={setTabActiva}
-        mensajesNuevos={mensajesNuevos}
-      />
+    <div className="min-h-screen bg-gray-50">
+      <DashboardNav />
       
-      {/* Contenido principal */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex relative">
+        {/* Navegación lateral - Hidden on mobile */}
+        <div className="hidden lg:block">
+          <BusinessDashboardNav 
+            activeTab={tabActiva} 
+            onTabChange={setTabActiva}
+            mensajesNuevos={mensajesNuevos}
+          />
+        </div>
+        
+        {/* Contenido principal */}
+        <div className="flex-1 overflow-y-auto lg:ml-64">
         {/* Guest Mode Banner for anonymous users */}
         {!user && showGuestBanner && (
           <GuestModeBanner 
@@ -217,7 +224,25 @@ const BusinessDashboard = () => {
           />
         )}
         
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
+          {/* Mobile Navigation Header */}
+          <div className="flex items-center gap-3 mb-6 lg:hidden">
+            <MobileNav 
+              userRole="business" 
+              activeTab={tabActiva}
+              onTabChange={setTabActiva}
+            />
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              {tabActiva === 'panel-principal' && 'Panel Principal'}
+              {tabActiva === 'campanas' && 'Campañas'}
+              {tabActiva === 'buscar-creators' && 'Buscar Creators'}
+              {tabActiva === 'analytics' && 'Analytics'}
+              {tabActiva === 'mensajes' && 'Mensajes'}
+              {tabActiva === 'calendario' && 'Calendario'}
+              {tabActiva === 'configuracion' && 'Configuración'}
+              {tabActiva === 'ayuda' && 'Ayuda'}
+            </h1>
+          </div>
           <DashboardErrorBoundary componentName={`BusinessDashboard-${tabActiva}`}>
             {user || dashboardData ? renderContenido() : (
               <div className="flex items-center justify-center h-[60vh]">

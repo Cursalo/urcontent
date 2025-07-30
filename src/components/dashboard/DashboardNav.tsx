@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
+import { MobileNav } from "@/components/navigation/MobileNav";
 import { 
   Home,
   BarChart3,
@@ -23,7 +24,8 @@ import {
   Plus,
   Crown,
   Camera,
-  Store
+  Store,
+  Menu
 } from "lucide-react";
 
 // NAVEGACIÓN EN ESPAÑOL: Elementos de menú específicos por rol
@@ -109,19 +111,19 @@ export const DashboardNav = () => {
   };
 
   return (
-    <div className="border-b bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="border-b bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+      <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Navigation */}
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-4 sm:space-x-8">
             <Link to="/dashboard" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">UR</span>
               </div>
-              <span className="font-bold text-xl text-gray-900">URContent</span>
+              <span className="font-bold text-lg sm:text-xl text-gray-900 hidden sm:block">URContent</span>
             </Link>
             
-            <nav className="hidden md:flex space-x-1">
+            <nav className="hidden lg:flex space-x-1">
               {navigation.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
@@ -143,27 +145,29 @@ export const DashboardNav = () => {
           </div>
 
           {/* Right side actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {/* ACCIONES RÁPIDAS BASADAS EN ROL */}
             {userRole === 'business' && (
-              <Link to="/marketplace">
+              <Link to="/marketplace" className="hidden sm:block">
                 <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
                   <Plus className="w-4 h-4 mr-2" />
-                  Nueva Campaña
+                  <span className="hidden md:inline">Nueva Campaña</span>
+                  <span className="md:hidden">Nueva</span>
                 </Button>
               </Link>
             )}
             
             
             {userRole === 'admin' && (
-              <Button size="sm" className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700">
+              <Button size="sm" className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 hidden sm:flex">
                 <Plus className="w-4 h-4 mr-2" />
-                Panel Admin
+                <span className="hidden md:inline">Panel Admin</span>
+                <span className="md:hidden">Admin</span>
               </Button>
             )}
 
             {/* Notifications */}
-            <Button variant="ghost" size="sm" className="relative">
+            <Button variant="ghost" size="sm" className="relative hidden sm:flex">
               <Bell className="w-5 h-5" />
               <Badge className="absolute -top-2 -right-2 w-5 h-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs">
                 3

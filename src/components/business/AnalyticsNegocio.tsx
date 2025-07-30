@@ -187,11 +187,11 @@ const AnalyticsNegocio: React.FC = () => {
               <SelectItem value="año">Último año</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" className="rounded-full">
+          <Button variant="outline" className="rounded-full hover:bg-purple-50 hover:border-purple-300 transition-all duration-300 transform hover:scale-105">
             <Share2 className="w-4 h-4 mr-2" />
             Compartir
           </Button>
-          <Button className="bg-black hover:bg-gray-800 text-white rounded-full">
+          <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-full shadow-lg transform transition-all duration-300 hover:scale-105">
             <Download className="w-4 h-4 mr-2" />
             Exportar Reporte
           </Button>
@@ -201,10 +201,12 @@ const AnalyticsNegocio: React.FC = () => {
       {/* KPIs principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpis.map((kpi, index) => (
-          <Card key={index} className="bg-white border border-gray-200 hover:border-gray-300 transition-all">
-            <CardContent className="p-6">
+          <Card key={index} className="bg-white border border-gray-200 hover:border-purple-300 transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 overflow-hidden relative rounded-2xl">
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-50/10 via-transparent to-pink-50/10 pointer-events-none" />
+            <CardContent className="relative p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className={`p-3 rounded-xl ${kpi.bgColor}`}>
+                <div className={`p-3 rounded-xl ${kpi.bgColor} shadow-sm transform transition-transform hover:scale-110`}>
                   <kpi.icono className={`w-6 h-6 ${kpi.color}`} />
                 </div>
                 <div className="flex items-center space-x-1">
@@ -230,7 +232,7 @@ const AnalyticsNegocio: React.FC = () => {
 
       {/* Tabs de análisis */}
       <Tabs value={vistaActiva} onValueChange={setVistaActiva} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-4 bg-gray-100 rounded-full p-1">
           <TabsTrigger value="general">Vista General</TabsTrigger>
           <TabsTrigger value="campanas">Por Campaña</TabsTrigger>
           <TabsTrigger value="creators">Por Creator</TabsTrigger>
@@ -241,12 +243,14 @@ const AnalyticsNegocio: React.FC = () => {
         <TabsContent value="general" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Gráfico de tendencias */}
-            <Card>
-              <CardHeader>
+            <Card className="border-gray-100 hover:border-purple-200 transition-all duration-300 hover:shadow-xl overflow-hidden relative rounded-2xl">
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-50/10 via-transparent to-pink-50/10 pointer-events-none" />
+              <CardHeader className="relative bg-gradient-to-r from-gray-50/50 to-transparent">
                 <CardTitle className="text-lg font-medium">Tendencia de Inversión vs ROI</CardTitle>
                 <CardDescription>Evolución mensual de tu inversión y retorno</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="relative">
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={businessMockData.rendimientoCampanas}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -281,12 +285,14 @@ const AnalyticsNegocio: React.FC = () => {
             </Card>
 
             {/* Distribución de inversión */}
-            <Card>
-              <CardHeader>
+            <Card className="border-gray-100 hover:border-purple-200 transition-all duration-300 hover:shadow-xl overflow-hidden relative rounded-2xl">
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-50/10 via-transparent to-pink-50/10 pointer-events-none" />
+              <CardHeader className="relative bg-gradient-to-r from-gray-50/50 to-transparent">
                 <CardTitle className="text-lg font-medium">Distribución de Inversión</CardTitle>
                 <CardDescription>Asignación por plataforma</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="relative">
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
@@ -362,7 +368,7 @@ const AnalyticsNegocio: React.FC = () => {
             <CardContent>
               <div className="space-y-6">
                 {businessMockData.campanasActivas.map((campana) => (
-                  <div key={campana.id} className="border rounded-xl p-6 hover:bg-gray-50">
+                  <div key={campana.id} className="border border-gray-200 rounded-2xl p-6 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 transition-all duration-300 transform hover:scale-[1.01] shadow-sm hover:shadow-xl">
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <h3 className="font-medium text-gray-900">{campana.nombre}</h3>
@@ -412,7 +418,7 @@ const AnalyticsNegocio: React.FC = () => {
                           </div>
                         ))}
                       </div>
-                      <Button variant="outline" size="sm" className="rounded-full">
+                      <Button variant="outline" size="sm" className="rounded-full hover:bg-purple-50 hover:border-purple-300 transition-all duration-300 transform hover:scale-105">
                         Ver detalles
                       </Button>
                     </div>
@@ -509,12 +515,14 @@ const AnalyticsNegocio: React.FC = () => {
         <TabsContent value="benchmarking" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Comparación con industria */}
-            <Card>
-              <CardHeader>
+            <Card className="border-gray-100 hover:border-purple-200 transition-all duration-300 hover:shadow-xl overflow-hidden relative rounded-2xl">
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-50/10 via-transparent to-pink-50/10 pointer-events-none" />
+              <CardHeader className="relative bg-gradient-to-r from-gray-50/50 to-transparent">
                 <CardTitle className="text-lg font-medium">Comparación con la Industria</CardTitle>
                 <CardDescription>Tu desempeño vs. promedio del sector</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="relative">
                 <ResponsiveContainer width="100%" height={350}>
                   <RadarChart data={datosRadar}>
                     <PolarGrid stroke="#e5e7eb" />
@@ -541,8 +549,10 @@ const AnalyticsNegocio: React.FC = () => {
             </Card>
 
             {/* Métricas comparativas */}
-            <Card>
-              <CardHeader>
+            <Card className="border-gray-100 hover:border-purple-200 transition-all duration-300 hover:shadow-xl overflow-hidden relative rounded-2xl">
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-50/10 via-transparent to-pink-50/10 pointer-events-none" />
+              <CardHeader className="relative bg-gradient-to-r from-gray-50/50 to-transparent">
                 <CardTitle className="text-lg font-medium">Métricas Comparativas</CardTitle>
                 <CardDescription>Análisis detallado por métrica</CardDescription>
               </CardHeader>
@@ -599,7 +609,9 @@ const AnalyticsNegocio: React.FC = () => {
           </div>
 
           {/* Insights y recomendaciones */}
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 rounded-2xl shadow-xl transform hover:scale-[1.01] transition-transform duration-300 overflow-hidden relative">
+            {/* Animated gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-transparent to-purple-400/10 animate-pulse" />
             <CardHeader>
               <CardTitle className="text-lg font-medium flex items-center space-x-2">
                 <Zap className="w-5 h-5 text-blue-600" />
@@ -607,7 +619,7 @@ const AnalyticsNegocio: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-start space-x-3 bg-white/80 p-4 rounded-xl">
+              <div className="flex items-start space-x-3 bg-white/80 p-4 rounded-xl backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow duration-300">
                 <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <TrendingUp className="w-4 h-4 text-green-600" />
                 </div>
@@ -619,7 +631,7 @@ const AnalyticsNegocio: React.FC = () => {
                 </div>
               </div>
               
-              <div className="flex items-start space-x-3 bg-white/80 p-4 rounded-xl">
+              <div className="flex items-start space-x-3 bg-white/80 p-4 rounded-xl backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow duration-300">
                 <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <AlertCircle className="w-4 h-4 text-yellow-600" />
                 </div>
@@ -631,7 +643,7 @@ const AnalyticsNegocio: React.FC = () => {
                 </div>
               </div>
               
-              <div className="flex items-start space-x-3 bg-white/80 p-4 rounded-xl">
+              <div className="flex items-start space-x-3 bg-white/80 p-4 rounded-xl backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow duration-300">
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Info className="w-4 h-4 text-blue-600" />
                 </div>

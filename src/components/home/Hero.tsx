@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Store, Camera, Star, Play, Sparkles, TrendingUp, Shield } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { StatsCounter } from "@/components/ui/stats-counter";
+import { InstantAccessHero } from "@/components/landing/InstantAccessHero";
 import socialMediaCreators from "@/assets/social-media-creators.jpg";
 import fitnessCreators from "@/assets/fitness-creators.jpg";
 import restaurantFood from "@/assets/restaurant-food-ugc.jpg";
@@ -43,7 +44,7 @@ export const Hero = () => {
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-16">
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <Link to="/onboarding/creator">
               <Button 
                 size="lg" 
@@ -80,8 +81,13 @@ export const Hero = () => {
             </Link>
           </div>
 
+          {/* Instant Access Component */}
+          <div className="w-full mb-16">
+            <InstantAccessHero />
+          </div>
+
           {/* Marketplace Access Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 mb-16">
             <Link to="/marketplace">
               <Button 
                 size="lg" 
@@ -101,21 +107,6 @@ export const Hero = () => {
               >
                 <Star className="mr-2 h-4 w-4" />
                 Ver Experiencias
-              </Button>
-            </Link>
-          </div>
-
-          {/* Try as Guest */}
-          <div className="mb-16">
-            <Link to="/dashboard/creator">
-              <Button 
-                size="md" 
-                variant="ghost" 
-                className="text-gray-600 hover:text-black px-6 py-2 h-auto text-sm font-medium rounded-full transform hover:scale-105 transition-all duration-300"
-              >
-                <Sparkles className="mr-2 h-4 w-4" />
-                Explorar como Invitado
-                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>

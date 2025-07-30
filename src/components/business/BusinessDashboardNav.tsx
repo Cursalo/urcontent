@@ -99,7 +99,7 @@ const BusinessDashboardNav: React.FC<BusinessDashboardNavProps> = ({
   ];
 
   return (
-    <div className="w-64 bg-white border-r border-gray-100 h-screen flex flex-col">
+    <div className="w-64 bg-white border-r border-gray-100 h-[calc(100vh-4rem)] flex flex-col fixed top-16">
       {/* Header */}
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center space-x-3">

@@ -455,7 +455,7 @@ export const AnalyticsProfesionales: React.FC<AnalyticsProfesionalesProps> = ({
                   />
                   <div className="absolute top-2 right-2">
                     <Badge className="bg-black text-white">
-                      #{index + 1} Top
+                      #{index + 1} Mejor
                     </Badge>
                   </div>
                 </div>
